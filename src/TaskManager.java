@@ -1,13 +1,21 @@
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Scanner;
+import java.util.List;
+import java.io.BufferedReader;
+import java.io.Closeable;
+import java.io.FileReader;
+import java.io.FileWriter;
+import java.io.IOException;
+import java.nio.file.Files;
 import java.nio.file.Paths;
-import java.util.*;
-import java.io.*;
-import java.nio.file.*;
+import java.nio.file.StandardCopyOption;
+
 
 public class TaskManager {
 
     protected static Scanner input = new Scanner(System.in);
     protected static List<Task> tasks = new ArrayList<>();
-    protected static LinkedHashSet<String> tmpLines = new LinkedHashSet<>(); //to filter out line duplicates
     protected static int taskCount = 0;
 
     public static void main(String[] args) {
@@ -54,12 +62,7 @@ public class TaskManager {
                         break;
 
                     case "print":
-                        tasks.clear();   //always give online display of distinct items only
-                        taskCount = 0;
-                        tmpLines.clear();
-                        getTasksFromFile();
                         printTask();
-                        writeToFile("data/tasks.txt"); //make a backup copy upon exit
                         break;
 
                     default:
@@ -73,12 +76,6 @@ public class TaskManager {
 
         toClose(input);
         print("Saving...");
-
-        //       tasks.clear();   //always give online display of distinct items only
-
-        //      taskCount = 0; tmpLines.clear();
-        //     getTasksFromFile();
-        //    writeToFile("data/tasks.txt"); //make a backup copy upon exit
         try {
             Files.copy(Paths.get("data/tasks.txt"), Paths.get("data_backup/tasks_bk.txt"), StandardCopyOption.REPLACE_EXISTING);
         } catch (IOException e) {
@@ -88,7 +85,7 @@ public class TaskManager {
         }
     }
 
-    public static void toClose(Closeable obj) {   //for close technical glitch
+    public static void toClose(Closeable obj) {   //for possible closure technical glitch
 
         if (obj != null) {
             try {
@@ -179,42 +176,26 @@ public class TaskManager {
 
     private static void getTasksFromFile() {
         BufferedReader reader = null;
-        String line = null;
         try {
             reader = new BufferedReader(new FileReader("data/tasks.txt"));
-            line = reader.readLine();
+            String line = reader.readLine();
 
             while (line != null) {
 
-                if (!line.trim().isEmpty()) {
-                    tmpLines.add(line.trim());
+                if (!(line.trim().isEmpty())) {
+                    tasks.add(createTask(line));
+                    ++taskCount;
                 }
 
                 line = reader.readLine();
             }
-
-            for (String s : tmpLines) {
-                tasks.add(createTask(s));
-                ++taskCount;
-            }
-      /*      tmpLines.forEach((e) -> {
-                tasks.add(createTask(e));
-                ++taskCount;
-            }); */
-
-
-      /*      Iterator<String> itr = tmpLines.iterator();
-            while(itr.hasNext()){
-                tasks.add(createTask(itr.next()));
-                ++taskCount;
-            } */
 
         } catch (IOException e) {
             print("Error accessing file object...file is not found!");
         } finally {
             toClose(reader);
 
-            if (tasks != null && !tasks.isEmpty()) {
+            if (tasks != null && !tasks.isEmpty()) {  // remove nulls from ArrayList
                 tasks.removeAll(Collections.singletonList(null));
             }
         }
@@ -257,9 +238,11 @@ public class TaskManager {
             for (int i = 0; i < taskCount; i++) {
                 fw.write(tasks.get(i).toFileString() + System.lineSeparator());
             }
-            toClose(fw);
+
         } catch (IOException e) {
             print("File access has encountered problems..." + e.getMessage());
+        }finally{
+            toClose(fw);
         }
     }
 }
