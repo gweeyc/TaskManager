@@ -14,6 +14,8 @@ import java.nio.file.StandardCopyOption;
 
 public class TaskManager {
 
+    private final static String FILE = "data/tasks.txt";
+    private final static String FILE_BACKUP = "data_backup/tasks_bk.txt";
     protected static Scanner input = new Scanner(System.in);
     protected static List<Task> tasks = new ArrayList<>();
     protected static int taskCount = 0;
@@ -75,9 +77,10 @@ public class TaskManager {
         } while (!toExit);
 
         toClose(input);
+        print("You've chosen to exit ]-->");
         print("Saving...");
         try {
-            Files.copy(Paths.get("data/tasks.txt"), Paths.get("data_backup/tasks_bk.txt"), StandardCopyOption.REPLACE_EXISTING);
+            Files.copy(Paths.get(FILE), Paths.get(FILE_BACKUP), StandardCopyOption.REPLACE_EXISTING);
         } catch (IOException e) {
             print("Error copying file" + e.getMessage());
         } finally {
@@ -116,7 +119,7 @@ public class TaskManager {
                 int num = Integer.parseInt(text[1]);
                 tasks.get(num - 1).setDone(true);
                 print("Tasks in the list: " + taskCount);
-                writeToFile("data/tasks.txt");
+                writeToFile(FILE);
             } else {
                 print("Errors in input: Right Format = done TaskNo.");
             }
@@ -140,7 +143,7 @@ public class TaskManager {
         } else {
             tasks.add(new Task(description.replaceAll("\\s+", " ")));
             print("Tasks in the list: " + ++taskCount);
-            writeToFile("data/tasks.txt");
+            writeToFile(FILE);
         }
     }
 
@@ -154,7 +157,7 @@ public class TaskManager {
 
         tasks.add(new Todo(description.replaceAll("\\s+", " ")));
         print("Tasks in the list: " + ++taskCount);
-        writeToFile("data/tasks.txt");
+        writeToFile(FILE);
     }
 
     protected static void addDeadline(String line) throws TaskManagerException {
@@ -168,7 +171,7 @@ public class TaskManager {
         try {
             tasks.add(new Deadline(deadlineInfo[0].replaceAll("\\s+", " "), deadlineInfo[1].replaceAll("\\s+", " ")));
             print("Tasks in the list: " + ++taskCount);
-            writeToFile("data/tasks.txt");
+            writeToFile(FILE);
         } catch (ArrayIndexOutOfBoundsException e) {
             print("Errors in input form encountered (e.g do include /by (without spacing) plus time, date, etc)!");
         }
@@ -177,7 +180,7 @@ public class TaskManager {
     private static void getTasksFromFile() {
         BufferedReader reader = null;
         try {
-            reader = new BufferedReader(new FileReader("data/tasks.txt"));
+            reader = new BufferedReader(new FileReader(FILE));
             String line = reader.readLine();
 
             while (line != null) {
