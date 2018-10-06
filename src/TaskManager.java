@@ -1,7 +1,7 @@
-import java.util.ArrayList;
-import java.util.Collections;
 import java.util.Scanner;
+import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 import java.io.BufferedReader;
 import java.io.Closeable;
 import java.io.FileReader;
@@ -18,7 +18,7 @@ public class TaskManager {
     private final static String FILE_BACKUP = "data_backup/tasks_bk.txt";
     protected static Scanner input = new Scanner(System.in);
     protected static List<Task> tasks = new ArrayList<>();
-    protected static int taskCount = 0;
+    protected static int taskCount;
 
     public static void main(String[] args) {
         getTasksFromFile();
@@ -47,10 +47,6 @@ public class TaskManager {
                         toExit = true;
                         break;
 
-                    case "add":
-                        addTask(line);
-                        break;
-
                     case "todo":
                         addTodo(line);
                         break;
@@ -69,6 +65,7 @@ public class TaskManager {
 
                     default:
                         print("Unknown command! please try again");
+                        print("Command begins with deadline or todo (lowercase only)!");
                 }
 
             } catch (TaskManagerException e) {
@@ -77,14 +74,16 @@ public class TaskManager {
         } while (!toExit);
 
         toClose(input);
-        print("You've chosen to exit ]-->");
+        print("You've chosen Exit :) -->");
         print("Saving...");
+        writeToFile(FILE);
+
         try {
             Files.copy(Paths.get(FILE), Paths.get(FILE_BACKUP), StandardCopyOption.REPLACE_EXISTING);
         } catch (IOException e) {
             print("Error copying file" + e.getMessage());
         } finally {
-            print(System.lineSeparator() + "Bye!");
+            print(System.lineSeparator() + "..GoodBye :):)!");
         }
     }
 
@@ -126,42 +125,29 @@ public class TaskManager {
         } catch (NumberFormatException | ArrayIndexOutOfBoundsException err) {
 
             if (err instanceof ArrayIndexOutOfBoundsException) {
-                print("Errors in input: No TaskNo. specified." + System.lineSeparator() + err.getMessage());
+                print("Errors in input: Please enter a Task No." + System.lineSeparator() + err.getMessage());
             } else {
                 print("Error! Text entered instead of a valid TaskNo." + System.lineSeparator() + err.getMessage());
             }
         } catch (IndexOutOfBoundsException err) {
-            print("Error! No such TaskNo. in records: Try again!" + System.lineSeparator() + err.getMessage());
+            print("Error! Task No. not found in record: Try again!" + System.lineSeparator() + err.getMessage());
         }
     }
-
-    protected static void addTask(String line) throws TaskManagerException {
-        String description = line.replace("add", "").trim();
-
-        if (description.isEmpty()) {
-            throw new TaskManagerException("Empty description for ADD");
-        } else {
-            tasks.add(new Task(description.replaceAll("\\s+", " ")));
-            print("Tasks in the list: " + ++taskCount);
-            writeToFile(FILE);
-        }
-    }
-
 
     protected static void addTodo(String line) throws TaskManagerException {
-        String description = line.substring("todo".length()).trim();
+        String description = line.substring("todo".length()).trim().replaceAll("\\s+", " ");
 
         if (description.isEmpty()) {
             throw new TaskManagerException("Empty description for TODO");
         }
 
-        tasks.add(new Todo(description.replaceAll("\\s+", " ")));
+        tasks.add(new Todo(description));
         print("Tasks in the list: " + ++taskCount);
-        writeToFile(FILE);
+        appendToFile(FILE, taskCount - 1);
     }
 
     protected static void addDeadline(String line) throws TaskManagerException {
-        String description = line.substring("deadline".length()).trim();
+        String description = line.substring("deadline".length()).trim().replaceAll("\\s+", " ");
 
         if (description.isEmpty()) {
             throw new TaskManagerException("Empty description for DEADLINE");
@@ -169,11 +155,11 @@ public class TaskManager {
 
         String[] deadlineInfo = line.substring("deadline".length()).trim().split(" /by ");
         try {
-            tasks.add(new Deadline(deadlineInfo[0].replaceAll("\\s+", " "), deadlineInfo[1].replaceAll("\\s+", " ")));
+            tasks.add(new Deadline(deadlineInfo[0], deadlineInfo[1]));
             print("Tasks in the list: " + ++taskCount);
-            writeToFile(FILE);
+            appendToFile(FILE, taskCount - 1);
         } catch (ArrayIndexOutOfBoundsException e) {
-            print("Errors in input form encountered (e.g do include /by (without spacing) plus time, date, etc)!");
+            print("Errors in input encountered (Exact Format: deadline task_text /by ...other details)");
         }
     }
 
@@ -185,8 +171,8 @@ public class TaskManager {
 
             while (line != null) {
 
-                if (!(line.trim().isEmpty())) {
-                    tasks.add(createTask(line));
+                if (!line.trim().equals("")){
+                    tasks.add(createTask(line.replace("\\s+", " ")));
                     ++taskCount;
                 }
 
@@ -197,12 +183,10 @@ public class TaskManager {
             print("Error accessing file object...file is not found!");
         } finally {
             toClose(reader);
-
-            if (tasks != null && !tasks.isEmpty()) {  // remove nulls from ArrayList
-                tasks.removeAll(Collections.singletonList(null));
-            }
+            tasks.removeIf(Objects::isNull);
         }
     }
+
 
     private static Task createTask(String str) {
         String[] text = str.trim().split(":");
@@ -228,8 +212,21 @@ public class TaskManager {
 
             return d;
         } else {
-            taskCount--;
+            taskCount--;  // to compensate for getTaskFromFile taskCount++
             return null;
+        }
+    }
+
+    private static void appendToFile(String filePath, int index) {
+        FileWriter fw = null;
+        try {
+            fw = new FileWriter(filePath, true);
+            fw.write(tasks.get(index).toFileString() + System.lineSeparator());
+
+        } catch (IOException e) {
+            print("File access has encountered problems..." + e.getMessage());
+        } finally {
+            toClose(fw);
         }
     }
 
@@ -244,7 +241,7 @@ public class TaskManager {
 
         } catch (IOException e) {
             print("File access has encountered problems..." + e.getMessage());
-        }finally{
+        } finally {
             toClose(fw);
         }
     }
