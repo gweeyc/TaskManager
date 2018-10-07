@@ -16,13 +16,14 @@ public class TaskManager {
 
     private final static String FILE = "data/tasks.txt";
     private final static String FILE_BACKUP = "data_backup/tasks_bk.txt";
+    private static boolean flag = true;
     protected static Scanner input = new Scanner(System.in);
     protected static List<Task> tasks = new ArrayList<>();
     protected static int taskCount;
 
+
     public static void main(String[] args) {
         getTasksFromFile();
-
         print("Welcome to TaskManage-level1!");
 
         Boolean toExit = false;
@@ -61,11 +62,17 @@ public class TaskManager {
 
                     case "print":
                         printTask();
+
+                        if(flag) {
+                            writeToFile(FILE);  // also ensures data format is rightly written
+                            flag = false;
+                        }
+
                         break;
 
                     default:
                         print("Unknown command! please try again");
-                        print("Command begins with deadline or todo (lowercase only)!");
+                        print("Right Format: Commands starts with deadline or todo (lowercase only)!");
                 }
 
             } catch (TaskManagerException e) {
@@ -74,24 +81,24 @@ public class TaskManager {
         } while (!toExit);
 
         toClose(input);
-        print("You've chosen Exit :) -->");
+        print(System.lineSeparator() + "You've chosen Exit :) -->");
         print("Saving...");
-        writeToFile(FILE);
+        print("-----");
+        print("--");
+        writeToFile(FILE_BACKUP);  // backed up tasks file copy
+        print("-");
+        print("GoodBye :):):)!");
 
-        try {
-            Files.copy(Paths.get(FILE), Paths.get(FILE_BACKUP), StandardCopyOption.REPLACE_EXISTING);
-        } catch (IOException e) {
-            print("Error copying file" + e.getMessage());
-        } finally {
-            print(System.lineSeparator() + "..GoodBye :):)!");
-        }
     }
 
     public static void toClose(Closeable obj) {   //for possible closure technical glitch
 
         if (obj != null) {
+
             try {
+
                 obj.close();
+
             } catch (IOException ex) {
                 print("Possible disc error / file system full!" + ex.getMessage());
             }
@@ -112,6 +119,7 @@ public class TaskManager {
 
     protected static void updateTask(String line) {
         String[] text = line.trim().split("\\s+");
+
         try {
 
             if (text.length <= 2 && Integer.parseInt(text[1].trim()) > 0) {
@@ -122,6 +130,7 @@ public class TaskManager {
             } else {
                 print("Errors in input: Right Format = done TaskNo.");
             }
+
         } catch (NumberFormatException | ArrayIndexOutOfBoundsException err) {
 
             if (err instanceof ArrayIndexOutOfBoundsException) {
@@ -129,6 +138,7 @@ public class TaskManager {
             } else {
                 print("Error! Text entered instead of a valid TaskNo." + System.lineSeparator() + err.getMessage());
             }
+
         } catch (IndexOutOfBoundsException err) {
             print("Error! Task No. not found in record: Try again!" + System.lineSeparator() + err.getMessage());
         }
@@ -154,24 +164,30 @@ public class TaskManager {
         }
 
         String[] deadlineInfo = line.substring("deadline".length()).trim().split(" /by ");
+
         try {
+
             tasks.add(new Deadline(deadlineInfo[0], deadlineInfo[1]));
-            print("Tasks in the list: " + ++taskCount);
-            appendToFile(FILE, taskCount - 1);
+
         } catch (ArrayIndexOutOfBoundsException e) {
             print("Errors in input encountered (Exact Format: deadline task_text /by ...other details)");
         }
+
+        print("Tasks in the list: " + ++taskCount);
+        appendToFile(FILE, taskCount - 1);
     }
 
     private static void getTasksFromFile() {
         BufferedReader reader = null;
+
         try {
-            reader = new BufferedReader(new FileReader(FILE));
+
+            reader = new BufferedReader(new FileReader(FILE_BACKUP));
             String line = reader.readLine();
 
             while (line != null) {
 
-                if (!line.trim().equals("")){
+                if (!line.trim().equals("")) {
                     tasks.add(createTask(line.replace("\\s+", " ")));
                     ++taskCount;
                 }
@@ -181,12 +197,12 @@ public class TaskManager {
 
         } catch (IOException e) {
             print("Error accessing file object...file is not found!");
+
         } finally {
             toClose(reader);
             tasks.removeIf(Objects::isNull);
         }
     }
-
 
     private static Task createTask(String str) {
         String[] text = str.trim().split(":");
@@ -219,12 +235,15 @@ public class TaskManager {
 
     private static void appendToFile(String filePath, int index) {
         FileWriter fw = null;
+
         try {
+
             fw = new FileWriter(filePath, true);
             fw.write(tasks.get(index).toFileString() + System.lineSeparator());
 
         } catch (IOException e) {
             print("File access has encountered problems..." + e.getMessage());
+
         } finally {
             toClose(fw);
         }
@@ -232,7 +251,9 @@ public class TaskManager {
 
     private static void writeToFile(String filePath) {
         FileWriter fw = null;
+
         try {
+
             fw = new FileWriter(filePath);
 
             for (int i = 0; i < taskCount; i++) {
@@ -241,6 +262,7 @@ public class TaskManager {
 
         } catch (IOException e) {
             print("File access has encountered problems..." + e.getMessage());
+
         } finally {
             toClose(fw);
         }
