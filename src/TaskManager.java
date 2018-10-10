@@ -146,13 +146,13 @@ public class TaskManager {
             throw new TaskManagerException("Empty description for TODO");
         } else {
 
-            for (Task t : tasks) {    //exclude duplicates
+            tasks.forEach((t) -> {    //exclude duplicates
 
                 if (t instanceof Todo && t.getDesc().equalsIgnoreCase(description)) {
                     flag = true;
-                    print("Task: < \"todo " + description + "\" > already in record!");
+                    print("Task: < \"todo " + description + "\" > already found in record. Pl re-enter!");
                 }
-            }
+            });
 
             if (!flag) {
                 tasks.add(new Todo(description));
@@ -171,8 +171,9 @@ public class TaskManager {
         } else {
             for (Task t : tasks) {   //exclude duplicates
 
-                if (t instanceof Deadline && (t.getDesc().equalsIgnoreCase(part[0]) && (((Deadline) t).getBy().equalsIgnoreCase(part[1])))) {
+                if (t instanceof Deadline && t.getDesc().equalsIgnoreCase(part[0]) && ((Deadline) t).getBy().equalsIgnoreCase(part[1])) {
                     flag = true;
+                    print("Task: < \"todo " + description + "\" > already found in record. Pl re-enter!");
                 }
             }
             if (!flag) {
