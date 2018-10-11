@@ -33,12 +33,13 @@ public class TaskManager {
         print("For deadline Task enter: deadline text... /by text..." + System.lineSeparator());
 
         Boolean toExit = false;
-        String arg0;
+        String arg0, scanLine;
 
         do {
             l.setLength(0);   //clear buffer before next use
             out.print("Your task? ");
-            l.insert(0, input.nextLine().trim());
+            scanLine = input.nextLine().trim();
+            l.insert(0, scanLine);
             strBuilderTrim();
 
             if (l.length() == 0) {         //line parsed will never be null, at most ""
@@ -49,7 +50,7 @@ public class TaskManager {
                     arg0 = l.substring(0, l.indexOf(" "));  // get the first word
                 }
                 else {
-                    arg0 = l.toString();    // allow for command print and exit
+                    arg0 = scanLine;    // allow for single command print, exit, etc
                 }
             }
 
@@ -62,15 +63,15 @@ public class TaskManager {
                         break;
 
                     case "todo":
-                        addTodo(l.toString());
+                        addTodo(scanLine);
                         break;
 
                     case "deadline":
-                        addDeadline(l.toString());
+                        addDeadline(scanLine);
                         break;
 
                     case "done":
-                        updateTask(l.toString());
+                        updateTask(scanLine);
                         break;
 
                     case "print":
@@ -137,13 +138,13 @@ public class TaskManager {
     protected static void updateTask(String line) {
         l.setLength(0);
         l.insert(0, line);
-        String s;
+        String entry = l.toString(), s;
         if(l.indexOf(" ") != -1) {
             l.delete(0, l.indexOf(" "));
-            s = l.toString().trim();
+            s = entry.trim();
         }
         else{
-            s = l.toString();   // no need to generate new a string here: only "done" stored here
+            s = entry;   // no need to generate new a string here: only "done" stored here
         }
 
         int num = 0;
@@ -161,18 +162,19 @@ public class TaskManager {
                 tasks.get(num - 1).setDone(true);
                 print("Tasks in the list: " + taskCount);
                 writeToFile(FILE);    // efficiently preserve format and data integrity
-            } else {
-                if(num > listSize){
-                    print("<Error3 : TaskNo. cannot be greater than " + listSize + " Pl try again!>" + System.lineSeparator());
-                }
-                else if(num <= 0){
-                    print("<Error2 : TaskNo. cannot be omitted, need to be at least 1. Pl try again!>" + System.lineSeparator());
-                }
-                else {
-                    print("<Error1 : Right Format = done TaskNo.>" + System.lineSeparator());
-                }
+            }
+
+            if(num > listSize){
+                print("<Error3 : TaskNo. cannot be greater than " + listSize + " Pl try again!>" + System.lineSeparator());
+            }
+            else if(num <= 0){
+                print("<Error2 : TaskNo. cannot be omitted, need to be > = 1. Pl try again!>" + System.lineSeparator());
+            }
+            else {
+                print("<Error1 : Right Format = done TaskNo.>" + System.lineSeparator());
             }
     }
+
 
     protected static void addTodo(String line) throws TaskManagerException {
         flag = false;
