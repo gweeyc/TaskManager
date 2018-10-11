@@ -7,6 +7,7 @@ import java.io.Closeable;
 import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
+
 import static java.lang.System.out;
 
 
@@ -18,15 +19,16 @@ public class TaskManager {
     protected static Scanner input = new Scanner(System.in);
     protected static List<Task> tasks = new ArrayList<>();
     protected static int taskCount;
-    protected static  StringBuilder l = new StringBuilder(25);   // lesser generation of immutable strings called
+    protected static StringBuilder l = new StringBuilder(25);   // lesser generation of immutable strings called
+    protected static String description = null;
 
     public static void main(String[] args) {
         getTasksFromFile();
 
         print("");
-        print( "||     ------------------------------------     ||");
-        print( "   ||    * Welcome to TaskManage-level! *    ||   ");
-        print( "||     ------------------------------------     ||");
+        print("||     ------------------------------------     ||");
+        print("   ||    * Welcome to TaskManage-level! *    ||   ");
+        print("||     ------------------------------------     ||");
 
 
         print(System.lineSeparator() + "For todo Task enter: todo text...");
@@ -46,10 +48,9 @@ public class TaskManager {
                 arg0 = "";
             } else {
 
-                if(l.indexOf(" ") > 0) {
+                if (l.indexOf(" ") > 0) {
                     arg0 = l.substring(0, l.indexOf(" "));  // get the first word
-                }
-                else {
+                } else {
                     arg0 = scanLine;    // allow for single command print, exit, etc
                 }
             }
@@ -58,7 +59,8 @@ public class TaskManager {
 
                 switch (arg0) {
 
-                    case "": case "exit":
+                    case "":
+                    case "exit":
                         toExit = true;
                         break;
 
@@ -129,72 +131,61 @@ public class TaskManager {
         }
     }
 
-    protected static void strBuilderTrim(){
-        if(l.length() < 16 || l.length() > 25 && l.length() < 52 || l.length() > 52 && l.length() < 106){
+    protected static void strBuilderTrim() {
+        if (l.length() > 25 && l.length() < 52 || l.length() > 52 && l.length() < 106) {
             l.trimToSize();   // for limited RAM case
         }
     }
 
-    protected static void updateTask(String line) {
-        l.setLength(0);
-        l.insert(0, line);
-        String entry = l.toString(), s;
-        if(l.indexOf(" ") != -1) {
-            l.delete(0, l.indexOf(" "));
-            s = entry.trim();
-        }
-        else{
-            s = entry;   // no need to generate new a string here: only "done" stored here
-        }
+    protected static void updateTask(String line) throws TaskManagerException {
+        prepDescription(line);
 
-        int num = 0;
+        if (description.isEmpty()) {
+            throw new TaskManagerException("Empty description for Done");
+        } else {
+            int num = 0;
 
-        try {
-            num = Integer.parseInt(s);
-        }catch(NumberFormatException e){
-            print("TaskNo.(omitted) = Null " + e.getMessage());
-        }
+            try {
+                num = Integer.parseInt(description);
 
-        int listSize = tasks.size();
+            } catch (NumberFormatException e) {
+                print("TaskNo. input format error detected: " + e.getMessage());
+            }
+
+            int listSize = tasks.size();
 
             if (num > 0 && num <= listSize) {
-
                 tasks.get(num - 1).setDone(true);
                 print("Tasks in the list: " + taskCount);
                 writeToFile(FILE);    // efficiently preserve format and data integrity
+            } else if (num > listSize) {
+                print("<Error>: TaskNo. exceeds total number in records of \"" + listSize + "\". Pl try again!" + System.lineSeparator());
+            } else {
+                print("<Error>: TaskNo. cannot be text or 0 or negative. Pl try again!" + System.lineSeparator());
             }
-
-            if(num > listSize){
-                print("<Error3 : TaskNo. cannot be greater than " + listSize + " Pl try again!>" + System.lineSeparator());
-            }
-            else if(num <= 0){
-                print("<Error2 : TaskNo. cannot be omitted, need to be > = 1. Pl try again!>" + System.lineSeparator());
-            }
-            else {
-                print("<Error1 : Right Format = done TaskNo.>" + System.lineSeparator());
-            }
+        }
     }
 
-
-    protected static void addTodo(String line) throws TaskManagerException {
+    protected static void prepDescription(String str) {
         flag = false;
         l.setLength(0);
-        l.insert(0, line);
-        String description;
-        if(l.indexOf(" ") != -1) {
+        l.insert(0, str);
+        description = "";
+
+        if (l.indexOf(" ") != -1) {
             l.delete(0, l.indexOf(" "));
             description = l.toString().trim().replaceAll("\\s+", " ");
         }
-        else{
-            description = "";   // no need to generate new a string here: only "todo" entered here
-        }
 
         strBuilderTrim();
+    }
+
+    protected static void addTodo(String line) throws TaskManagerException {
+        prepDescription(line);
 
         if (description.isEmpty()) {
             throw new TaskManagerException("Empty description for TODO");
         } else {
-
             tasks.forEach((t) -> {    //exclude duplicates
 
                 if (t instanceof Todo && t.getDesc().equalsIgnoreCase(description)) {
@@ -212,24 +203,13 @@ public class TaskManager {
     }
 
     protected static void addDeadline(String line) throws TaskManagerException {
-        flag = false;
-        l.setLength(0);
-        l.insert(0, line);
-        String description;
-        if(l.indexOf(" ") != -1) {
-            l.delete(0, l.indexOf(" "));
-            description = l.toString().trim().replaceAll("\\s+", " ");
-        }
-        else{
-            description = "";   // no need to generate new a string here: only "deadline" entered here
-        }
-
-        strBuilderTrim();
+        prepDescription(line);
 
         if (description.isEmpty()) {
             throw new TaskManagerException("Empty description for DEADLINE");
         } else {
             String[] part = description.split(" /by ");
+
             for (Task t : tasks) {   //exclude duplicates
 
                 if (t instanceof Deadline && t.getDesc().equalsIgnoreCase(part[0]) && ((Deadline) t).getBy().equalsIgnoreCase(part[1])) {
@@ -237,6 +217,7 @@ public class TaskManager {
                     print("Task: < \"todo " + description + "\" > already found in record. Pl re-enter!");
                 }
             }
+
             if (!flag) {
 
                 try {
