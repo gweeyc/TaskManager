@@ -24,15 +24,7 @@ public class TaskManager {
 
     public static void main(String[] args) {
         getTasksFromFile();
-
-        print("");
-        print("||     ------------------------------------     ||");
-        print("   ||    * Welcome to TaskManage-level! *    ||   ");
-        print("||     ------------------------------------     ||");
-
-
-        print(System.lineSeparator() + "For todo Task enter: todo text...");
-        print("For deadline Task enter: deadline text... /by text..." + System.lineSeparator());
+        mainMenu();
 
         Boolean toExit = false;
         String arg0, scanLine;
@@ -75,7 +67,9 @@ public class TaskManager {
                     case "done":
                         updateTask(scanLine);
                         break;
-
+                    case "del":
+                        delTask(scanLine);
+                        break;
                     case "print":
                         printTask();
 
@@ -104,6 +98,18 @@ public class TaskManager {
         writeToFile(FILE_BACKUP);  // make a copy of tasks file
         print("-");
         print("GoodBye :):):)!");
+    }
+
+    protected static void mainMenu() {
+        print("");
+        print("||     ------------------------------------     ||");
+        print("   ||    * Welcome to TaskManage-level! *    ||   ");
+        print("||     ------------------------------------     ||");
+
+        print(System.lineSeparator() + "Instructions for CLI Usage: -");
+        print("= = = = = = = = = = = = = =");
+        print("[i] For todo Task, enter: todo text...");
+        print("[ii] For deadline Task, enter: deadline text... /by text..." + System.lineSeparator());
     }
 
     public static void toClose(Closeable obj) {   //for possible closure technical glitch
@@ -138,10 +144,10 @@ public class TaskManager {
     }
 
     protected static void updateTask(String line) throws TaskManagerException {
-        prepDescription(line);
+        prepBuilder(line);
 
         if (description.isEmpty()) {
-            throw new TaskManagerException("Empty description for Done");
+            throw new TaskManagerException("Empty description for DONE");
         } else {
             int num = 0;
 
@@ -149,26 +155,30 @@ public class TaskManager {
                 num = Integer.parseInt(description);
 
             } catch (NumberFormatException e) {
-                print("TaskNo. input format error detected: " + e.getMessage());
+                print("TaskNo. input format error: " + e.getMessage());
             }
 
             int listSize = tasks.size();
 
-            if (num > 0 && num <= listSize) {
-                tasks.get(num - 1).setDone(true);
-                print("Tasks in the list: " + taskCount);
-                writeToFile(FILE);    // efficiently preserve format and data integrity
-            } else if (num > listSize) {
-                print("<Error>: TaskNo. exceeds total number in records of \"" + listSize + "\". Pl try again!" + System.lineSeparator());
+            if (num > 0) {
+
+                if (num <= listSize) {
+                    tasks.get(num - 1).setDone(true);
+                    print("Tasks in the list: " + taskCount);
+                    writeToFile(FILE);    // efficiently preserve format and data integrity
+                } else {
+                    print("<Error>: TaskNo. exceeds total number in records of \"" + listSize + "\". Pl try again!" + System.lineSeparator());
+                }
+
             } else {
-                print("<Error>: TaskNo. cannot be text or 0 or negative. Pl try again!" + System.lineSeparator());
+                print("<Error>: TaskNo. cannot be non-digit, negative or 0. Pl try again!" + System.lineSeparator());
             }
         }
     }
 
-    protected static void prepDescription(String str) {
-        flag = false;
+    protected static void prepBuilder(String str) {
         l.setLength(0);
+        flag = false;
         l.insert(0, str);
         description = "";
 
@@ -180,8 +190,31 @@ public class TaskManager {
         strBuilderTrim();
     }
 
+    protected static void delTask(String line)throws TaskManagerException {
+        prepBuilder(line);
+        int n = 0;
+        if (description.isEmpty()) {
+            throw new TaskManagerException("Empty description for DEL");
+        } else {
+
+            try {
+                n = Integer.parseInt(description);
+
+            } catch (NumberFormatException e) {
+                print("TaskNo. input format error: " + e.getMessage());
+            }
+            int size = tasks.size();
+            if (n > 0 && n <= size) {
+                tasks.remove(n - 1);
+                taskCount--;
+            }else {
+                print("TaskNo. value must be between 1 and " + size + " (total no. of records). Pl retry!!");
+            }
+        }
+    }
+
     protected static void addTodo(String line) throws TaskManagerException {
-        prepDescription(line);
+        prepBuilder(line);
 
         if (description.isEmpty()) {
             throw new TaskManagerException("Empty description for TODO");
@@ -203,7 +236,7 @@ public class TaskManager {
     }
 
     protected static void addDeadline(String line) throws TaskManagerException {
-        prepDescription(line);
+        prepBuilder(line);
 
         if (description.isEmpty()) {
             throw new TaskManagerException("Empty description for DEADLINE");
