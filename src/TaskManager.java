@@ -10,7 +10,6 @@ import java.io.IOException;
 
 import static java.lang.System.out;
 
-
 public class TaskManager {
 
     private final static String FILE = "data/tasks.txt";
