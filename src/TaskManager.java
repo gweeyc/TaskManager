@@ -18,7 +18,7 @@ public class TaskManager {
     protected static Scanner input = new Scanner(System.in);
     protected static List<Task> tasks = new ArrayList<>();
     protected static int taskCount;
-    protected static StringBuilder l = new StringBuilder(25);   // lesser generation of immutable strings called
+ //   protected static StringBuilder l = new StringBuilder(25);   // lesser generation of immutable strings called
     protected static String description = null;
 
     public static void main(String[] args) {
@@ -29,11 +29,11 @@ public class TaskManager {
         String arg0, scanLine;
 
         do {
-            l.setLength(0);   //clear buffer before next use
+         //   l.setLength(0);   //clear buffer before next use
             out.print("Your task? ");
             scanLine = input.nextLine().trim();
-            l.insert(0, scanLine);
-            strBuilderTrim();
+     //       l.insert(0, scanLine);
+     /*       strBuilderTrim();
 
             if (l.length() == 0) {         //line parsed will never be null, at most ""
                 arg0 = "";
@@ -44,7 +44,9 @@ public class TaskManager {
                 } else {
                     arg0 = scanLine;    // allow for single command print, exit, etc
                 }
-            }
+            } */
+
+            arg0= Parser.getCommandWord(scanLine);
 
             try {
 
@@ -136,14 +138,10 @@ public class TaskManager {
         }
     }
 
-    protected static void strBuilderTrim() {
-        if (l.length() > 25 && l.length() < 52 || l.length() > 52 && l.length() < 106) {
-            l.trimToSize();   // for limited RAM case
-        }
-    }
+
 
     protected static void updateTask(String line) throws TaskManagerException {
-        prepBuilder(line);
+        description = Parser.getDesc(line);
 
         if (description.isEmpty()) {
             throw new TaskManagerException("Empty description for DONE");
@@ -175,22 +173,10 @@ public class TaskManager {
         }
     }
 
-    protected static void prepBuilder(String str) {
-        l.setLength(0);
-        flag = false;
-        l.insert(0, str);
-        description = "";
 
-        if (l.indexOf(" ") != -1) {
-            l.delete(0, l.indexOf(" "));
-            description = l.toString().trim().replaceAll("\\s+", " ");
-        }
-
-        strBuilderTrim();
-    }
 
     protected static void delTask(String line)throws TaskManagerException {
-        prepBuilder(line);
+        description = Parser.getDesc(line);
         int n = 0;
         if (description.isEmpty()) {
             throw new TaskManagerException("Empty description for DEL");
@@ -213,7 +199,8 @@ public class TaskManager {
     }
 
     protected static void addTodo(String line) throws TaskManagerException {
-        prepBuilder(line);
+        flag = false;
+        description = Parser.getDesc(line);
 
         if (description.isEmpty()) {
             throw new TaskManagerException("Empty description for TODO");
@@ -235,7 +222,8 @@ public class TaskManager {
     }
 
     protected static void addDeadline(String line) throws TaskManagerException {
-        prepBuilder(line);
+        flag = false;
+        description = Parser.getDesc(line);
 
         if (description.isEmpty()) {
             throw new TaskManagerException("Empty description for DEADLINE");
