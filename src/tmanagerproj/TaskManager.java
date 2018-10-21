@@ -2,6 +2,8 @@ package tmanagerproj;
 
 import java.io.Closeable;
 import java.io.IOException;
+import java.util.LinkedHashMap;
+import java.util.Map;
 
 /**
  * Will first initialize by creating a new ArrayList in memory, then loads a work file "/data/data.txt", containing a List
@@ -20,7 +22,9 @@ public class TaskManager {
     private Ui ui;
 
     private boolean flag = true;
+    private static Map<Integer, Integer> map = new LinkedHashMap<>();
     static int taskCount;
+    static final int YEAR = 2018;
     private static String description = null;
 
     /**
@@ -123,7 +127,7 @@ public class TaskManager {
         description = Parser.getDesc(line);
         int n = 0;
         if (description.isEmpty()) {
-            throw new TaskManagerException("Empty description for DEL");
+            throw new TaskManagerException("Empty description for RMM");
         } else {
 
             try {
@@ -136,8 +140,8 @@ public class TaskManager {
             if (n > 0 && n <= size) {
                 tasks.removeItem(n);
                 taskCount--;
-                ui.showToUser("Task record No. [" + n + "] successfully removed!");
-                ui.showToUser("Tasks in the list: " + taskCount );
+                ui.showToUser("Record successfully removed!");
+                ui.showToUser("Tasks in the list: " + taskCount);
                 flushToDisk(storage.getWorkFile());
             } else {
                 ui.printError("TaskNo. value must be between 1 and " + size + " (total no. of records). Pl retry!!");
@@ -227,6 +231,7 @@ public class TaskManager {
         String scanLine;
 
         do {
+
             ui.userPrompt("Your task? ");
             scanLine = ui.readUserCommand();
             arg0 = Parser.getCommandWord(scanLine);
@@ -241,20 +246,60 @@ public class TaskManager {
                         break;
 
                     case "todo":
+                        ui.printWelcome();
                         addTodo(scanLine);
                         break;
 
                     case "deadline":
+                        ui.printWelcome();
                         addDeadline(scanLine);
                         break;
 
                     case "done":
+                        ui.printWelcome();
                         updateTask(scanLine);
                         break;
-                    case "del": case "rm":
+
+                    case "rmm":
+                        ui.printWelcome();
                         delTask(scanLine);
                         break;
+
+                    case "showt":
+                        ui.printWelcome();
+                        showTodo(tasks);
+                        break;
+
+                    case "rmt":
+                        ui.printWelcome();
+                        rmTodo(scanLine);
+                        break;
+
+                    case "showd":
+                        ui.printWelcome();
+                        showDeadline(tasks);
+                        break;
+
+                    case "rmd":
+                        rmDeadline(scanLine);
+                        break;
+
+                    case "showf":
+                        ui.printWelcome();
+                        showDoneTasks(tasks);
+                        break;
+
+                    case "rmf":
+                        ui.printWelcome();
+                        rmDoneTask(scanLine);
+                        break;
+
+                    case "cal":
+                        showCal(scanLine);
+                        break;
+
                     case "print":
+                        ui.printWelcome();
                         ui.printTask(tasks);
 
                         if (flag) {            // ensure data format & integrity in file with 1st print
@@ -280,6 +325,179 @@ public class TaskManager {
         ui.printBye();
     }
 
+    private void showCal(String line) throws TaskManagerException {
+        description = Parser.getDesc(line);
+        int n = 0;
+        if (description.isEmpty()) {
+            throw new TaskManagerException("Empty description for CAL");
+        } else {
+
+            try {
+                n = Integer.parseInt(description);
+
+            } catch (NumberFormatException e) {
+                ui.printError("TaskNo. input format error: " + e.getMessage());
+            }
+
+            ui.calMonthDisplay(YEAR, n);
+        }
+    }
+
+    private void showDoneTasks(TaskList tasks) {
+        map.clear();
+        ui.showToUser(System.lineSeparator() + "[SubMenu]: Completed Tasks");
+        ui.showToUser("----------");
+
+        for (int i = 0, j = 1; i < taskCount; i++) {
+            if (tasks.getItem(i).isDone) {
+                map.put(j, i);
+                ui.showToUser("[" + (j) + "] " + tasks.getItem(i));
+                j++;
+            }
+        }
+        if (map.isEmpty()) {
+            ui.showToUser("Completed Tasks List is currently empty!");
+        }
+
+    }
+
+    private void rmDoneTask(String line) throws TaskManagerException {
+        description = Parser.getDesc(line);
+        int n = 0, tab;
+        if (description.isEmpty()) {
+            throw new TaskManagerException("Empty description for RMF");
+        } else {
+
+            try {
+                n = Integer.parseInt(description);
+
+            } catch (NumberFormatException e) {
+                ui.printError("TaskNo. input format error: " + e.getMessage());
+            }
+
+            if (n <= 0 || n > map.size()) {
+                ui.showToUser("List number is invalid. Pl re-try!");
+            } else {
+
+                try {
+                    delTask("del " + (1 + map.get(n)));
+                    tab = map.size() - 1;
+                    ui.showToUser("Done Tasks in List: " + tab);
+
+                    if (tab != 0) {
+                        showDoneTasks(tasks);
+                    }
+
+                } catch (TaskManagerException e) {
+                    ui.printError("Array access error");
+                }
+            }
+        }
+    }
+
+
+    private void showTodo(TaskList tasks) {
+        map.clear();
+        ui.showToUser(System.lineSeparator() + "[SubMenu]: Todo Tasks");
+        ui.showToUser("----------");
+
+        for (int i = 0, j = 1; i < taskCount; i++) {
+            if (!(tasks.getItem(i) instanceof Deadline)) {
+                map.put(j, i);
+                ui.showToUser("[" + (j) + "] " + tasks.getItem(i));
+                j++;
+            }
+        }
+        if (map.isEmpty()) {
+            ui.showToUser("Todo Tasks List is currently empty!");
+        }
+
+    }
+
+    private void showDeadline(TaskList tasks) {
+        map.clear();
+        ui.showToUser(System.lineSeparator() + "[SubMenu]: Deadline Tasks");
+        ui.showToUser("----------");
+
+        for (int i = 0, j = 1; i < taskCount; i++) {
+            if (tasks.getItem(i) instanceof Deadline) {
+                map.put(j, i);
+                ui.showToUser("[" + (j) + "] " + tasks.getItem(i));
+                j++;
+            }
+        }
+        if (map.isEmpty()) {
+            ui.showToUser("Deadline Tasks List is currently empty!");
+        }
+    }
+
+    private void rmTodo(String line) throws TaskManagerException {
+        description = Parser.getDesc(line);
+        int n = 0, tab;
+        if (description.isEmpty()) {
+            throw new TaskManagerException("Empty description for RMT");
+        } else {
+
+            try {
+                n = Integer.parseInt(description);
+
+            } catch (NumberFormatException e) {
+                ui.printError("TaskNo. input format error: " + e.getMessage());
+            }
+
+            if (n <= 0 || n > map.size()) {
+                ui.showToUser("List number is invalid. Pl re-try!");
+            } else {
+
+                try {
+                    delTask("del " + (1 + map.get(n)));
+                    tab = map.size() - 1;
+                    ui.showToUser("Todo Tasks in List: " + tab);
+
+                    if (tab != 0) {
+                        showTodo(tasks);
+                    }
+
+                } catch (TaskManagerException e) {
+                    ui.printError("Array access error");
+                }
+            }
+        }
+    }
+
+    private void rmDeadline(String line) throws TaskManagerException {
+        description = Parser.getDesc(line);
+        int n = 0, tab;
+        if (description.isEmpty()) {
+            throw new TaskManagerException("Empty description for RMD");
+        } else {
+
+            try {
+                n = Integer.parseInt(description);
+
+            } catch (NumberFormatException e) {
+                ui.printError("TaskNo. input format error: " + e.getMessage());
+            }
+
+            if (n <= 0 || n > map.size()) {
+                ui.showToUser("List number is invalid. Pl re-try!");
+            } else {
+
+                try {
+                    delTask("del " + (1 + map.get(n)));
+                    tab = map.size() - 1;
+                    ui.showToUser("Deadline Tasks in List: " + tab);
+
+                    if (tab != 0) {
+                        showDeadline(tasks);
+                    }
+                } catch (TaskManagerException e) {
+                    ui.printError("Array access error");
+                }
+            }
+        }
+    }
+
     private void flushToDisk(String filePath) {
         try {
             storage.writeFile(tasks, filePath);    // preserve work file data format correctness & currency
@@ -288,9 +506,10 @@ public class TaskManager {
         }
     }
 
+
     public static void main(String[] args) {
 
-        new TaskManager("/data/tasks.txt").run();
+        new TaskManager("data/tasks.txt").run();
 
     }
 }

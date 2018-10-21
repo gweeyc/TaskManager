@@ -16,7 +16,7 @@ class Storage {
 
     Storage(String file) {  //constructor
         workFilePath = file;
-        backupPath = "/data_backup/tasks_bk.txt";
+        backupPath = "data_backup/tasks_bk.txt";
     }
 
     String getBackupPath() {

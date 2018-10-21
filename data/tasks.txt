@@ -1,3 +1,5 @@
-T : 1 : read book
-T : 0 : join sports club
+T : 1 : submit report
 D : 1 : join sports club : June 6th
+D : 0 : remind boss of meeting : Sat 4pm
+T : 0 : read a book
+T : 1 : write a report
