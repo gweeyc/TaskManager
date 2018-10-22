@@ -22,6 +22,7 @@ class Storage {
     String getBackupPath() {
         return backupPath;
     }
+
     void setBackupPath(String filePath) {
         backupPath = filePath;
     }

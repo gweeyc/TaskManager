@@ -2,7 +2,7 @@ package tmanagerproj;
 
 public class Todo extends Task {
 
-    public Todo(String s) {
+    Todo(String s) {
         super(s);
     }
 

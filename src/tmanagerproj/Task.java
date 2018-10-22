@@ -2,17 +2,17 @@ package tmanagerproj;
 
 public class Task {
     private String description;
-    protected boolean isDone;
+    boolean isDone;
 
-    protected Task(String s) {
+    Task(String s) {
         description = s;
     }
 
-    protected void setDone(boolean b) {
+    void setDone(boolean b) {
         isDone = b;
     }
 
-    protected String getDesc(){
+    String getDesc(){
         return description;
     }
 

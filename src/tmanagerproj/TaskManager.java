@@ -68,19 +68,6 @@ public class TaskManager {
         }
     }
 
-    private void toClose(Closeable obj) {   //for possible closure technical glitch
-
-        if (obj != null) {
-
-            try {
-                obj.close();
-
-            } catch (IOException ex) {
-                ui.printError("Possible disc error / file system full!" + ex.getMessage());
-            }
-        }
-    }
-
     /**
      * This method updates task done status in tasks List, freshens up the work file data format integrity and currency
      *
@@ -89,7 +76,7 @@ public class TaskManager {
      */
 
     private void updateTask(String line) throws TaskManagerException {
-        description = Parser.getDesc(line);
+        description = Parser.getTaskDesc(line);
 
         if (description.isEmpty()) {
             throw new TaskManagerException("Empty description for DONE. Check Legend for Command Syntax.");
@@ -123,7 +110,7 @@ public class TaskManager {
     }
 
     private void delTask(String line) throws TaskManagerException {
-        description = Parser.getDesc(line);
+        description = Parser.getTaskDesc(line);
         int n = 0;
         if (description.isEmpty()) {
             throw new TaskManagerException("Empty description for MDEL. Check Legend for Command Syntax");
@@ -157,7 +144,7 @@ public class TaskManager {
 
     private void addTodo(String line) throws TaskManagerException {
         flag = false;
-        description = Parser.getDesc(line);
+        description = Parser.getTaskDesc(line);
 
         if (description.isEmpty()) {
             throw new TaskManagerException("Empty description for TODO. Check Legend for Command Syntax.");
@@ -178,17 +165,9 @@ public class TaskManager {
         }
     }
 
-    private void appendToFile() {
-        try {
-            storage.appendFile(storage.getWorkFile(), taskCount - 1);
-        } catch (TaskManagerException e) {
-            ui.printError(e.getMessage());
-        }
-    }
-
     private void addDeadline(String line) throws TaskManagerException {
         flag = false;
-        description = Parser.getDesc(line);
+        description = Parser.getTaskDesc(line);
 
         if (description.isEmpty()) {
             throw new TaskManagerException("Empty description for DEADLINE. Check Legend for Command Syntax.");
@@ -224,7 +203,6 @@ public class TaskManager {
 
     private void run() {
         ui.printWelcome();
-
         boolean toExit = false;
         String arg0;
         String scanLine;
@@ -311,7 +289,8 @@ public class TaskManager {
                         showCal(scanLine);
                         break;
 
-                    case "print": case "mshow":
+                    case "print":
+                    case "mshow":
                         ui.printWelcome();
                         ui.printTask(tasks);
 
@@ -324,7 +303,8 @@ public class TaskManager {
 
                     default:
                         ui.printError("Unknown command! please try again");
-                        ui.printError("CLI Command to use - all lowercase only: e.g. print, todo, deadline, del, exit [or press Enter key], etc.");
+                        ui.printError("CLI Command to use (all lowercase only): See Main Menu Legend for the correct Commands Syntax");
+                        ui.printWelcome();
                 }
 
             } catch (TaskManagerException e) {
@@ -339,7 +319,7 @@ public class TaskManager {
     }
 
     private void showCal(String line) throws TaskManagerException {
-        description = Parser.getDesc(line);
+        description = Parser.getTaskDesc(line);
         int n = 0;
         if (description.isEmpty()) {
             throw new TaskManagerException("Empty description for CAL. Check Legend for Command Syntax.");
@@ -376,7 +356,9 @@ public class TaskManager {
         }
 
     }
+
     private static int countTab = 0;
+
     private void archiveDoneTasks(TaskList tasks) {
         BufferedWriter bw = null;
         FileWriter fw = null;
@@ -395,9 +377,9 @@ public class TaskManager {
             }
 
             ui.showToUser("Archived all completed Tasks successfully!" + System.lineSeparator());
-        }catch(IOException e){
+        } catch (IOException e) {
             ui.printError("File IO error! Contact Admin");
-        }finally {
+        } finally {
 
             toClose(bw);
             toClose(fw);
@@ -418,7 +400,7 @@ public class TaskManager {
     }
 
     private void rmDoneTask(String line) throws TaskManagerException {
-        description = Parser.getDesc(line);
+        description = Parser.getTaskDesc(line);
         int n = 0, tab;
         if (description.isEmpty()) {
             throw new TaskManagerException("Empty description for FDEL. Check Legend for Command Syntax.");
@@ -451,7 +433,6 @@ public class TaskManager {
         }
     }
 
-
     private void showTodo(TaskList tasks) {
         map.clear();
         ui.showToUser(System.lineSeparator() + "[SubMenu]: Todo Tasks");
@@ -470,25 +451,8 @@ public class TaskManager {
 
     }
 
-    private void showDeadline(TaskList tasks) {
-        map.clear();
-        ui.showToUser(System.lineSeparator() + "[SubMenu]: Deadline Tasks");
-        ui.showToUser("----------");
-
-        for (int i = 0, j = 1; i < taskCount; i++) {
-            if (tasks.getItem(i) instanceof Deadline) {
-                map.put(j, i);
-                ui.showToUser("[" + (j) + "] " + tasks.getItem(i));
-                j++;
-            }
-        }
-        if (map.isEmpty()) {
-            ui.showToUser("Deadline Tasks List is currently empty!");
-        }
-    }
-
     private void rmTodo(String line) throws TaskManagerException {
-        description = Parser.getDesc(line);
+        description = Parser.getTaskDesc(line);
         int n = 0, tab;
         if (description.isEmpty()) {
             throw new TaskManagerException("Empty description for TDEL. Check Legend for Command Syntax.");
@@ -521,8 +485,25 @@ public class TaskManager {
         }
     }
 
+    private void showDeadline(TaskList tasks) {
+        map.clear();
+        ui.showToUser(System.lineSeparator() + "[SubMenu]: Deadline Tasks");
+        ui.showToUser("----------");
+
+        for (int i = 0, j = 1; i < taskCount; i++) {
+            if (tasks.getItem(i) instanceof Deadline) {
+                map.put(j, i);
+                ui.showToUser("[" + (j) + "] " + tasks.getItem(i));
+                j++;
+            }
+        }
+        if (map.isEmpty()) {
+            ui.showToUser("Deadline Tasks List is currently empty!");
+        }
+    }
+
     private void rmDeadline(String line) throws TaskManagerException {
-        description = Parser.getDesc(line);
+        description = Parser.getTaskDesc(line);
         int n = 0, tab;
         if (description.isEmpty()) {
             throw new TaskManagerException("Empty description for DDEL. Check Legend for Command Syntax.");
@@ -554,6 +535,19 @@ public class TaskManager {
         }
     }
 
+    private void toClose(Closeable obj) {   //for possible closure technical glitch
+
+        if (obj != null) {
+
+            try {
+                obj.close();
+
+            } catch (IOException ex) {
+                ui.printError("Possible disc error / file system full!" + ex.getMessage());
+            }
+        }
+    }
+
     private void flushToDisk(String filePath) {
         try {
             storage.writeFile(tasks, filePath);    // preserve work file data format correctness & currency
@@ -562,6 +556,13 @@ public class TaskManager {
         }
     }
 
+    private void appendToFile() {
+        try {
+            storage.appendFile(storage.getWorkFile(), taskCount - 1);
+        } catch (TaskManagerException e) {
+            ui.printError(e.getMessage());
+        }
+    }
 
     public static void main(String[] args) {
 

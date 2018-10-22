@@ -15,7 +15,6 @@ import java.util.Scanner;
 class Ui {
     private Scanner in;
 
-
     Ui(){
         in = new Scanner(System.in);
     }

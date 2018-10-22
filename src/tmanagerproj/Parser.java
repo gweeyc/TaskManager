@@ -1,15 +1,15 @@
 package tmanagerproj;
 
- public class Parser {
+ class Parser {
     private static StringBuilder l = new StringBuilder(25);
 
-    public static void strBuilderTrim() {
+     private static void strBuilderTrim() {
         if (l.length() > 25 && l.length() < 52 || l.length() > 52 && l.length() < 106) {
             l.trimToSize();   // for limited RAM case
         }
     }
 
-    public static String getCommandWord(String fullCommand) {
+     static String getCommandWord(String fullCommand) {
         l.setLength(0);
         l.insert(0, fullCommand);
         strBuilderTrim();
@@ -21,7 +21,7 @@ package tmanagerproj;
             }
     }
 
-    public static String getDesc(String str) {
+    static String getTaskDesc(String str) {
         l.setLength(0);
         l.insert(0, str);
         strBuilderTrim();
@@ -35,11 +35,11 @@ package tmanagerproj;
 
     }
 
-    public static Task createTodo(String line){
+     static Task createTodo(String line){
         return new Todo(line);
     }
 
-    public static Task createDeadline(String desc, String by){
+     static Task createDeadline(String desc, String by){
         return new Deadline(desc, by);
     }
 }

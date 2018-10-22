@@ -34,6 +34,6 @@ import java.util.ArrayList;
 
     void removeItem(int n){
         array.remove(n - 1);
-    }
+    }  // number from displayed List_number
 
 }
