@@ -35,7 +35,7 @@ class Ui {
 
         print("");
         print("               ||       *+++++++++++++++++++++++++++++++++++++       ||");
-        print("                  ||--- |  Welcome to TaskManage Main Menu!  | ---|| ");
+        print("                  ||--- |  Welcome to TaskManager Main Menu!  | ---|| ");
         print("               ||       *+++++++++++++++++++++++++++++++++++++       ||");
         print("");
         print("");
@@ -49,15 +49,18 @@ class Ui {
         print("[] update a Task Done Status                  : done List_Number");
         print("[] exit or quit                               : exit, or just press Enter Key");
         print("-------------------------------------------------------------------------------------");
-        print("[] to display the whole Tasks List            : print");
-        print("[] to display Todo Tasks SubMenu              : showt");
-        print("[] to display Deadline Tasks SubMenu          : showd");
-        print("[] to display Completed Tasks SubMenu         : showf");
-        print("[] to display a Specific Month's Calendar     : cal Digit_No. (1 - 12 for Jan - Dec)");
+        print("[] display the whole Tasks List               : print or mshow");
+        print("[] display Todo Tasks SubMenu                 : tshow");
+        print("[] display Deadline Tasks SubMenu             : dshow");
+        print("[] display Done Tasks SubMenu                 : fshow");
+        print("[] display a Specific Month's Calendar        : cal Digit_No. (1 - 12 for Jan - Dec)");
         print("-------------------------------------------------------------------------------------");
-        print("[] delete any task in TaskManager Menu        : rmm List_No.");
-        print("[] delete a Todo task in Todo SubMenu         : rmt List_No.");
-        print("[] delete a Deadline task in Deadline SubMenu : rmd List_No.");
+        print("[] delete any task in TaskManager Main Menu   : mdel List_No.");
+        print("[] delete a Todo task in Todo SubMenu         : tdel List_No.");
+        print("[] delete a Deadline task in Deadline SubMenu : ddel List_No.");
+        print("[] delete a Done task in Done SubMenu         : fdel List_No.");
+        print("-------------------------------------------------------------------------------------");
+        print("[] remove & archive all Done Tasks to file    : fa");
         print("-------------------------------------------------------------------------------------");
         print("");
         calMonthDisplay(year, month);

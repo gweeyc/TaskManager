@@ -1,7 +1,6 @@
 package tmanagerproj;
 
-import java.io.Closeable;
-import java.io.IOException;
+import java.io.*;
 import java.util.LinkedHashMap;
 import java.util.Map;
 
@@ -24,7 +23,7 @@ public class TaskManager {
     private boolean flag = true;
     private static Map<Integer, Integer> map = new LinkedHashMap<>();
     static int taskCount;
-    static final int YEAR = 2018;
+    private static final int YEAR = 2018;
     private static String description = null;
 
     /**
@@ -93,7 +92,7 @@ public class TaskManager {
         description = Parser.getDesc(line);
 
         if (description.isEmpty()) {
-            throw new TaskManagerException("Empty description for DONE");
+            throw new TaskManagerException("Empty description for DONE. Check Legend for Command Syntax.");
         } else {
             int num = 0;
 
@@ -114,11 +113,11 @@ public class TaskManager {
 
                     flushToDisk(storage.getWorkFile());
                 } else {
-                    ui.printError("<Error>: TaskNo. exceeds total number in records of \"" + listSize + "\". Pl try again!" + System.lineSeparator());
+                    ui.printError("Error: TaskNo. exceeds total number in records of \"" + listSize + "\". Pl try again!" + System.lineSeparator());
                 }
 
             } else {
-                ui.printError("<Error>: TaskNo. value cannot be negative or 0 or a non-digit. Pl try again!" + System.lineSeparator());
+                ui.printError("Error: TaskNo. value cannot be negative or 0 or a non-digit. Pl try again!" + System.lineSeparator());
             }
         }
     }
@@ -127,7 +126,7 @@ public class TaskManager {
         description = Parser.getDesc(line);
         int n = 0;
         if (description.isEmpty()) {
-            throw new TaskManagerException("Empty description for RMM");
+            throw new TaskManagerException("Empty description for MDEL. Check Legend for Command Syntax");
         } else {
 
             try {
@@ -161,13 +160,13 @@ public class TaskManager {
         description = Parser.getDesc(line);
 
         if (description.isEmpty()) {
-            throw new TaskManagerException("Empty description for TODO");
+            throw new TaskManagerException("Empty description for TODO. Check Legend for Command Syntax.");
         } else {
             tasks.toArray().forEach((t) -> {    //exclude duplicates
 
                 if (t instanceof Todo && t.getDesc().equalsIgnoreCase(description)) {
                     flag = true;
-                    ui.printError("Task: << \"todo " + description + "\" >> already found in Register. Pl re-try!");
+                    ui.printError("Task: \"todo " + description + "\" already found in Register. Pl re-try!");
                 }
             });
 
@@ -192,7 +191,7 @@ public class TaskManager {
         description = Parser.getDesc(line);
 
         if (description.isEmpty()) {
-            throw new TaskManagerException("Empty description for DEADLINE");
+            throw new TaskManagerException("Empty description for DEADLINE. Check Legend for Command Syntax.");
         } else if (!description.contains("/by")) {
             ui.printError("CLI Syntax Error! Deadline input must use a \" /by \" as a delimiter between two text strings! Pl re-enter!");
         } else {
@@ -203,7 +202,7 @@ public class TaskManager {
 
                 if (t instanceof Deadline && t.getDesc().equalsIgnoreCase(part[0]) && ((Deadline) t).getBy().equalsIgnoreCase(part[1])) {
                     flag = true;
-                    ui.printError("Task: << \"todo " + description + "\"  >> already found in Register. Pl re-try!");
+                    ui.printError("Task: \"todo " + description + "\"  already found in Register. Pl re-try!");
                 }
             }
 
@@ -248,57 +247,71 @@ public class TaskManager {
                     case "todo":
                         ui.printWelcome();
                         addTodo(scanLine);
+                        ui.printTask(tasks);
                         break;
 
                     case "deadline":
                         ui.printWelcome();
                         addDeadline(scanLine);
+                        ui.printTask(tasks);
                         break;
 
                     case "done":
                         ui.printWelcome();
                         updateTask(scanLine);
+                        ui.printTask(tasks);
                         break;
 
-                    case "rmm":
+                    case "mdel":
                         ui.printWelcome();
                         delTask(scanLine);
+                        ui.printTask(tasks);
                         break;
 
-                    case "showt":
+                    case "tshow":
                         ui.printWelcome();
                         showTodo(tasks);
                         break;
 
-                    case "rmt":
+                    case "tdel":
                         ui.printWelcome();
                         rmTodo(scanLine);
+                        showTodo(tasks);
                         break;
 
-                    case "showd":
+                    case "dshow":
                         ui.printWelcome();
                         showDeadline(tasks);
                         break;
 
-                    case "rmd":
+                    case "ddel":
                         rmDeadline(scanLine);
+                        showDeadline(tasks);
                         break;
 
-                    case "showf":
+                    case "fshow":
                         ui.printWelcome();
                         showDoneTasks(tasks);
                         break;
 
-                    case "rmf":
+                    case "fdel":
                         ui.printWelcome();
                         rmDoneTask(scanLine);
+                        showDoneTasks(tasks);
+                        break;
+
+                    case "fa":
+                        ui.printWelcome();
+                        archiveDoneTasks(tasks);
+                        ui.printTask(tasks);
+                        flushToDisk(storage.getWorkFile());
                         break;
 
                     case "cal":
                         showCal(scanLine);
                         break;
 
-                    case "print":
+                    case "print": case "mshow":
                         ui.printWelcome();
                         ui.printTask(tasks);
 
@@ -311,7 +324,7 @@ public class TaskManager {
 
                     default:
                         ui.printError("Unknown command! please try again");
-                        ui.printError("<< CLI Command to use - all lowercase only: e.g. print, todo, deadline, del, exit [or press Enter key], etc. >>");
+                        ui.printError("CLI Command to use - all lowercase only: e.g. print, todo, deadline, del, exit [or press Enter key], etc.");
                 }
 
             } catch (TaskManagerException e) {
@@ -329,7 +342,7 @@ public class TaskManager {
         description = Parser.getDesc(line);
         int n = 0;
         if (description.isEmpty()) {
-            throw new TaskManagerException("Empty description for CAL");
+            throw new TaskManagerException("Empty description for CAL. Check Legend for Command Syntax.");
         } else {
 
             try {
@@ -345,27 +358,70 @@ public class TaskManager {
 
     private void showDoneTasks(TaskList tasks) {
         map.clear();
-        ui.showToUser(System.lineSeparator() + "[SubMenu]: Completed Tasks");
+        ui.showToUser(System.lineSeparator() + "[SubMenu]: Done Tasks");
         ui.showToUser("----------");
 
         for (int i = 0, j = 1; i < taskCount; i++) {
+
             if (tasks.getItem(i).isDone) {
                 map.put(j, i);
                 ui.showToUser("[" + (j) + "] " + tasks.getItem(i));
                 j++;
+
             }
         }
+
         if (map.isEmpty()) {
-            ui.showToUser("Completed Tasks List is currently empty!");
+            ui.showToUser("Done Tasks List is currently empty!");
         }
 
+    }
+    private static int countTab = 0;
+    private void archiveDoneTasks(TaskList tasks) {
+        BufferedWriter bw = null;
+        FileWriter fw = null;
+        try {
+            fw = new FileWriter("data_backup/archived.txt", true);
+            bw = new BufferedWriter(fw);
+
+            for (int i = 0; i < taskCount; i++) {
+
+                if (tasks.getItem(i).isDone) {
+                    bw.write("[" + countTab++ + "] " + tasks.getItem(i).toString() + System.lineSeparator());
+                    tasks.removeItem(i + 1);
+                    i--;
+                    taskCount--;
+                }
+            }
+
+            ui.showToUser("Archived all completed Tasks successfully!" + System.lineSeparator());
+        }catch(IOException e){
+            ui.printError("File IO error! Contact Admin");
+        }finally {
+
+            toClose(bw);
+            toClose(fw);
+         /*   try {
+
+                if (bw != null)
+                    bw.close();
+
+                if (fw != null)
+                    fw.close();
+
+            } catch (IOException ex) {
+
+                ex.printStackTrace();
+
+            } */
+        }
     }
 
     private void rmDoneTask(String line) throws TaskManagerException {
         description = Parser.getDesc(line);
         int n = 0, tab;
         if (description.isEmpty()) {
-            throw new TaskManagerException("Empty description for RMF");
+            throw new TaskManagerException("Empty description for FDEL. Check Legend for Command Syntax.");
         } else {
 
             try {
@@ -435,7 +491,7 @@ public class TaskManager {
         description = Parser.getDesc(line);
         int n = 0, tab;
         if (description.isEmpty()) {
-            throw new TaskManagerException("Empty description for RMT");
+            throw new TaskManagerException("Empty description for TDEL. Check Legend for Command Syntax.");
         } else {
 
             try {
@@ -469,7 +525,7 @@ public class TaskManager {
         description = Parser.getDesc(line);
         int n = 0, tab;
         if (description.isEmpty()) {
-            throw new TaskManagerException("Empty description for RMD");
+            throw new TaskManagerException("Empty description for DDEL. Check Legend for Command Syntax.");
         } else {
 
             try {
