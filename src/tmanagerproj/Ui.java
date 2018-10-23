@@ -38,7 +38,8 @@ class Ui {
         print("                  ||--- |  Welcome to TaskManager Main Menu!  | ---|| ");
         print("               ||       *+++++++++++++++++++++++++++++++++++++       ||");
         print("");
-        print("");
+        calMonthDisplay(year, month);
+        dayTimeDisplay();
         print("Instructions for All CLI Commands Syntax Usage - (Use lowercase only):");
         print("= = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = =");
         print("                                        LEGEND:");
@@ -63,8 +64,7 @@ class Ui {
         print("[] remove & archive all Done Tasks to file    : fa");
         print("-------------------------------------------------------------------------------------");
         print("");
-        calMonthDisplay(year, month);
-        dayTimeDisplay();
+
     }
 
     private void dayTimeDisplay() {

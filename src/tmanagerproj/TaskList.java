@@ -1,11 +1,11 @@
 package tmanagerproj;
 
-import java.util.ArrayList;
+import java.util.List;
 
 class TaskList {
-    private ArrayList<Task> array;
+    private List<Task> array;
 
-    TaskList(ArrayList<Task> array) {
+    TaskList(List<Task> array) {
         this.array = array;
     }
 
@@ -13,7 +13,7 @@ class TaskList {
 
     }
 
-    ArrayList<Task> toArray() {
+    List<Task> toArray() {
         return array;
     }
 
