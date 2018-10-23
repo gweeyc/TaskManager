@@ -1,25 +1,23 @@
 package tmanagerproj;
 
-import java.util.ArrayList;
+import java.util.List;
 
 class TaskList {
-    private ArrayList<Task> array;
+    private List<Task> array;
 
-    TaskList(ArrayList<Task> array) {
+    TaskList(List<Task> array) {
         this.array = array;
     }
 
     TaskList() {
-
     }
 
-    ArrayList<Task> toArray() {
+    List<Task> toArray() {
         return array;
     }
 
     void addTask(Task t) {
         array.add(t);
-
     }
 
     int getSize() {
@@ -30,7 +28,7 @@ class TaskList {
         return array.get(n);
     }
 
-    void removeItem(int n) {
+    void removeItem(int n) {  // n = number from displayed List_number
         array.remove(n - 1);
-    }  // number from displayed List_number
+    }
 }
