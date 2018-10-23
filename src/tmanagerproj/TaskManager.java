@@ -33,7 +33,6 @@ public class TaskManager {
      * @see TaskManagerException
      */
     public TaskManager(String filePath) {   //constructor
-        String altWorkPath = null;
         ui = new Ui();
         storage = new Storage(filePath);
 
@@ -47,26 +46,24 @@ public class TaskManager {
             } catch (TaskManagerException err) {
                 ui.showToUser("Problem reading from backup file encountered also...trying other alternatives...");
                 ui.userPrompt("Pl specify another file path e.g. \"c:/data/filename.txt\" to load from [Press Enter to cancel option] : ");
-                altWorkPath = ui.readUserCommand();
 
-                if (!altWorkPath.equals("")) {
-                    storage.setWorkFile(altWorkPath);
+                if (!ui.readUserCommand().equals("")) {
+                    storage.setWorkFile(ui.readUserCommand());
                 } else {
                     ui.showToUser("Starting with an empty task list.");
                     tasks = new TaskList();
-                    ui.userPrompt("Pl enter your alternate work file path to use for this new session [e.g. \"c:/data/filename.txt\"] ? : ");
-                    altWorkPath = ui.readUserCommand();
-                    if(!altWorkPath.isEmpty()) {
+                    ui.userPrompt("Pl enter your alternate work file path to use for this session [e.g. \"c:/data/filename.txt\"] ? : ");
 
-                        storage.setWorkFile(altWorkPath);
-                        ui.showToUser("You have set " + storage.getWorkFile() + " as your work file.");
+                    if (!ui.readUserCommand().isEmpty()) {
+                        storage.setWorkFile(ui.readUserCommand());
+                        System.out.println(storage.getWorkFile());
                     }
 
-                /*    ui.userPrompt("Pl enter your alternate back up file path to use for this session [e.g. \"c:/data/filename.txt\"] ? : ");
+                    ui.userPrompt("Pl enter your alternate back up file path to use for this session [e.g. \"c:/data/filename.txt\"] ? : ");
 
                     if (!ui.readUserCommand().equals("")) {
                         storage.setBackupPath(ui.readUserCommand());
-                    } */
+                    }
                 }
             }
         }
@@ -131,11 +128,10 @@ public class TaskManager {
             int size = tasks.getSize();
 
             if (n > 0 && n <= size) {
-                String holder = tasks.getItem(n - 1).toString();
                 tasks.removeItem(n);
                 taskCount--;
-                ui.showToUser(System.lineSeparator() + "Message: --> ( \" Task " + holder + " \" ) --> has been successfully removed!");
-                ui.showToUser(System.lineSeparator() + "Tasks in the list: " + taskCount);
+                ui.showToUser("Record successfully removed!");
+                ui.showToUser("Tasks in the list: " + taskCount);
                 flushToDisk(storage.getWorkFile());
             } else {
                 ui.printError("TaskNo. value must be between 1 and " + size + " (total no. of records). Pl retry!!");
@@ -262,6 +258,7 @@ public class TaskManager {
                     case "tdel":
                         ui.printWelcome();
                         rmTodo(scanLine);
+                        showTodo(tasks);
                         break;
 
                     case "dshow":
@@ -271,6 +268,7 @@ public class TaskManager {
 
                     case "ddel":
                         rmDeadline(scanLine);
+                        showDeadline(tasks);
                         break;
 
                     case "fshow":
@@ -281,6 +279,7 @@ public class TaskManager {
                     case "fdel":
                         ui.printWelcome();
                         rmDoneTask(scanLine);
+                        showDoneTasks(tasks);
                         break;
 
                     case "fa":
@@ -428,7 +427,7 @@ public class TaskManager {
                 try {
                     delTask("del " + (1 + map.get(n)));
                     tab = map.size() - 1;
-                    ui.showToUser("Done Tasks remaining in List: " + tab);
+                    ui.showToUser("Done Tasks in List: " + tab);
 
                     if (tab != 0) {
                         showDoneTasks(tasks);
@@ -482,7 +481,7 @@ public class TaskManager {
                 try {
                     delTask("del " + (1 + map.get(n)));
                     tab = map.size() - 1;
-                    ui.showToUser("Todo Tasks remaining in List: " + tab);
+                    ui.showToUser("Todo Tasks in List: " + tab);
 
                     if (tab != 0) {
                         showTodo(tasks);
@@ -533,7 +532,7 @@ public class TaskManager {
                 try {
                     delTask("del " + (1 + map.get(n)));
                     tab = map.size() - 1;
-                    ui.showToUser("Deadline Tasks remaining in List: " + tab);
+                    ui.showToUser("Deadline Tasks in List: " + tab);
 
                     if (tab != 0) {
                         showDeadline(tasks);
@@ -575,6 +574,7 @@ public class TaskManager {
     }
 
     public static void main(String[] args) {
-        new TaskManager("/data/tasks.txt").run();
+        new TaskManager("data/tasks.txt").run();
+
     }
 }
