@@ -12,7 +12,7 @@ public class Task {
         isDone = b;
     }
 
-    String getDesc(){
+    String getDesc() {
         return description;
     }
 
@@ -24,5 +24,4 @@ public class Task {
     public String toFileString() {
         return description;
     }   // description to write to file
-
 }

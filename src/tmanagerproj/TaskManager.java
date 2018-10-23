@@ -35,6 +35,7 @@ public class TaskManager {
     public TaskManager(String filePath) {   //constructor
         ui = new Ui();
         storage = new Storage(filePath);
+
         try {
             tasks = new TaskList(storage.load(filePath));
         } catch (TaskManagerException e) {
@@ -112,6 +113,7 @@ public class TaskManager {
     private void delTask(String line) throws TaskManagerException {
         description = Parser.getTaskDesc(line);
         int n = 0;
+
         if (description.isEmpty()) {
             throw new TaskManagerException("Empty description for MDEL. Check Legend for Command Syntax");
         } else {
@@ -122,7 +124,9 @@ public class TaskManager {
             } catch (NumberFormatException e) {
                 ui.printError("TaskNo. input format error: " + e.getMessage());
             }
+
             int size = tasks.getSize();
+
             if (n > 0 && n <= size) {
                 tasks.removeItem(n);
                 taskCount--;
@@ -321,6 +325,7 @@ public class TaskManager {
     private void showCal(String line) throws TaskManagerException {
         description = Parser.getTaskDesc(line);
         int n = 0;
+
         if (description.isEmpty()) {
             throw new TaskManagerException("Empty description for CAL. Check Legend for Command Syntax.");
         } else {
@@ -362,8 +367,9 @@ public class TaskManager {
     private void archiveDoneTasks(TaskList tasks) {
         BufferedWriter bw = null;
         FileWriter fw = null;
+
         try {
-            fw = new FileWriter("data_backup/archived.txt", true);
+            fw = new FileWriter(storage.getArchivePath(), true);
             bw = new BufferedWriter(fw);
 
             for (int i = 0; i < taskCount; i++) {
@@ -402,6 +408,7 @@ public class TaskManager {
     private void rmDoneTask(String line) throws TaskManagerException {
         description = Parser.getTaskDesc(line);
         int n = 0, tab;
+
         if (description.isEmpty()) {
             throw new TaskManagerException("Empty description for FDEL. Check Legend for Command Syntax.");
         } else {
@@ -439,21 +446,23 @@ public class TaskManager {
         ui.showToUser("----------");
 
         for (int i = 0, j = 1; i < taskCount; i++) {
+
             if (!(tasks.getItem(i) instanceof Deadline)) {
                 map.put(j, i);
                 ui.showToUser("[" + (j) + "] " + tasks.getItem(i));
                 j++;
             }
         }
+
         if (map.isEmpty()) {
             ui.showToUser("Todo Tasks List is currently empty!");
         }
-
     }
 
     private void rmTodo(String line) throws TaskManagerException {
         description = Parser.getTaskDesc(line);
         int n = 0, tab;
+
         if (description.isEmpty()) {
             throw new TaskManagerException("Empty description for TDEL. Check Legend for Command Syntax.");
         } else {
@@ -565,7 +574,6 @@ public class TaskManager {
     }
 
     public static void main(String[] args) {
-
         new TaskManager("data/tasks.txt").run();
 
     }

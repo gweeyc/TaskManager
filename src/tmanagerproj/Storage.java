@@ -12,11 +12,13 @@ import java.util.Objects;
 class Storage {
     private String workFilePath;
     private String backupPath;
+    private String archivePath;
     private ArrayList<Task> tasks = new ArrayList<>();
 
     Storage(String file) {  //constructor
         workFilePath = file;
         backupPath = "data_backup/tasks_bk.txt";
+        archivePath = "data_backup/archived.txt";
     }
 
     String getBackupPath() {
@@ -29,6 +31,10 @@ class Storage {
 
     String getWorkFile() {
         return workFilePath;
+    }
+
+    String getArchivePath() {
+        return archivePath;
     }
 
     void setWorkFile(String filePath) {
@@ -105,7 +111,6 @@ class Storage {
         }
     }
 
-
     void appendFile(String filePath, int index) throws TaskManagerException {
 
         try (FileWriter fw = new FileWriter(filePath, true)) {
@@ -115,5 +120,4 @@ class Storage {
             throw new TaskManagerException("File access has problems..." + err.getMessage());
         }
     }
-
 }

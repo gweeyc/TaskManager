@@ -2,6 +2,7 @@ package tmanagerproj;
 
 import static tmanagerproj.TaskManager.taskCount;
 import static java.lang.System.out;
+
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.Month;
@@ -15,7 +16,7 @@ import java.util.Scanner;
 class Ui {
     private Scanner in;
 
-    Ui(){
+    Ui() {
         in = new Scanner(System.in);
     }
 
@@ -23,11 +24,11 @@ class Ui {
         out.println(s);
     }
 
-    Scanner getScanSource(){
+    Scanner getScanSource() {
         return in;
     }
 
-    void printWelcome(){
+    void printWelcome() {
         LocalDateTime now = LocalDateTime.now();
         int year = now.getYear();
         int month = now.getMonthValue();
@@ -66,7 +67,7 @@ class Ui {
         dayTimeDisplay();
     }
 
-    private void dayTimeDisplay(){
+    private void dayTimeDisplay() {
         GregorianCalendar cal = new GregorianCalendar();
         int year;
         String months[] = {"Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep",
@@ -78,23 +79,23 @@ class Ui {
         out.print("Time: " + cal.get(Calendar.HOUR) + ":" + cal.get(Calendar.MINUTE));
         print(":" + cal.get(Calendar.SECOND));
 
-        if(cal.isLeapYear(year)){
+        if (cal.isLeapYear(year)) {
             print("The current year is a leap year" + System.lineSeparator());
-        }else{
+        } else {
             print("The current year is not a leap year");
             print("");
         }
 
     }
 
-    void calMonthDisplay(int year, int month){
+    void calMonthDisplay(int year, int month) {
 
-         if (month > 1 && month < 12 || year > 1900 )
+        if (month > 1 && month < 12 || year > 1900)
             printMonth(year, month);
         print("");
     }
 
-    private void printMonth(int year, int month){
+    private void printMonth(int year, int month) {
         //Print the headings of the calendar
         printMonthTitle(year, month);
 
@@ -109,21 +110,45 @@ class Ui {
         print(" Sun Mon Tue Wed Thu Fri Sat");
         print("=============================");
     }
+
     private String getMonthName(int month) {
         String monthName = null;
         switch (month) {
-            case 1: monthName = "January"; break;
-            case 2: monthName = "February"; break;
-            case 3: monthName = "March"; break;
-            case 4: monthName = "April"; break;
-            case 5: monthName = "May"; break;
-            case 6: monthName = "June"; break;
-            case 7: monthName = "July"; break;
-            case 8: monthName = "August"; break;
-            case 9: monthName = "September"; break;
-            case 10: monthName = "October"; break;
-            case 11: monthName = "November"; break;
-            case 12: monthName = "December";
+            case 1:
+                monthName = "January";
+                break;
+            case 2:
+                monthName = "February";
+                break;
+            case 3:
+                monthName = "March";
+                break;
+            case 4:
+                monthName = "April";
+                break;
+            case 5:
+                monthName = "May";
+                break;
+            case 6:
+                monthName = "June";
+                break;
+            case 7:
+                monthName = "July";
+                break;
+            case 8:
+                monthName = "August";
+                break;
+            case 9:
+                monthName = "September";
+                break;
+            case 10:
+                monthName = "October";
+                break;
+            case 11:
+                monthName = "November";
+                break;
+            case 12:
+                monthName = "December";
         }
         return monthName;
     }
@@ -151,6 +176,7 @@ class Ui {
         print("");
         print("=============================");
     }
+
     private int getStartDay(int year, int month) {
 
         //Get total number of days since 1/1/1800
@@ -160,6 +186,7 @@ class Ui {
         //Return the start day
         return (totalNumberOfDays + startDay1900) % 7;
     }
+
     private int getTotalNumberOfDays(int year, int month) {   //total number of days between 1,1,1900 to present year and month
         LocalDate ref = LocalDate.of(1900, Month.JANUARY, 1);  //no time zone SG
         LocalDate now = ref.withYear(year).withMonth(month);
@@ -171,22 +198,22 @@ class Ui {
         return ref.lengthOfMonth();
     }
 
-    void showToUser(String str){
+    void showToUser(String str) {
         print(str);
     }
-    void userPrompt(String prompt){
+
+    void userPrompt(String prompt) {
         out.print(prompt);
     }
 
-    String readUserCommand(){
+    String readUserCommand() {
 
         return in.nextLine().trim();
     }
 
-    void printError(String err){
-        showToUser("\u001B[31m" +  err + "\u001B[0m");
+    void printError(String err) {
+        showToUser("\u001B[31m" + err + "\u001B[0m");
     }
-
 
     void printTask(TaskList tasks) {
         showToUser("Tasks:");
@@ -197,7 +224,7 @@ class Ui {
 
     }
 
-    void printShutDown(){
+    void printShutDown() {
         print(System.lineSeparator() + "You've chosen Exit :) -->");
         print("Saving...");
         print("-----");
@@ -205,7 +232,7 @@ class Ui {
 
     }
 
-    void printBye(){
+    void printBye() {
         print("-");
         print("GoodBye :):):)!");
     }
