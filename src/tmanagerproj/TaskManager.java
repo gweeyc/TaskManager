@@ -33,39 +33,54 @@ public class TaskManager {
      * @see TaskManagerException
      */
     public TaskManager(String filePath) {   //constructor
-        String altWorkPath = null;
         ui = new Ui();
         storage = new Storage(filePath);
 
         try {
             tasks = new TaskList(storage.load(filePath));
         } catch (TaskManagerException e) {
-            ui.showToUser("Problem reading file...trying other alternatives...");
+            ui.showToUser("");
+            ui.showToUser("\u001b[33;1m" + "[Message]:-" + "\u001b[0m");
+            ui.printError("Problem reading from work file...trying other alternatives...");
+
             try {
-                ui.showToUser("Loading from a backup copy...");
-                tasks = new TaskList(storage.load(storage.getBackupPath()));
+                ui.showToUser("\u001b[35m" + "...Loading from a backup copy..." + "\u001b[0m");
+                ui.showToUser("\u001b[36;1m" + "Work will be saved to backup file data_backup/tasks._bk.txt for this session..." + "\u001b[0m");
+                ui.showToUser("kindly Contact Administrator to re-instate work file path access after program exit.");
+                String tmp = storage.getBackupPath();
+                tasks = new TaskList(storage.load(tmp));
+                storage.setWorkFile(tmp);
             } catch (TaskManagerException err) {
-                ui.showToUser("Problem reading from backup file encountered also...trying other alternatives...");
-                ui.userPrompt("Pl specify another file path e.g. \"c:/data/filename.txt\" to load from [Press Enter to cancel option] : ");
-                altWorkPath = ui.readUserCommand();
-                if (!altWorkPath.equals("")) {
-                    storage.setWorkFile(altWorkPath);
-                } else {
-                    ui.showToUser("Starting with an empty task list.");
-                    tasks = new TaskList();
-                    ui.userPrompt("Pl enter your alternate work file path to use for this session [e.g. \"c:/data/filename.txt\"] ? : ");
-                    altWorkPath = ui.readUserCommand();
-                    if (!altWorkPath.isEmpty()) {
-                        storage.setWorkFile(altWorkPath);
-                        System.out.println(storage.getWorkFile());
+                ui.printError("Problem reading from backup file also...trying other alternatives...");
+                ui.showToUser("Starting with an empty task List...");
+                tasks = new TaskList();
+                ui.userPrompt("Enter an alternative work file path for this session: ");
+                String path = ui.readUserCommand();
+                File file = new File(path);
+                try {
+                    if(file.createNewFile()){
+                        ui.showToUser("Temp work file: " + path + " successfully created!");
+                        storage.setWorkFile(path);
+                        ui.userPrompt("Enter an alternative backup file path: ");
+                        path = ui.readUserCommand();
+                        file = new File(path);
+
+                        if(file.createNewFile()){
+                            ui.showToUser("Temp backup file: " + path + " successfully created!");
+                            storage.setBackupPath(path);
+                        }else{
+                            ui.showToUser("File already exist");
+                        }
+
+                    }else{
+                        ui.showToUser("File already exist");
                     }
 
-                    ui.userPrompt("Pl enter your alternate back up file path to use for this session [e.g. \"c:/data/filename.txt\"] ? : ");
-                    String altBackPath = ui.readUserCommand();
-                    if (!altBackPath.equals("")) {
-                        storage.setBackupPath(altBackPath);
-                    }
+                }catch(Exception ex){
+                    e.printStackTrace();
+                    ui.showToUser("Contact Administrator!");
                 }
+
             }
         }
     }
@@ -132,7 +147,7 @@ public class TaskManager {
                 String holder = tasks.getItem(n - 1).toString();
                 tasks.removeItem(n);
                 taskCount--;
-                ui.showToUser(System.lineSeparator() + "Message  --> \" Task " + holder + "\" ) --> has been successfully removed!" );
+                ui.showToUser(System.lineSeparator() + "Message: \u231C @ \u231D --> Task " + holder + " has been successfully removed! \u231E @ \u231F" );
                 ui.showToUser(System.lineSeparator() + "Tasks in the list: " + taskCount);
                 flushToDisk(storage.getWorkFile());
             } else {
@@ -152,16 +167,18 @@ public class TaskManager {
         flag = false;
         description = Parser.getTaskDesc(line);
 
-        if (description.isEmpty()) {
+        if (description.isEmpty())
             throw new TaskManagerException("Empty description for TODO. Check Legend for Command Syntax.");
-        } else {
-            tasks.toArray().forEach((t) -> {    //exclude duplicates
+        else {
+            if(!tasks.toArray().isEmpty()){
+                tasks.toArray().forEach((t) -> {    //exclude duplicates
 
-                if (t instanceof Todo && t.getDesc().equalsIgnoreCase(description)) {
-                    flag = true;
-                    ui.printError("Task: \"todo " + description + "\" already found in Register. Pl re-try!");
-                }
-            });
+                    if (t instanceof Todo && t.getDesc().equalsIgnoreCase(description)) {
+                        flag = true;
+                        ui.printError("Task: \"todo " + description + "\" already found in Register. Pl re-try!");
+                    }
+                });
+            }
 
             if (!flag) {
                 tasks.addTask(Parser.createTodo(description));
@@ -246,7 +263,7 @@ public class TaskManager {
                         ui.printTask(tasks);
                         break;
 
-                    case "mdel":
+                    case "del":
                         ui.printWelcome();
                         delTask(scanLine);
                         ui.printTask(tasks);
@@ -262,13 +279,24 @@ public class TaskManager {
                         rmTodo(scanLine);
                         break;
 
+                    case "tdone":
+                        updateTodo(scanLine);
+                        showTodo(tasks);
+                        break;
+
                     case "dshow":
                         ui.printWelcome();
                         showDeadline(tasks);
                         break;
 
                     case "ddel":
+                        ui.printWelcome();
                         rmDeadline(scanLine);
+                        break;
+
+                    case "ddone":
+                        updateDeadline(scanLine);
+                        showDeadline(tasks);
                         break;
 
                     case "fshow":
@@ -293,11 +321,11 @@ public class TaskManager {
                         break;
 
                     case "print":
-                    case "mshow":
+                    case "show":
                         ui.printWelcome();
                         ui.printTask(tasks);
 
-                        if (flag) {            // ensure data format & integrity in file with 1st print
+                        if (flag) {// ensure data format & integrity in file with 1st print
                             flushToDisk(storage.getWorkFile());
                             flag = false;
                         }
@@ -493,21 +521,44 @@ public class TaskManager {
         }
     }
 
+    private void updateTodo(String line) throws TaskManagerException{
+        updateDeadline(line);
+        ui.showToUser("Todo Tasks in List: " + map.size());
+
+    }
+
     private void showDeadline(TaskList tasks) {
         map.clear();
         ui.showToUser(System.lineSeparator() + "[SubMenu]: Deadline Tasks");
         ui.showToUser("----------");
 
-        for (int i = 0, j = 1; i < taskCount; i++) {
+        for (int i = 0, j = 0; i < taskCount; i++) {
             if (tasks.getItem(i) instanceof Deadline) {
-                map.put(j, i);
+                map.put(++j, i);
                 ui.showToUser("[" + (j) + "] " + tasks.getItem(i));
-                j++;
             }
         }
         if (map.isEmpty()) {
             ui.showToUser("Deadline Tasks List is currently empty!");
         }
+    }
+
+    private void updateDeadline(String line) throws TaskManagerException{
+        description = Parser.getTaskDesc(line);
+        int n = 0;
+        if (description.isEmpty()) {
+            throw new TaskManagerException("Empty description for DDONE. Check Legend for Command Syntax.");
+        } else {
+
+            try {
+                n = Integer.parseInt(description);
+
+            } catch (NumberFormatException e) {
+                ui.printError("TaskNo. input format error: " + e.getMessage());
+            }
+        }
+        updateTask("done " + (map.get(n) + 1));
+
     }
 
     private void rmDeadline(String line) throws TaskManagerException {

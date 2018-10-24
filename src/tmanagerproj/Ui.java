@@ -34,6 +34,7 @@ class Ui {
         int month = now.getMonthValue();
 
         print("");
+        print("\u001b[32m");
         print("               ||       *+++++++++++++++++++++++++++++++++++++       ||");
         print("                  ||--- |  Welcome to TaskManager Main Menu!  | ---|| ");
         print("               ||       *+++++++++++++++++++++++++++++++++++++       ||");
@@ -45,24 +46,27 @@ class Ui {
         print("                                        LEGEND:");
         print("                                      ++++++++++ ");
         print("-------------------------------------------------------------------------------------");
-        print("[] todo a Task Syntax                         : todo text...");
-        print("[] deadline a Task Syntax                     : deadline text... /by text...");
-        print("[] update a Task Done Status                  : done List_Number");
-        print("[] exit or quit                               : exit, or just press Enter Key");
+        print("[] add a todo Task                             : todo text...");
+        print("[] add a deadline Task                         : deadline text... /by text...");
+        print("[] update Task Done Status in Main Menu        : done List_Number");
+        print("[] update Task Done Status in Deadline SubMenu : ddone List_Number");
+        print("[] update Task Done Status in Todo SubMenu)    : tdone List_Number");
+        print("[] exit or quit                                : exit, or just press Enter Key");
         print("-------------------------------------------------------------------------------------");
-        print("[] display the whole Tasks List               : print or mshow");
+        print("[] display the whole Tasks List               : print or show");
         print("[] display Todo Tasks SubMenu                 : tshow");
         print("[] display Deadline Tasks SubMenu             : dshow");
         print("[] display Done Tasks SubMenu                 : fshow");
         print("[] display a Specific Month's Calendar        : cal Digit_No. (1 - 12 for Jan - Dec)");
         print("-------------------------------------------------------------------------------------");
-        print("[] delete any task in TaskManager Main Menu   : mdel List_No.");
+        print("[] delete any task in TaskManager Main Menu   : del List_No.");
         print("[] delete a Todo task in Todo SubMenu         : tdel List_No.");
         print("[] delete a Deadline task in Deadline SubMenu : ddel List_No.");
         print("[] delete a Done task in Done SubMenu         : fdel List_No.");
         print("-------------------------------------------------------------------------------------");
         print("[] remove & archive all Done Tasks to file    : fa");
         print("-------------------------------------------------------------------------------------");
+        print("\u001b[0m");
         print("");
 
     }
