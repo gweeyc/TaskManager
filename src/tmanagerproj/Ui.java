@@ -34,15 +34,21 @@ class Ui {
         int month = now.getMonthValue();
 
         print("");
-        print("\u001b[32m");
-        print("               ||       *+++++++++++++++++++++++++++++++++++++       ||");
-        print("                  ||--- |  Welcome to TaskManager Main Menu!  | ---|| ");
-        print("               ||       *+++++++++++++++++++++++++++++++++++++       ||");
+        print("\033[1;96m" + "               ||       *++++++++++++++++++++++++++++++++++++*       ||" + "\033[0m");
+        print("                  " + "\033[1;91m" + "||--- " + "\033[0m" + "\033[0;105m" + "\033[1;90m" + "|  Welcome to TaskManager Main Menu! |" + "\033[0m" + "\033[1;91m" + " ---||" + "\033[0m");
+        print("\033[1;96m" + "               ||       ++++++++++++++++++++++++++++++++++++++       ||" + "\033[0m");
         print("");
+        out.print("\033[0;95m");
         calMonthDisplay(year, month);
+        out.print("\033[0m");
+        out.print("\033[1;96m");
         dayTimeDisplay();
-        print("Instructions for All CLI Commands Syntax Usage - (Use lowercase only):");
+        out.print("\033[0m");
+        out.print("\033[1;31m");
+        print("Instructions for all CLI Commands Syntax Usage - (Use lowercase only):");
         print("= = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = =");
+        out.print("\033[0m");
+        out.print("\033[0;32m");
         print("                                        LEGEND:");
         print("                                      ++++++++++ ");
         print("-------------------------------------------------------------------------------------");
@@ -66,7 +72,7 @@ class Ui {
         print("-------------------------------------------------------------------------------------");
         print("[] remove & archive all Done Tasks to file    : fa");
         print("-------------------------------------------------------------------------------------");
-        print("\u001b[0m");
+        print("\033[0m");
         print("");
 
     }
