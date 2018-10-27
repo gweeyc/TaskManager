@@ -19,12 +19,11 @@ public class TaskManager {
     private Storage storage;
     private TaskList tasks;
     private Ui ui;
-
     private boolean flag = true;
-    private static Map<Integer, Integer> map = new LinkedHashMap<>();
     static int taskCount;
     private static final int YEAR = 2018;
     private static String description = null;
+    private static Map<Integer, Integer> map = new LinkedHashMap<>();  // map submenu List numbers to tasks' index
 
     /**
      * TaskManager constructor to read in the database file, create a Ui, Storage & TaskList obj.
@@ -40,48 +39,71 @@ public class TaskManager {
             tasks = new TaskList(storage.load(filePath));
         } catch (TaskManagerException e) {
             ui.showToUser("");
-            ui.showToUser("\u001b[33;1m" + "[Message]:-" + "\u001b[0m");
+            ui.showToUser("\u001b[33;1m" + "[Message]:" + "\u001b[0m");
             ui.printError("Problem reading from work file...trying other alternatives...");
 
             try {
-                ui.showToUser("\u001b[35m" + "...Loading from a backup copy..." + "\u001b[0m");
-                ui.showToUser("\u001b[36;1m" + "Work will be saved to backup file data_backup/tasks._bk.txt for this session..." + "\u001b[0m");
-                ui.showToUser("kindly Contact Administrator to re-instate work file path access after program exit.");
+                ui.showToUser("\033[1;92m" + "...Loading from a backup copy..." + "\033[0m");
+                ui.showToUser("");
+                ui.showToUser("\033[1;96m" + "Work will be saved to backup file data_backup/tasks._bk.txt for this session..." + "\033[0m");
+                ui.showToUser("\033[1;92m" + "kindly Contact Administrator to re-instate work file path access after program exit." + "\033[0m" + System.lineSeparator());
                 String tmp = storage.getBackupPath();
                 tasks = new TaskList(storage.load(tmp));
                 storage.setWorkFile(tmp);
             } catch (TaskManagerException err) {
-                ui.printError("Problem reading from backup file also...trying other alternatives...");
+                ui.printError("Problem reading from backup file also...trying other alternatives..." + System.lineSeparator());
                 ui.showToUser("Starting with an empty task List...");
                 tasks = new TaskList();
                 ui.userPrompt("Enter an alternative work file path for this session: ");
                 String path = ui.readUserCommand();
                 File file = new File(path);
+
                 try {
-                    if(file.createNewFile()){
+
+                    if (file.createNewFile()) {
                         ui.showToUser("Temp work file: " + path + " successfully created!");
                         storage.setWorkFile(path);
                         ui.userPrompt("Enter an alternative backup file path: ");
                         path = ui.readUserCommand();
                         file = new File(path);
 
-                        if(file.createNewFile()){
+                        if (file.createNewFile()) {
                             ui.showToUser("Temp backup file: " + path + " successfully created!");
                             storage.setBackupPath(path);
-                        }else{
+                        } else {
                             ui.showToUser("File already exist");
                         }
 
-                    }else{
+                    } else {
                         ui.showToUser("File already exist");
                     }
 
-                }catch(Exception ex){
+                } catch (Exception ex) {
                     e.printStackTrace();
-                    ui.showToUser("Contact Administrator!");
+                    ui.showToUser("\033[1;95m" + "Contact Administrator!" + "\033[0m");
                 }
-
             }
+        }
+    }
+
+    private void showCal(String line) throws TaskManagerException {
+        description = Parser.getTaskDesc(line);
+
+        if (description.isEmpty()) {
+            throw new TaskManagerException("Empty description for CAL. Check Legend for Command Syntax.");
+        } else {
+            int n = 0;
+
+            try {
+                n = Integer.parseInt(description);
+
+            } catch (NumberFormatException e) {
+                ui.printError("TaskNo. input format error: " + e.getMessage());
+            }
+
+            ui.showToUser("\033[1;96m");
+            ui.calMonthDisplay(YEAR, n);
+            ui.showToUser("\033[0m");
         }
     }
 
@@ -98,10 +120,10 @@ public class TaskManager {
         if (description.isEmpty()) {
             throw new TaskManagerException("Empty description for DONE. Check Legend for Command Syntax.");
         } else {
-            int num = 0;
+            int n = 0;
 
             try {
-                num = Integer.parseInt(description.trim());
+                n = Integer.parseInt(description.trim());
 
             } catch (NumberFormatException e) {
                 ui.printError("TaskNo. Input Format Error <- " + e.getMessage());
@@ -109,10 +131,10 @@ public class TaskManager {
 
             int listSize = tasks.getSize();
 
-            if (num > 0) {
+            if (n > 0) {
 
-                if (num <= listSize) {
-                    tasks.getItem(num - 1).setDone(true);
+                if (n <= listSize) {
+                    tasks.getItem(n - 1).setDone(true);
                     ui.showToUser("Tasks in the list: " + taskCount);
 
                     flushToDisk(storage.getWorkFile());
@@ -128,11 +150,11 @@ public class TaskManager {
 
     private void delTask(String line) throws TaskManagerException {
         description = Parser.getTaskDesc(line);
-        int n = 0;
 
         if (description.isEmpty()) {
             throw new TaskManagerException("Empty description for MDEL. Check Legend for Command Syntax");
         } else {
+            int n = 0;
 
             try {
                 n = Integer.parseInt(description);
@@ -147,7 +169,9 @@ public class TaskManager {
                 String holder = tasks.getItem(n - 1).toString();
                 tasks.removeItem(n);
                 taskCount--;
-                ui.showToUser(System.lineSeparator() + "Message: \u231C @ \u231D --> Task " + holder + " has been successfully removed! \u231E @ \u231F" );
+                ui.showToUser(System.lineSeparator() + "\033[1;95m" + "Message: " + "\033[0m" + "\u231C" + "\033[1;93m" + " @ " + "\033[0m" +
+                        "\u231D --> Task " + "\033[1;95m" + holder + "\033[0m" + " has been successfully removed! --> \u231E"
+                        + "\033[1;95m" + " :) " + "\033[0m" + "\u231F");
                 ui.showToUser(System.lineSeparator() + "Tasks in the list: " + taskCount);
                 flushToDisk(storage.getWorkFile());
             } else {
@@ -170,7 +194,7 @@ public class TaskManager {
         if (description.isEmpty())
             throw new TaskManagerException("Empty description for TODO. Check Legend for Command Syntax.");
         else {
-            if(!tasks.toArray().isEmpty()){
+            if (!tasks.toArray().isEmpty()) {
                 tasks.toArray().forEach((t) -> {    //exclude duplicates
 
                     if (t instanceof Todo && t.getDesc().equalsIgnoreCase(description)) {
@@ -211,7 +235,6 @@ public class TaskManager {
             if (!flag) {
 
                 try {
-                    //    tasks.add(new Deadline(part[0], part[1]));
                     tasks.addTask(Parser.createDeadline(part[0], part[1]));
 
                 } catch (ArrayIndexOutOfBoundsException e) {
@@ -349,28 +372,9 @@ public class TaskManager {
         ui.printBye();
     }
 
-    private void showCal(String line) throws TaskManagerException {
-        description = Parser.getTaskDesc(line);
-        int n = 0;
-
-        if (description.isEmpty()) {
-            throw new TaskManagerException("Empty description for CAL. Check Legend for Command Syntax.");
-        } else {
-
-            try {
-                n = Integer.parseInt(description);
-
-            } catch (NumberFormatException e) {
-                ui.printError("TaskNo. input format error: " + e.getMessage());
-            }
-
-            ui.calMonthDisplay(YEAR, n);
-        }
-    }
-
     private void showDoneTasks(TaskList tasks) {
         map.clear();
-        ui.showToUser(System.lineSeparator() + "[SubMenu]: Done Tasks");
+        ui.showToUser(System.lineSeparator() + "\033[1;95m" + "[SubMenu]:" + "\033[0m" + " Done Tasks");
         ui.showToUser("----------");
 
         for (int i = 0, j = 1; i < taskCount; i++) {
@@ -416,29 +420,16 @@ public class TaskManager {
 
             toClose(bw);
             toClose(fw);
-         /*   try {
-
-                if (bw != null)
-                    bw.close();
-
-                if (fw != null)
-                    fw.close();
-
-            } catch (IOException ex) {
-
-                ex.printStackTrace();
-
-            } */
         }
     }
 
     private void rmDoneTask(String line) throws TaskManagerException {
         description = Parser.getTaskDesc(line);
-        int n = 0, tab;
 
         if (description.isEmpty()) {
             throw new TaskManagerException("Empty description for FDEL. Check Legend for Command Syntax.");
         } else {
+            int n = 0;
 
             try {
                 n = Integer.parseInt(description);
@@ -453,7 +444,7 @@ public class TaskManager {
 
                 try {
                     delTask("del " + (1 + map.get(n)));
-                    tab = map.size() - 1;
+                    int tab = map.size() - 1;
                     ui.showToUser("Done Tasks remaining in List: " + tab);
 
                     if (tab != 0) {
@@ -469,7 +460,7 @@ public class TaskManager {
 
     private void showTodo(TaskList tasks) {
         map.clear();
-        ui.showToUser(System.lineSeparator() + "[SubMenu]: Todo Tasks");
+        ui.showToUser(System.lineSeparator() + "\033[1;95m" + "[SubMenu]:" + "\033[0m" + " Todo Tasks");
         ui.showToUser("----------");
 
         for (int i = 0, j = 1; i < taskCount; i++) {
@@ -488,11 +479,11 @@ public class TaskManager {
 
     private void rmTodo(String line) throws TaskManagerException {
         description = Parser.getTaskDesc(line);
-        int n = 0, tab;
 
         if (description.isEmpty()) {
             throw new TaskManagerException("Empty description for TDEL. Check Legend for Command Syntax.");
         } else {
+            int n = 0;
 
             try {
                 n = Integer.parseInt(description);
@@ -507,7 +498,7 @@ public class TaskManager {
 
                 try {
                     delTask("del " + (1 + map.get(n)));
-                    tab = map.size() - 1;
+                    int tab = map.size() - 1;
                     ui.showToUser("Todo Tasks remaining in List: " + tab);
 
                     if (tab != 0) {
@@ -521,7 +512,7 @@ public class TaskManager {
         }
     }
 
-    private void updateTodo(String line) throws TaskManagerException{
+    private void updateTodo(String line) throws TaskManagerException {
         updateDeadline(line);
         ui.showToUser("Todo Tasks in List: " + map.size());
 
@@ -529,7 +520,7 @@ public class TaskManager {
 
     private void showDeadline(TaskList tasks) {
         map.clear();
-        ui.showToUser(System.lineSeparator() + "[SubMenu]: Deadline Tasks");
+        ui.showToUser(System.lineSeparator() + "\033[1;95m" + "[SubMenu]:" + "\033[0m" + " Deadline Tasks");
         ui.showToUser("----------");
 
         for (int i = 0, j = 0; i < taskCount; i++) {
@@ -543,12 +534,13 @@ public class TaskManager {
         }
     }
 
-    private void updateDeadline(String line) throws TaskManagerException{
+    private void updateDeadline(String line) throws TaskManagerException {
         description = Parser.getTaskDesc(line);
-        int n = 0;
+
         if (description.isEmpty()) {
             throw new TaskManagerException("Empty description for DDONE. Check Legend for Command Syntax.");
         } else {
+            int n = 0;
 
             try {
                 n = Integer.parseInt(description);
@@ -556,17 +548,20 @@ public class TaskManager {
             } catch (NumberFormatException e) {
                 ui.printError("TaskNo. input format error: " + e.getMessage());
             }
-        }
-        updateTask("done " + (map.get(n) + 1));
 
+            if(n > 0 && n <= map.size()) {
+                updateTask("done " + (map.get(n) + 1));
+            }
+        }
     }
 
     private void rmDeadline(String line) throws TaskManagerException {
         description = Parser.getTaskDesc(line);
-        int n = 0, tab;
+
         if (description.isEmpty()) {
             throw new TaskManagerException("Empty description for DDEL. Check Legend for Command Syntax.");
         } else {
+            int n = 0;
 
             try {
                 n = Integer.parseInt(description);
@@ -581,7 +576,7 @@ public class TaskManager {
 
                 try {
                     delTask("del " + (1 + map.get(n)));
-                    tab = map.size() - 1;
+                    int tab = map.size() - 1;
                     ui.showToUser("Deadline Tasks remaining in List: " + tab);
 
                     if (tab != 0) {

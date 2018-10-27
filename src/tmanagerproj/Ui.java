@@ -35,10 +35,10 @@ class Ui {
 
         print("");
         print("\033[1;96m" + "               ||       *++++++++++++++++++++++++++++++++++++*       ||" + "\033[0m");
-        print("                  " + "\033[1;91m" + "||--- " + "\033[0m" + "\033[0;105m" + "\033[1;90m" + "|  Welcome to TaskManager Main Menu! |" + "\033[0m" + "\033[1;91m" + " ---||" + "\033[0m");
+        print("                  " + "\033[1;91m" + "||--- " + "\033[0m" + "\033[0;102m" + "\033[1;97m" + "|  Welcome to TaskManager Main Menu! |" + "\033[0m" + "\033[1;91m" + " ---||" + "\033[0m");
         print("\033[1;96m" + "               ||       ++++++++++++++++++++++++++++++++++++++       ||" + "\033[0m");
         print("");
-        out.print("\033[0;95m");
+        out.print("\033[0;94m");
         calMonthDisplay(year, month);
         out.print("\033[0m");
         out.print("\033[1;96m");
@@ -198,7 +198,7 @@ class Ui {
     }
 
     private int getTotalNumberOfDays(int year, int month) {   //total number of days between 1,1,1900 to present year and month
-        LocalDate ref = LocalDate.of(1900, Month.JANUARY, 1);  //no time zone SG
+        LocalDate ref = LocalDate.of(1900, Month.JANUARY, 1);  //no time zone: SG
         LocalDate now = ref.withYear(year).withMonth(month);
         return (int) ChronoUnit.DAYS.between(ref, now);
     }

@@ -1,14 +1,12 @@
 T : 1 : submit a report
 D : 1 : remind boss meeting : Sat 4pm
 D : 1 : join sports club : June 6th
-T : 1 : read a book
 T : 1 : check the next Maths exam date
 T : 1 : read a new text reference book
 T : 1 : check Chemistry term time exam date
-D : 0 : Complete TIC2002 Project : Week 13th
+D : 1 : Complete TIC2002 Project : Week 13th
 T : 1 : Test prep for Network Module Mid-term test
 T : 1 : submit a junit Test Doc
-D : 1 : remind Fred next meeting : this Fri 4pm
 D : 1 : join chess club : Dec 29th
 T : 1 : read two more English Literature books
 T : 1 : check the next Maths exam date
@@ -17,3 +15,4 @@ T : 1 : check Chemistry exam date
 D : 1 : Check Program Test OK? : Week 13th of 2018
 D : 1 : Test run mobile app TaskManager : Dec 20th
 T : 1 : Prep for Security Module Mid-term test
+T : 0 : read a new book
