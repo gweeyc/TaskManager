@@ -22,7 +22,8 @@ public class TaskManager {
     private boolean flag = true;
     static int taskCount;
     private static final int YEAR = 2018;
-    private static String description = null;
+    private static String description;
+    private static String arg0;
     private static Map<Integer, Integer> map = new LinkedHashMap<>();  // map submenu List numbers to tasks' index
 
     /**
@@ -250,7 +251,6 @@ public class TaskManager {
     private void run() {
         ui.printWelcome();
         boolean toExit = false;
-        String arg0;
         String scanLine;
 
         do {
