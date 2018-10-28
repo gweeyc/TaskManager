@@ -58,7 +58,7 @@ class Storage {
             }
 
         } catch (IOException e) {
-            throw new TaskManagerException("");
+            throw new TaskManagerException("Problems reading from work file path...");
 
         } finally {
             tasks.removeIf(Objects::isNull);

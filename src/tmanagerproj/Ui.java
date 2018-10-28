@@ -174,7 +174,7 @@ class Ui {
         // Pad space before the first day of the month
         int i = 0;
         for (i = 0; i < startDay; i++)
-            out.print("    ");
+            out.print("    ");  // 4 spaces: e.g. _SUN_MON_TUE...
         for (i = 1; i <= daysInMonth; i++) {
             if (i < 10)
                 out.print("   " + i);
@@ -187,18 +187,18 @@ class Ui {
         print("=============================");
     }
 
-    private int getStartDay(int year, int month) {
+    private int getStartDay(int year, int month) {   //Get total number of days since 1,1,1900.
 
-        //Get total number of days since 1/1/1800
-        int startDay1900 = 1;  // For Jan 1900 is 1 Mon, 1752 or 1800 is 3 = Wed) <- (weekday no. 0 - 6 = Sun - Sat)
+        // For Jan 1900 is startDay of the Week is 1 Mon (for 1752 or 1800, use 3 for Wed).
+        int startDay1900 = 1;               //  Weekday 0 - 6 corresponds to Sun - Sat.
         int totalNumberOfDays = getTotalNumberOfDays(year, month);
 
         //Return the start day
         return (totalNumberOfDays + startDay1900) % 7;
     }
 
-    private int getTotalNumberOfDays(int year, int month) {   //total number of days between 1,1,1900 to present year and month
-        LocalDate ref = LocalDate.of(1900, Month.JANUARY, 1);  //no time zone: SG
+    private int getTotalNumberOfDays(int year, int month) {   //total number of days between 1,1,1900 to current year, month
+        LocalDate ref = LocalDate.of(1900, Month.JANUARY, 1);  //no time zone in SG
         LocalDate now = ref.withYear(year).withMonth(month);
         return (int) ChronoUnit.DAYS.between(ref, now);
     }

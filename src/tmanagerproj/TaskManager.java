@@ -16,15 +16,15 @@ import java.util.Map;
  */
 
 public class TaskManager {
-    private Storage storage;
-    private TaskList tasks;
-    private Ui ui;
-    private boolean flag = true;
+    Storage storage;
+    TaskList tasks;
+    Ui ui;
+    boolean flag = true;
     static int taskCount;
-    private static final int YEAR = 2018;
-    private static String description;
-    private static String arg0;
-    private static Map<Integer, Integer> map = new LinkedHashMap<>();  // map submenu List numbers to tasks' index
+    static final int YEAR = 2018;
+    static String description;
+    static String arg0;
+    static Map<Integer, Integer> map = new LinkedHashMap<>();  // map submenu List numbers to tasks' index
 
     /**
      * TaskManager constructor to read in the database file, create a Ui, Storage & TaskList obj.
@@ -32,7 +32,7 @@ public class TaskManager {
      * @param filePath database file's path.
      * @see TaskManagerException
      */
-    public TaskManager(String filePath) {   //constructor
+    protected TaskManager(String filePath) {   //constructor
         ui = new Ui();
         storage = new Storage(filePath);
 
@@ -41,7 +41,7 @@ public class TaskManager {
         } catch (TaskManagerException e) {
             ui.showToUser("");
             ui.showToUser("\u001b[33;1m" + "[Message]:" + "\u001b[0m");
-            ui.printError("Problem reading from work file...trying other alternatives...");
+            ui.printError(e.getMessage() + " ...trying other alternatives...");
 
             try {
                 ui.showToUser("\033[1;92m" + "...Loading from a backup copy..." + "\033[0m");
@@ -52,7 +52,7 @@ public class TaskManager {
                 tasks = new TaskList(storage.load(tmp));
                 storage.setWorkFile(tmp);
             } catch (TaskManagerException err) {
-                ui.printError("Problem reading from backup file also...trying other alternatives..." + System.lineSeparator());
+                ui.printError(err.getMessage() + " ...trying other alternatives..." + System.lineSeparator());
                 ui.showToUser("Starting with an empty task List...");
                 tasks = new TaskList();
                 ui.userPrompt("Enter an alternative work file path for this session: ");
@@ -87,7 +87,11 @@ public class TaskManager {
         }
     }
 
-    private void showCal(String line) throws TaskManagerException {
+    protected TaskManager(){
+
+    }
+
+    void showCal(String line) throws TaskManagerException {
         description = Parser.getTaskDesc(line);
 
         if (description.isEmpty()) {
@@ -115,7 +119,7 @@ public class TaskManager {
      * @throws TaskManagerException on missing task number that should follow the CLI "done" command
      */
 
-    private void updateTask(String line) throws TaskManagerException {
+    protected void updateTask(String line) throws TaskManagerException {
         description = Parser.getTaskDesc(line);
 
         if (description.isEmpty()) {
@@ -124,7 +128,7 @@ public class TaskManager {
             int n = 0;
 
             try {
-                n = Integer.parseInt(description.trim());
+                n = Integer.parseInt(description);
 
             } catch (NumberFormatException e) {
                 ui.printError("TaskNo. Input Format Error <- " + e.getMessage());
@@ -149,7 +153,7 @@ public class TaskManager {
         }
     }
 
-    private void delTask(String line) throws TaskManagerException {
+    protected void delTask(String line) throws TaskManagerException {
         description = Parser.getTaskDesc(line);
 
         if (description.isEmpty()) {
@@ -188,7 +192,7 @@ public class TaskManager {
      * @see TaskManagerException
      */
 
-    private void addTodo(String line) throws TaskManagerException {
+    protected void addTodo(String line) throws TaskManagerException {
         flag = false;
         description = Parser.getTaskDesc(line);
 
@@ -213,7 +217,7 @@ public class TaskManager {
         }
     }
 
-    private void addDeadline(String line) throws TaskManagerException {
+    protected void addDeadline(String line) throws TaskManagerException {
         flag = false;
         description = Parser.getTaskDesc(line);
 
@@ -256,7 +260,7 @@ public class TaskManager {
         do {
 
             ui.userPrompt("Your task? ");
-            scanLine = ui.readUserCommand();
+            scanLine = ui.readUserCommand().trim();
             arg0 = Parser.getCommandWord(scanLine);
 
             try {
@@ -372,7 +376,7 @@ public class TaskManager {
         ui.printBye();
     }
 
-    private void showDoneTasks(TaskList tasks) {
+    void showDoneTasks(TaskList tasks) {
         map.clear();
         ui.showToUser(System.lineSeparator() + "\033[1;95m" + "[SubMenu]:" + "\033[0m" + " Done Tasks");
         ui.showToUser("----------");
@@ -395,7 +399,7 @@ public class TaskManager {
 
     private static int countTab = 0;
 
-    private void archiveDoneTasks(TaskList tasks) {
+    protected void archiveDoneTasks(TaskList tasks) {
         BufferedWriter bw = null;
         FileWriter fw = null;
 
@@ -423,7 +427,7 @@ public class TaskManager {
         }
     }
 
-    private void rmDoneTask(String line) throws TaskManagerException {
+    protected void rmDoneTask(String line) throws TaskManagerException {
         description = Parser.getTaskDesc(line);
 
         if (description.isEmpty()) {
@@ -458,7 +462,7 @@ public class TaskManager {
         }
     }
 
-    private void showTodo(TaskList tasks) {
+    void showTodo(TaskList tasks) {
         map.clear();
         ui.showToUser(System.lineSeparator() + "\033[1;95m" + "[SubMenu]:" + "\033[0m" + " Todo Tasks");
         ui.showToUser("----------");
@@ -477,7 +481,7 @@ public class TaskManager {
         }
     }
 
-    private void rmTodo(String line) throws TaskManagerException {
+    protected void rmTodo(String line) throws TaskManagerException, NumberFormatException {
         description = Parser.getTaskDesc(line);
 
         if (description.isEmpty()) {
@@ -490,6 +494,7 @@ public class TaskManager {
 
             } catch (NumberFormatException e) {
                 ui.printError("TaskNo. input format error: " + e.getMessage());
+                throw e;
             }
 
             if (n <= 0 || n > map.size()) {
@@ -512,13 +517,13 @@ public class TaskManager {
         }
     }
 
-    private void updateTodo(String line) throws TaskManagerException {
+    protected void updateTodo(String line) throws TaskManagerException {
         updateDeadline(line);
         ui.showToUser("Todo Tasks in List: " + map.size());
 
     }
 
-    private void showDeadline(TaskList tasks) {
+    void showDeadline(TaskList tasks) {
         map.clear();
         ui.showToUser(System.lineSeparator() + "\033[1;95m" + "[SubMenu]:" + "\033[0m" + " Deadline Tasks");
         ui.showToUser("----------");
@@ -534,7 +539,7 @@ public class TaskManager {
         }
     }
 
-    private void updateDeadline(String line) throws TaskManagerException {
+    protected void updateDeadline(String line) throws TaskManagerException {
         description = Parser.getTaskDesc(line);
 
         if (description.isEmpty()) {
@@ -555,7 +560,7 @@ public class TaskManager {
         }
     }
 
-    private void rmDeadline(String line) throws TaskManagerException {
+    protected void rmDeadline(String line) throws TaskManagerException {
         description = Parser.getTaskDesc(line);
 
         if (description.isEmpty()) {

@@ -11,13 +11,14 @@ class Parser {
 
     static String getCommandWord(String fullCommand) {
         l.setLength(0);
-        l.insert(0, fullCommand);
+        String strTrim = fullCommand.trim();
+        l.insert(0,strTrim );
         strBuilderTrim();
 
         if (l.indexOf(" ") > 0) {
             return l.substring(0, l.indexOf(" "));  // get the first word
         } else {
-            return fullCommand;    // allow for single command print, exit, etc
+            return strTrim;    // allow for single command print, exit, etc
         }
     }
 

@@ -28,9 +28,9 @@ class TaskList {
 
     Task getItem(int n) {
         return array.get(n);
-    }
+    } // n: index in arrayList
 
     void removeItem(int n) {
         array.remove(n - 1);
-    }  // number from displayed List_number
+    }  // n: number from displayed List_number
 }
