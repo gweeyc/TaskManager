@@ -17,7 +17,7 @@ class Storage {
 
     Storage(String file) {  //constructor
         workFilePath = file;
-        backupPath = "data_backup/tasks_bk.txt";
+        backupPath = "/data_backup/tasks_bk.txt";
         archivePath = "data_backup/archived.txt";
     }
 
@@ -58,7 +58,7 @@ class Storage {
             }
 
         } catch (IOException e) {
-            throw new TaskManagerException("");
+            throw new TaskManagerException("Problems reading from work file path...");
 
         } finally {
             tasks.removeIf(Objects::isNull);
