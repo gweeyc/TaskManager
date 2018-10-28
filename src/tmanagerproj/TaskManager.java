@@ -55,16 +55,19 @@ public class TaskManager {
                 ui.printError(err.getMessage() + " ...trying other alternatives..." + System.lineSeparator());
                 ui.showToUser("Starting with an empty task List...");
                 tasks = new TaskList();
-                ui.userPrompt("Enter an alternative work file path for this session: ");
+                assert tasks.toArray().isEmpty() : "Task List not empty";  //assert test1
+                ui.userPrompt("Enter an alternative work file path, e.g. new.txt, for this session : ");
                 String path = ui.readUserCommand();
                 File file = new File(path);
+                assert file.isDirectory() : "invalid file path input!"; //assert test2
+
 
                 try {
 
                     if (file.createNewFile()) {
                         ui.showToUser("Temp work file: " + path + " successfully created!");
                         storage.setWorkFile(path);
-                        ui.userPrompt("Enter an alternative backup file path: ");
+                        ui.userPrompt("Enter an alternative backup file path, e.g. bk.txt : ");
                         path = ui.readUserCommand();
                         file = new File(path);
 
@@ -81,7 +84,7 @@ public class TaskManager {
 
                 } catch (Exception ex) {
                     e.printStackTrace();
-                    ui.showToUser("\033[1;95m" + "Contact Administrator!" + "\033[0m");
+                    ui.showToUser("\033[1;95m" + "Please Contact Administrator!" + "\033[0m");
                 }
             }
         }
@@ -107,7 +110,9 @@ public class TaskManager {
             }
 
             ui.showToUser("\033[1;96m");
+            assert n > 0 && n <= 12 : "Invalid month input";
             ui.calMonthDisplay(YEAR, n);
+
             ui.showToUser("\033[0m");
         }
     }
@@ -624,7 +629,7 @@ public class TaskManager {
     }
 
     public static void main(String[] args) {
-        new TaskManager("data/tasks.txt").run();
+        new TaskManager("/data/tasks.txt").run();
 
     }
 }
