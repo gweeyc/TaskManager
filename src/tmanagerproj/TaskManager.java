@@ -53,61 +53,38 @@ public class TaskManager {
                 storage.setWorkFile(tmp);
             } catch (TaskManagerException err) {
                 ui.printError(err.getMessage() + " ...trying other alternatives..." + System.lineSeparator());
-                ui.showToUser("Starting with an empty task List...");
-                tasks = new TaskList();
-                assert tasks.toArray().isEmpty() : "Task List not empty";  //assert test1
-                ui.userPrompt("Enter an alternative work file path, e.g. new.txt, for this session : ");
-                String path = ui.readUserCommand();
-                File file = new File(path);
-                assert file.isDirectory() : "invalid file path input!"; //assert test2
-
 
                 try {
+                    String newWorkFile = createFileAsPerUserInput("Enter a work file path for this session, e.g. new.txt"
+                            + " (without a drive letter) : ");
+                    storage.setWorkFile(newWorkFile);
+                    String backupFile = createFileAsPerUserInput("Enter an a backup file path, e.g. bk.txt : ");
+                    storage.setBackupPath(backupFile);
+                    ui.showToUser("Starting with an empty Task List created for this session only...");
 
-                    if (file.createNewFile()) {
-                        ui.showToUser("Temp work file: " + path + " successfully created!");
-                        storage.setWorkFile(path);
-                        ui.userPrompt("Enter an alternative backup file path, e.g. bk.txt : ");
-                        path = ui.readUserCommand();
-                        file = new File(path);
+                    tasks = new TaskList(storage.loadArray());
 
-                        if (file.createNewFile()) {
-                            ui.showToUser("Temp backup file: " + path + " successfully created!");
-                            storage.setBackupPath(path);
-                        } else {
-                            ui.showToUser("File already exist");
-                        }
+                    assert tasks.toArray().isEmpty() : "Task List not empty";  //assert test1
 
-                    } else {
-                        ui.showToUser("File already exist");
-                    }
-
-                } catch (Exception ex) {
-                    e.printStackTrace();
+                } catch (IOException e1) {
+                    e1.printStackTrace();
                     ui.showToUser("\033[1;95m" + "Please Contact Administrator!" + "\033[0m");
                 }
             }
         }
     }
 
-    protected TaskManager(){
+    protected TaskManager(){  // default constructor
 
     }
 
-    void showCal(String line) throws TaskManagerException {
+    void displayCal(String line) throws TaskManagerException {
         description = Parser.getTaskDesc(line);
 
         if (description.isEmpty()) {
             throw new TaskManagerException("Empty description for CAL. Check Legend for Command Syntax.");
         } else {
-            int n = 0;
-
-            try {
-                n = Integer.parseInt(description);
-
-            } catch (NumberFormatException e) {
-                ui.printError("TaskNo. input format error: " + e.getMessage());
-            }
+            int n = getListedNumber("TaskNo. input format error: ");
 
             ui.showToUser("\033[1;96m");
             assert n > 0 && n <= 12 : "Invalid month input";
@@ -115,6 +92,42 @@ public class TaskManager {
 
             ui.showToUser("\033[0m");
         }
+    }
+
+    private String createFileAsPerUserInput(String prompt) throws IOException {
+        ui.userPrompt(prompt);
+        String path = ui.readUserCommand();
+        File file = new File(path);
+
+        assert file.exists() : "No file path has been entered";  // assert 3
+
+        boolean isFileNew = file.createNewFile();
+
+        if (!isFileNew) {
+            ui.showToUser("File already exist!");
+        }
+
+        return path;
+    }
+
+    private void checkCommandSyntax(String line) throws TaskManagerException {
+        description = Parser.getTaskDesc(line);
+
+        if (description.isEmpty()) {
+            throw new TaskManagerException("Empty description for " + Parser.getCommandWord(line).toUpperCase() +
+                    ". Enter print to check Legend for Command Syntax");
+        }
+    }
+
+    private int getListedNumber(String s) {
+        int n = 0;
+        try {
+            n = Integer.parseInt(description);
+
+        } catch (NumberFormatException e) {
+            ui.printError(s + e.getMessage());
+        }
+        return n;
     }
 
     /**
@@ -125,19 +138,9 @@ public class TaskManager {
      */
 
     protected void updateTask(String line) throws TaskManagerException {
-        description = Parser.getTaskDesc(line);
+        checkCommandSyntax(line);
 
-        if (description.isEmpty()) {
-            throw new TaskManagerException("Empty description for DONE. Check Legend for Command Syntax.");
-        } else {
-            int n = 0;
-
-            try {
-                n = Integer.parseInt(description);
-
-            } catch (NumberFormatException e) {
-                ui.printError("TaskNo. Input Format Error <- " + e.getMessage());
-            }
+            int n = getListedNumber("TaskNo. Input Format Error <- ");
 
             int listSize = tasks.getSize();
 
@@ -147,47 +150,36 @@ public class TaskManager {
                     tasks.getItem(n - 1).setDone(true);
                     ui.showToUser("Tasks in the list: " + taskCount);
 
-                    flushToDisk(storage.getWorkFile());
+                    flushToDisk(storage.getWorkFile());  // update the work file
                 } else {
-                    ui.printError("Error: TaskNo. exceeds total number in records of \"" + listSize + "\". Pl try again!" + System.lineSeparator());
+                    ui.printError("Error: TaskNo. greater than the total number in records of \"" + listSize + "\". Pl try again!" + System.lineSeparator());
                 }
 
             } else {
                 ui.printError("Error: TaskNo. value cannot be negative or 0 or a non-digit. Pl try again!" + System.lineSeparator());
             }
-        }
     }
 
     protected void delTask(String line) throws TaskManagerException {
-        description = Parser.getTaskDesc(line);
+        checkCommandSyntax(line);
 
-        if (description.isEmpty()) {
-            throw new TaskManagerException("Empty description for MDEL. Check Legend for Command Syntax");
+        int n = getListedNumber("TaskNo. Input Format Error <- ");
+
+        int size = tasks.getSize();
+
+        if (n > 0 && n <= size) {
+            String holder = tasks.getItem(n - 1).toString();
+            tasks.removeItem(n);
+            taskCount--;
+            ui.showToUser(System.lineSeparator() + "\033[1;93m" + "Message:- " + "\033[0m"
+                    + "\033[1;31m" + " --> "+ "\033[0m" + "Task " + "\033[1;96m" + holder + "\033[0m" + " has been successfully removed! " + "\033[1;31m" + " --> "
+                    + "\033[0m" + "\033[1;95m" + ";)" + "\033[0m");
+            ui.showToUser(System.lineSeparator() + "Tasks in the list: " + taskCount);
+            flushToDisk(storage.getWorkFile());   // update the work file
         } else {
-            int n = 0;
-
-            try {
-                n = Integer.parseInt(description);
-
-            } catch (NumberFormatException e) {
-                ui.printError("TaskNo. input format error: " + e.getMessage());
-            }
-
-            int size = tasks.getSize();
-
-            if (n > 0 && n <= size) {
-                String holder = tasks.getItem(n - 1).toString();
-                tasks.removeItem(n);
-                taskCount--;
-                ui.showToUser(System.lineSeparator() + "\033[1;95m" + "Message: " + "\033[0m" + "\u231C" + "\033[1;93m" + " @ " + "\033[0m" +
-                        "\u231D --> Task " + "\033[1;95m" + holder + "\033[0m" + " has been successfully removed! --> \u231E"
-                        + "\033[1;95m" + " :) " + "\033[0m" + "\u231F");
-                ui.showToUser(System.lineSeparator() + "Tasks in the list: " + taskCount);
-                flushToDisk(storage.getWorkFile());
-            } else {
-                ui.printError("TaskNo. value must be between 1 and " + size + " (total no. of records). Pl retry!!");
-            }
+            ui.printError("TaskNo. value must be between 1 and " + size + " (= total no. of records). Pl retry!!");
         }
+
     }
 
     /**
@@ -199,11 +191,8 @@ public class TaskManager {
 
     protected void addTodo(String line) throws TaskManagerException {
         flag = false;
-        description = Parser.getTaskDesc(line);
+        checkCommandSyntax(line);
 
-        if (description.isEmpty())
-            throw new TaskManagerException("Empty description for TODO. Check Legend for Command Syntax.");
-        else {
             if (!tasks.toArray().isEmpty()) {
                 tasks.toArray().forEach((t) -> {    //exclude duplicates
 
@@ -219,16 +208,13 @@ public class TaskManager {
                 ui.showToUser("Tasks in the list: " + ++taskCount);
                 appendToFile();
             }
-        }
     }
 
     protected void addDeadline(String line) throws TaskManagerException {
         flag = false;
-        description = Parser.getTaskDesc(line);
+        checkCommandSyntax(line);
 
-        if (description.isEmpty()) {
-            throw new TaskManagerException("Empty description for DEADLINE. Check Legend for Command Syntax.");
-        } else if (!description.contains("/by")) {
+        if (!description.contains("/by")) {
             ui.printError("CLI Syntax Error! Deadline input must use a \" /by \" as a delimiter between two text strings! Pl re-enter!");
         } else {
 
@@ -307,8 +293,8 @@ public class TaskManager {
                         break;
 
                     case "tdel":
-                        ui.printWelcome();
                         rmTodo(scanLine);
+                        showTodo(tasks);
                         break;
 
                     case "tdone":
@@ -322,8 +308,8 @@ public class TaskManager {
                         break;
 
                     case "ddel":
-                        ui.printWelcome();
                         rmDeadline(scanLine);
+                        showDeadline(tasks);
                         break;
 
                     case "ddone":
@@ -337,8 +323,8 @@ public class TaskManager {
                         break;
 
                     case "fdel":
-                        ui.printWelcome();
                         rmDoneTask(scanLine);
+                        showDoneTasks(tasks);
                         break;
 
                     case "fa":
@@ -349,7 +335,7 @@ public class TaskManager {
                         break;
 
                     case "cal":
-                        showCal(scanLine);
+                        displayCal(scanLine);
                         break;
 
                     case "print":
@@ -366,8 +352,7 @@ public class TaskManager {
 
                     default:
                         ui.printError("Unknown command! please try again");
-                        ui.printError("CLI Command to use (all lowercase only): See Main Menu Legend for the correct Commands Syntax");
-                        ui.printWelcome();
+                        ui.printError("CLI Command to use (all lowercase only): Enter print or show to see Commands Syntax Legend.");
                 }
 
             } catch (TaskManagerException e) {
@@ -381,7 +366,7 @@ public class TaskManager {
         ui.printBye();
     }
 
-    void showDoneTasks(TaskList tasks) {
+    protected void showDoneTasks(TaskList tasks) {
         map.clear();
         ui.showToUser(System.lineSeparator() + "\033[1;95m" + "[SubMenu]:" + "\033[0m" + " Done Tasks");
         ui.showToUser("----------");
@@ -424,7 +409,7 @@ public class TaskManager {
 
             ui.showToUser("Archived all completed Tasks successfully!" + System.lineSeparator());
         } catch (IOException e) {
-            ui.printError("File IO error! Contact Admin");
+            ui.printError("File IO error! Please Contact Admin!");
         } finally {
 
             toClose(bw);
@@ -433,19 +418,9 @@ public class TaskManager {
     }
 
     protected void rmDoneTask(String line) throws TaskManagerException {
-        description = Parser.getTaskDesc(line);
+        checkCommandSyntax(line);
 
-        if (description.isEmpty()) {
-            throw new TaskManagerException("Empty description for FDEL. Check Legend for Command Syntax.");
-        } else {
-            int n = 0;
-
-            try {
-                n = Integer.parseInt(description);
-
-            } catch (NumberFormatException e) {
-                ui.printError("TaskNo. input format error: " + e.getMessage());
-            }
+        int n = getListedNumber("TaskNo. Input Format Error <- ");
 
             if (n <= 0 || n > map.size()) {
                 ui.showToUser("List number is invalid. Pl re-try!");
@@ -464,7 +439,6 @@ public class TaskManager {
                     ui.printError("Array access error");
                 }
             }
-        }
     }
 
     void showTodo(TaskList tasks) {
@@ -487,20 +461,9 @@ public class TaskManager {
     }
 
     protected void rmTodo(String line) throws TaskManagerException, NumberFormatException {
-        description = Parser.getTaskDesc(line);
+        checkCommandSyntax(line);
 
-        if (description.isEmpty()) {
-            throw new TaskManagerException("Empty description for TDEL. Check Legend for Command Syntax.");
-        } else {
-            int n = 0;
-
-            try {
-                n = Integer.parseInt(description);
-
-            } catch (NumberFormatException e) {
-                ui.printError("TaskNo. input format error: " + e.getMessage());
-                throw e;
-            }
+        int n = getListedNumber("TaskNo. Input Format Error <- ");
 
             if (n <= 0 || n > map.size()) {
                 ui.showToUser("List number is invalid. Pl re-try!");
@@ -519,11 +482,17 @@ public class TaskManager {
                     ui.printError("Array access error");
                 }
             }
-        }
     }
 
     protected void updateTodo(String line) throws TaskManagerException {
-        updateDeadline(line);
+        checkCommandSyntax(line);
+
+        int n = getListedNumber("TaskNo. Input Format Error <- ");
+
+        if(n > 0 && n <= map.size()) {
+            updateTask("done " + (map.get(n) + 1));
+        }
+
         ui.showToUser("Todo Tasks in List: " + map.size());
 
     }
@@ -545,40 +514,20 @@ public class TaskManager {
     }
 
     protected void updateDeadline(String line) throws TaskManagerException {
-        description = Parser.getTaskDesc(line);
+        checkCommandSyntax(line);
 
-        if (description.isEmpty()) {
-            throw new TaskManagerException("Empty description for DDONE. Check Legend for Command Syntax.");
-        } else {
-            int n = 0;
-
-            try {
-                n = Integer.parseInt(description);
-
-            } catch (NumberFormatException e) {
-                ui.printError("TaskNo. input format error: " + e.getMessage());
-            }
+        int n = getListedNumber("TaskNo. Input Format Error <- ");
 
             if(n > 0 && n <= map.size()) {
                 updateTask("done " + (map.get(n) + 1));
             }
-        }
+        ui.showToUser("Deadline Tasks in List: " + map.size());
     }
 
     protected void rmDeadline(String line) throws TaskManagerException {
-        description = Parser.getTaskDesc(line);
+        checkCommandSyntax(line);
 
-        if (description.isEmpty()) {
-            throw new TaskManagerException("Empty description for DDEL. Check Legend for Command Syntax.");
-        } else {
-            int n = 0;
-
-            try {
-                n = Integer.parseInt(description);
-
-            } catch (NumberFormatException e) {
-                ui.printError("TaskNo. input format error: " + e.getMessage());
-            }
+        int n = getListedNumber("TaskNo. Input Format Error <- ");
 
             if (n <= 0 || n > map.size()) {
                 ui.showToUser("List number is invalid. Pl re-try!");
@@ -596,7 +545,6 @@ public class TaskManager {
                     ui.printError("Array access error");
                 }
             }
-        }
     }
 
     private void toClose(Closeable obj) {   //for possible closure technical glitch

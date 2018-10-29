@@ -10,7 +10,7 @@ public class TaskManagerTest {
     @Test
     public void showCal_exceptionThrown_test(){
         try {
-            objTest.showCal("cal ");
+            objTest.displayCal("cal ");
             fail();
         }catch(TaskManagerException e){
             assertEquals("Empty description for CAL. Check Legend for Command Syntax.", e.getMessage());
@@ -24,7 +24,7 @@ public class TaskManagerTest {
             objTest.rmDoneTask("fdel d");
             fail();
         } catch (NumberFormatException e) {
-            assertEquals(e.getMessage(), e.getMessage());
+            assertEquals("x", e.getMessage());
         }catch(TaskManagerException err){
         assertEquals("Empty description for FDEL. Check Legend for Command Syntax.", err.getMessage());
         }

@@ -41,6 +41,10 @@ class Storage {
         workFilePath = filePath;
     }
 
+    public ArrayList<Task> loadArray() {
+        return tasks;
+    }
+
     ArrayList<Task> load(String file) throws TaskManagerException {
         //load from file
         String line = null;

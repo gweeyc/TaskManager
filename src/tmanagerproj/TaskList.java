@@ -9,10 +9,6 @@ class TaskList {
         this.array = array;
     }
 
-    TaskList() {
-
-    }
-
     List<Task> toArray() {
         return array;
     }
