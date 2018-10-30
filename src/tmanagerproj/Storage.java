@@ -1,19 +1,16 @@
 package tmanagerproj;
 
 import static tmanagerproj.TaskManager.taskCount;
-
 import java.io.BufferedReader;
 import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
-import java.util.ArrayList;
 import java.util.Objects;
 
 class Storage {
     private String workFilePath;
     private String backupPath;
     private String archivePath;
-    private ArrayList<Task> tasks = new ArrayList<>();
 
     Storage(String file) {  //constructor
         workFilePath = file;
@@ -41,20 +38,18 @@ class Storage {
         workFilePath = filePath;
     }
 
-    public ArrayList<Task> loadArray() {
-        return tasks;
-    }
 
-    ArrayList<Task> load(String file) throws TaskManagerException {
-        //load from file
-        String line = null;
+    TaskList load(String file) throws TaskManagerException {      //load from work file
+        TaskList tasks = new TaskList();
+        String line;
+
         try (BufferedReader reader = new BufferedReader(new FileReader(file))) {
             line = reader.readLine().trim();
 
             while (line != null) {
 
                 if (!line.equals("")) {
-                    tasks.add(createTask(line));
+                    tasks.addTask(createTask(line));
                     ++taskCount;
                 }
 
@@ -65,7 +60,7 @@ class Storage {
             throw new TaskManagerException("Problems reading from work file path...");
 
         } finally {
-            tasks.removeIf(Objects::isNull);
+            tasks.toArray().removeIf(Objects::isNull);
 
         }
         return tasks;
@@ -115,10 +110,10 @@ class Storage {
         }
     }
 
-    void appendFile(String filePath, int index) throws TaskManagerException {
+    void appendFile(TaskList tasks, String filePath, int index) throws TaskManagerException {
 
         try (FileWriter fw = new FileWriter(filePath, true)) {
-            fw.write(tasks.get(index).toFileString() + System.lineSeparator());
+            fw.write(tasks.getItem(index).toFileString() + System.lineSeparator());
 
         } catch (IOException err) {
             throw new TaskManagerException("File access has problems..." + err.getMessage());

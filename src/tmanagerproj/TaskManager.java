@@ -37,34 +37,35 @@ public class TaskManager {
         storage = new Storage(filePath);
 
         try {
-            tasks = new TaskList(storage.load(filePath));
+            tasks = storage.load(filePath);
         } catch (TaskManagerException e) {
             ui.showToUser("");
-            ui.showToUser("\u001b[33;1m" + "[Message]:" + "\u001b[0m");
-            ui.printError(e.getMessage() + " ...trying other alternatives...");
+            ui.showToUser("\033[4;33m" + "[ MESSAGE ]:-" + "\033[0m");
+            ui.printError(e.getMessage() + "trying other alternatives...");
 
             try {
-                ui.showToUser("\033[1;92m" + "...Loading from a backup copy..." + "\033[0m");
-                ui.showToUser("");
-                ui.showToUser("\033[1;96m" + "Work will be saved to backup file data_backup/tasks._bk.txt for this session..." + "\033[0m");
-                ui.showToUser("\033[1;92m" + "kindly Contact Administrator to re-instate work file path access after program exit." + "\033[0m" + System.lineSeparator());
+                ui.showToUser("\033[1;92m" + "..Loading from a backup copy.." + "\033[0m");
+                ui.showToUser("\033[1;96m" + "Default backup path will be set to \"data_backup/tasks_bk.txt\" if available....."
+                        + "\033[0m" + System.lineSeparator());
+                ui.showToUser("\033[1;92m" + "Kindly Contact Administrator to re-instate work file path access after program exit."
+                        + "\033[0m" + System.lineSeparator());
                 String tmp = storage.getBackupPath();
-                tasks = new TaskList(storage.load(tmp));
+                tasks = storage.load(tmp);
                 storage.setWorkFile(tmp);
             } catch (TaskManagerException err) {
-                ui.printError(err.getMessage() + " ...trying other alternatives..." + System.lineSeparator());
+                ui.printError("Problems reading the backup file path also...trying other alternatives...");
 
                 try {
                     String newWorkFile = createFileAsPerUserInput("Enter a work file path for this session, e.g. new.txt"
                             + " (without a drive letter) : ");
                     storage.setWorkFile(newWorkFile);
                     storage.setBackupPath("bak.txt");
-                    ui.showToUser("...Setting up a backup file \"bak.txt\" for this session...successful." + System.lineSeparator());
+                    ui.showToUser("...Setting up a backup file \"bak.txt\" for this session...successful!" + System.lineSeparator());
                     ui.showToUser("Starting with an empty Task List created for current session only...");
 
-                    tasks = new TaskList(storage.loadArray());
+                    tasks = new TaskList();
 
-                    assert tasks.toArray().isEmpty() : "Task List not empty";  //assert statement 01
+                    assert tasks.getSize() == 0 : "Task List not empty";  //assert statement 01
 
                 } catch (IOException e1) {
                     e1.printStackTrace();
@@ -172,7 +173,8 @@ public class TaskManager {
             tasks.removeItem(n);
             taskCount--;
             ui.showToUser(System.lineSeparator() + "\033[1;93m" + "Message:- " + "\033[0m"
-                    + "\033[1;31m" + " --> " + "\033[0m" + "Task " + "\033[1;96m" + holder + "\033[0m" + " has been successfully removed! " + "\033[1;31m" + " --> "
+                    + "\033[1;95m" + ":)" + "\033[0m" + "\033[1;31m" + " --> " + "\033[0m"
+                    + "Task " + "\033[1;96m" + holder + "\033[0m" + " has been successfully removed! " + "\033[1;31m" + " --> "
                     + "\033[0m" + "\033[1;95m" + ";)" + "\033[0m");
             ui.showToUser(System.lineSeparator() + "Tasks in the list: " + taskCount);
             flushToDisk(storage.getWorkFile());   // update the work file
@@ -294,7 +296,6 @@ public class TaskManager {
 
                     case "tdel":
                         rmTodo(scanLine);
-                        showTodo(tasks);
                         break;
 
                     case "tdone":
@@ -309,7 +310,6 @@ public class TaskManager {
 
                     case "ddel":
                         rmDeadline(scanLine);
-                        showDeadline(tasks);
                         break;
 
                     case "ddone":
@@ -324,7 +324,6 @@ public class TaskManager {
 
                     case "fdel":
                         rmDoneTask(scanLine);
-                        showDoneTasks(tasks);
                         break;
 
                     case "fa":
@@ -364,6 +363,18 @@ public class TaskManager {
         ui.printShutDown();
         flushToDisk(storage.getBackupPath());
         ui.printBye();
+    }
+
+    private void traceItemLoc(String line, String s) throws TaskManagerException {  // for done status updates in ArrayList
+        checkCommandSyntax(line);
+
+        int n = getListedNumber();
+        assert (map.size()) > 0 : "map Set is empty!";  //assert statement 13
+
+        if (n > 0 && n <= map.size()) {
+            updateTask("done " + (map.get(n) + 1));
+        }
+        ui.showToUser(s + map.size());
     }
 
     protected void showDoneTasks(TaskList tasks) {
@@ -431,10 +442,7 @@ public class TaskManager {
                 delTask("del " + (1 + map.get(n)));
                 int tab = map.size() - 1;
                 ui.showToUser("Done Tasks remaining in List: " + tab);
-
-                if (tab != 0) {
                     showDoneTasks(tasks);
-                }
 
             } catch (TaskManagerException e) {
                 ui.printError("Array access error");
@@ -476,10 +484,7 @@ public class TaskManager {
                 delTask("del " + (1 + map.get(n)));
                 int tab = map.size() - 1;
                 ui.showToUser("Todo Tasks remaining in List: " + tab);
-
-                if (tab != 0) {
-                    showTodo(tasks);
-                }
+                showTodo(tasks);
 
             } catch (TaskManagerException e) {
                 ui.printError("Array access error");
@@ -488,16 +493,7 @@ public class TaskManager {
     }
 
     protected void updateTodo(String line) throws TaskManagerException {
-        checkCommandSyntax(line);
-
-        int n = getListedNumber();
-        assert (map.size() > 0) : "map Set is empty!";  //assert statement 11
-
-        if (n > 0 && n <= map.size()) {
-            updateTask("done " + (map.get(n) + 1));
-        }
-
-        ui.showToUser("Todo Tasks in List: " + map.size());
+        traceItemLoc(line, "Todo Tasks in List: ");
 
     }
 
@@ -519,15 +515,7 @@ public class TaskManager {
     }
 
     protected void updateDeadline(String line) throws TaskManagerException {
-        checkCommandSyntax(line);
-
-        int n = getListedNumber();
-        assert (map.size()) > 0 : "map Set is empty!";  //assert statement 13
-
-        if (n > 0 && n <= map.size()) {
-            updateTask("done " + (map.get(n) + 1));
-        }
-        ui.showToUser("Deadline Tasks in List: " + map.size());
+        traceItemLoc(line, "Deadline Tasks in List: ");
     }
 
     protected void rmDeadline(String line) throws TaskManagerException {
@@ -544,10 +532,8 @@ public class TaskManager {
                 delTask("del " + (1 + map.get(n)));
                 int tab = map.size() - 1;
                 ui.showToUser("Deadline Tasks remaining in List: " + tab);
-
-                if (tab != 0) {
                     showDeadline(tasks);
-                }
+
             } catch (TaskManagerException e) {
                 ui.printError("Array access error");
             }
@@ -577,7 +563,7 @@ public class TaskManager {
 
     private void appendToFile() {
         try {
-            storage.appendFile(storage.getWorkFile(), taskCount - 1);
+            storage.appendFile(tasks, storage.getWorkFile(), taskCount - 1);
         } catch (TaskManagerException e) {
             ui.printError(e.getMessage());
         }

@@ -38,7 +38,7 @@ class Ui {
         print("                  " + "\033[1;91m" + "||--- " + "\033[0m" + "\033[0;105m" + "\033[1;97m" + "|  Welcome to TaskManager Main Menu! |" + "\033[0m" + "\033[1;91m" + " ---||" + "\033[0m");
         print("\033[1;96m" + "               ||       ++++++++++++++++++++++++++++++++++++++       ||" + "\033[0m");
         print("");
-        out.print("\033[0;94m");
+        out.print("\033[0;93m");
         calMonthDisplay(year, month);
         out.print("\033[0m");
         out.print("\033[1;96m");
@@ -73,7 +73,8 @@ class Ui {
         print("[] remove & archive all Done Tasks to file    : fa");
         print("-------------------------------------------------------------------------------------");
         print("\033[0m");
-        print("");
+        print("[ NB ]: - All SubMenu commands must begin with the 1st. character of task type:");
+        print("t for todo task e.g. tshow, d for deadline task e.g. ddel, f for done task e.g. fshow." + System.lineSeparator());
 
     }
 

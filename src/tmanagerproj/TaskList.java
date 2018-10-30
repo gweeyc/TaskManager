@@ -1,21 +1,22 @@
 package tmanagerproj;
 
+import java.util.ArrayList;
 import java.util.List;
+
 
 class TaskList {
     private List<Task> array;
 
-    TaskList(List<Task> array) {
-        this.array = array;
+    TaskList() {
+        array = new ArrayList<>();
     }
 
     List<Task> toArray() {
         return array;
-    }
+    }   // directly access the TaskList's ArrayList Collection
 
     void addTask(Task t) {
         array.add(t);
-
     }
 
     int getSize() {

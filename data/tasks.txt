@@ -14,6 +14,7 @@ T : 1 : check Chemistry exam date
 D : 1 : Check Program Test OK? : Week 13th of 2018
 D : 1 : Test run mobile app TaskManager : Dec 20th
 T : 1 : Prep for Security Module Mid-term test
-T : 0 : read a new book
+T : 1 : read a new book
 D : 1 : test new done status : now
 T : 1 : submit a new line for delete
+T : 1 : a TaskManager final test
