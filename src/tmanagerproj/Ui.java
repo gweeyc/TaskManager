@@ -4,7 +4,6 @@ import static tmanagerproj.TaskManager.taskCount;
 import static java.lang.System.out;
 
 import java.time.LocalDate;
-import java.time.LocalDateTime;
 import java.time.Month;
 import java.time.YearMonth;
 import java.time.temporal.ChronoUnit;
@@ -29,21 +28,13 @@ class Ui {
     }
 
     void printWelcome() {
-        LocalDateTime now = LocalDateTime.now();
-        int year = now.getYear();
-        int month = now.getMonthValue();
+
 
         print("");
         print("\033[1;96m" + "               ||       *++++++++++++++++++++++++++++++++++++*       ||" + "\033[0m");
         print("                  " + "\033[1;91m" + "||--- " + "\033[0m" + "\033[0;105m" + "\033[1;97m" + "|  Welcome to TaskManager Main Menu! |" + "\033[0m" + "\033[1;91m" + " ---||" + "\033[0m");
         print("\033[1;96m" + "               ||       ++++++++++++++++++++++++++++++++++++++       ||" + "\033[0m");
         print("");
-        out.print("\033[0;93m");
-        calMonthDisplay(year, month);
-        out.print("\033[0m");
-        out.print("\033[1;96m");
-        dayTimeDisplay();
-        out.print("\033[0m");
         out.print("\033[1;31m");
         print("Instructions for all CLI Commands Syntax Usage - (Use lowercase only):");
         print("= = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = =");
@@ -78,9 +69,11 @@ class Ui {
         print("\033[0m");
         print("[ NB ]: - All SubMenu commands must begin with the 1st. character of task type:");
         print("t for todo task e.g. tshow, d for deadline task e.g. ddel, f for done task e.g. fshow." + System.lineSeparator());
+
+
     }
 
-    private void dayTimeDisplay() {
+    void dayTimeDisplay() {
         GregorianCalendar cal = new GregorianCalendar();
         int year;
         String months[] = {"Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep",

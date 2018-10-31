@@ -1,8 +1,11 @@
 package tmanagerproj;
 
 import java.io.*;
+import java.time.LocalDateTime;
 import java.util.LinkedHashMap;
 import java.util.Map;
+
+import static java.lang.System.out;
 
 /**
  * Will first initialize by creating a new ArrayList in memory, then loads a work file "/data/data.txt", containing a List
@@ -63,13 +66,13 @@ public class TaskManager {
                     ui.showToUser("Starting with an empty Task List created for current session only...");
                     tasks = new TaskList();
 
-                    assert tasks.getSize() == 0 : "Task List not empty";  //assert statement 01
+                    assert tasks.getSize() == 0 : "Task List not empty";  //assert statement
 
                 } catch (IOException e1) {
-                    ui.showToUser( "");
+                    ui.showToUser("");
                     e1.printStackTrace();
                     ui.showToUser("");
-                    ui.showToUser( "\033[1;95m" + "Please Contact Administrator!" + "\033[0m");
+                    ui.showToUser("\033[1;95m" + "Please Contact Administrator!" + "\033[0m");
                     System.exit(-99);
                 }
             }
@@ -85,7 +88,7 @@ public class TaskManager {
         int n = getListedNumber();
         ui.showToUser("\033[1;96m");
 
-        assert (n > 0 && n <= 12) : "Invalid month input";  // assert statement 02
+        assert (n > 0 && n <= 12) : "Invalid month input";  // assert statement
 
         ui.calMonthDisplay(YEAR, n);
         ui.showToUser("\033[0m");
@@ -152,59 +155,6 @@ public class TaskManager {
         } catch (TaskManagerException e) {
             ui.printError(e.getMessage());
         }
-    }
-
-    /**
-     * This method updates task done status in tasks List, freshens up the work file data format integrity and currency
-     *
-     * @param line takes in the scanned text string from user input
-     * @throws TaskManagerException on missing task number that should follow the CLI "done" command
-     */
-
-    private void updateTask(String line) throws TaskManagerException {
-        checkCommandSyntax(line);
-        int n = getListedNumber();
-        int listSize = tasks.getSize();
-
-        assert (listSize > 0) : "List has no element !";     // assert  statement 05
-
-        if (n > 0) {
-
-            if (n <= listSize) {
-                tasks.getItem(n - 1).setDone(true);
-                ui.showToUser("Tasks in the list: " + taskCount);
-
-                flushToDisk(storage.getWorkFile());  // update the work file
-            } else {
-                ui.printError("Error: TaskNo. greater than the total number in records of \"" + listSize + "\". Pl try again!" + System.lineSeparator());
-            }
-
-        } else {
-            ui.printError("Error: TaskNo. value cannot be negative or 0 or a non-digit. Pl try again!" + System.lineSeparator());
-        }
-    }
-
-    private void delTask(String line) throws TaskManagerException {
-        checkCommandSyntax(line);
-        int n = getListedNumber();
-        int listSize = tasks.getSize();
-
-        assert (listSize > 0) : "List has no element !";     // assert  statement 06
-
-        if (n > 0 && n <= listSize) {
-            String holder = tasks.getItem(n - 1).toString();
-            tasks.removeItem(n);
-            taskCount--;
-            ui.showToUser(System.lineSeparator() + "\033[1;93m" + "Message:- " + "\033[0m"
-                    + "\033[1;95m" + ":)" + "\033[0m" + "\033[1;31m" + " --> " + "\033[0m"
-                    + "Task " + "\033[1;96m" + holder + "\033[0m" + " has been successfully removed! " + "\033[1;31m" + " --> "
-                    + "\033[0m" + "\033[1;95m" + ";)" + "\033[0m");
-            ui.showToUser(System.lineSeparator() + "Tasks in the list: " + taskCount);
-            flushToDisk(storage.getWorkFile());   // update the work file
-        } else {
-            ui.printError("TaskNo. value must be between 1 and " + listSize + " (= total no. of records). Pl retry!!");
-        }
-
     }
 
     /**
@@ -284,8 +234,68 @@ public class TaskManager {
         }
     }
 
+    /**
+     * This method updates task done status in tasks List, freshens up the work file data format integrity and currency
+     *
+     * @param line takes in the scanned text string from user input
+     * @throws TaskManagerException on missing task number that should follow the CLI "done" command
+     */
+
+    private void updateTask(String line) throws TaskManagerException {
+        checkCommandSyntax(line);
+        int n = getListedNumber();
+        int listSize = tasks.getSize();
+
+        assert (listSize > 0) : "List has no element !";     // assert  statement
+
+        if (n > 0) {
+
+            if (n <= listSize) {
+                tasks.getItem(n - 1).setDone(true);
+                ui.showToUser("Tasks in the list: " + taskCount);
+
+                flushToDisk(storage.getWorkFile());  // update the work file
+            } else {
+                ui.printError("Error: TaskNo. greater than the total number in records of \"" + listSize + "\". Pl try again!" + System.lineSeparator());
+            }
+
+        } else {
+            ui.printError("Error: TaskNo. value cannot be negative or 0 or a non-digit. Pl try again!" + System.lineSeparator());
+        }
+    }
+
+    private void delTask(String line) throws TaskManagerException {
+        checkCommandSyntax(line);
+        int n = getListedNumber();
+        int listSize = tasks.getSize();
+
+        assert (listSize > 0) : "List has no element !";     // assert  statement
+
+        if (n > 0 && n <= listSize) {
+            String holder = tasks.getItem(n - 1).toString();
+            tasks.removeItem(n);
+            taskCount--;
+            ui.showToUser(System.lineSeparator() + "\033[1;93m" + "Message:- " + "\033[0m"
+                    + "\033[1;95m" + ":)" + "\033[0m" + "\033[1;31m" + " --> " + "\033[0m"
+                    + "Task " + "\033[1;96m" + holder + "\033[0m" + " has been successfully removed! " + "\033[1;31m" + " --> "
+                    + "\033[0m" + "\033[1;95m" + ";)" + "\033[0m");
+
+            try {
+                Thread.sleep(5000);
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            }
+
+            ui.showToUser(System.lineSeparator() + "Tasks in the list: " + taskCount);
+            flushToDisk(storage.getWorkFile());   // update the work file
+        } else {
+            ui.printError("TaskNo. value must be between 1 and " + listSize + " (= total no. of records). Pl retry!!");
+        }
+
+    }
+
     private void run() {
-        ui.printWelcome();
+        runOnceCalTime();
         boolean toExit = false;
         String scanLine, arg0;
 
@@ -294,10 +304,6 @@ public class TaskManager {
             ui.userPrompt("Your task? ");
             scanLine = ui.readUserCommand().trim().toLowerCase();
             arg0 = Parser.getCommandWord(scanLine);
-
-            if (arg0.equals("todo") || arg0.equals("deadline") || arg0.equals("done")    // minimize possible user commands mix-up errors under various menus scenarios
-                    || arg0.equals("del") || arg0.equals("reset"))
-                arg0 = "m".concat(arg0);
 
             try {
 
@@ -308,31 +314,31 @@ public class TaskManager {
                         toExit = true;
                         break;
 
-                    case "mtodo":
+                    case "todo":
                         ui.printWelcome();
                         addTodo(scanLine);
                         ui.printTask(tasks);
                         break;
 
-                    case "mdeadline":
+                    case "deadline":
                         ui.printWelcome();
                         addDeadline(scanLine);
                         ui.printTask(tasks);
                         break;
 
-                    case "mdone":
+                    case "done":
                         ui.printWelcome();
                         updateTask(scanLine);
                         ui.printTask(tasks);
                         break;
 
-                    case "mdel":
+                    case "del":
                         ui.printWelcome();
                         delTask(scanLine);
                         ui.printTask(tasks);
                         break;
 
-                    case "mreset":
+                    case "reset":
                         resetByDate(scanLine);
                         ui.printTask(tasks);
                         break;
@@ -343,10 +349,12 @@ public class TaskManager {
                         break;
 
                     case "tdel":
+                        ui.printWelcome();
                         rmTodo(scanLine);
                         break;
 
                     case "tdone":
+                        ui.printWelcome();
                         updateTodo(scanLine);
                         showTodo(tasks);
                         break;
@@ -357,10 +365,12 @@ public class TaskManager {
                         break;
 
                     case "ddel":
+                        ui.printWelcome();
                         rmDeadline(scanLine);
                         break;
 
                     case "ddone":
+                        ui.printWelcome();
                         updateDeadline(scanLine);
                         showDeadline(tasks);
                         break;
@@ -382,6 +392,7 @@ public class TaskManager {
                         break;
 
                     case "cal":
+                        ui.printWelcome();
                         displayCal(scanLine);
                         break;
 
@@ -418,11 +429,24 @@ public class TaskManager {
         ui.printBye();
     }
 
+    private void runOnceCalTime() {
+        LocalDateTime now = LocalDateTime.now();
+        int year = now.getYear();
+        int month = now.getMonthValue();
+        ui.printWelcome();
+        out.print("\033[0;93m");
+        ui.calMonthDisplay(year, month);
+        out.print("\033[0m");
+        out.print("\033[1;96m");
+        ui.dayTimeDisplay();
+        out.print("\033[0m");
+    }
+
     private void traceLocAndUpdate(String line, String s) throws TaskManagerException {  // for done status updates in ArrayList
         checkCommandSyntax(line);
         int n = getListedNumber();
 
-        assert (map.size()) > 0 : "map Set is empty!";  //assert statement 13
+        assert (map.size()) > 0 : "map Set is empty!";  //assert statement
 
         if (n > 0 && n <= map.size()) {
             updateTask("done " + (map.get(n) + 1));
@@ -437,7 +461,7 @@ public class TaskManager {
         ui.showToUser(System.lineSeparator() + "\033[1;95m" + "[SubMenu]:" + "\033[0m" + " Done Tasks");
         ui.showToUser("----------");
 
-        assert (map.isEmpty()) : "map Set has unknown elements in it!";     // assert statement 07
+        assert (map.isEmpty()) : "map Set has unknown elements in it!";     // assert statement
 
         for (int i = 0, j = 1; i < taskCount; i++) {
 
@@ -489,7 +513,7 @@ public class TaskManager {
         checkCommandSyntax(line);
         int n = getListedNumber();
 
-        assert (map.size()) > 0 : "map Set has no element in it!";       // assert statement 08
+        assert (map.size()) > 0 : "map Set has no element in it!";       // assert statement
 
         if (n <= 0 || n > map.size()) {
             ui.showToUser("List number is invalid. Pl re-try!");
@@ -512,7 +536,7 @@ public class TaskManager {
         ui.showToUser(System.lineSeparator() + "\033[1;95m" + "[SubMenu]:" + "\033[0m" + " Todo Tasks");
         ui.showToUser("----------");
 
-        assert (map.isEmpty()) : "map Set has unknown elements in it!";   //assert statement 09
+        assert (map.isEmpty()) : "map Set has unknown elements in it!";   //assert statement
 
         for (int i = 0, j = 1; i < taskCount; i++) {
 
@@ -532,7 +556,7 @@ public class TaskManager {
         checkCommandSyntax(line);
         int n = getListedNumber();
 
-        assert (map.size() > 0) : "map Set is empty!";  //assert statement 10
+        assert (map.size() > 0) : "map Set is empty!";  //assert statement
 
         if (n <= 0 || n > map.size()) {
             ui.showToUser("List number is invalid. Pl re-try!");
@@ -560,7 +584,7 @@ public class TaskManager {
         ui.showToUser(System.lineSeparator() + "\033[1;95m" + "[SubMenu]:" + "\033[0m" + " Deadline Tasks");
         ui.showToUser("----------");
 
-        assert (map.isEmpty()) : "map Set has unknown elements in it!";   //assert statement 12
+        assert (map.isEmpty()) : "map Set has unknown elements in it!";   //assert statement
 
         for (int i = 0, j = 0; i < taskCount; i++) {
             if (tasks.getItem(i) instanceof Deadline) {
@@ -577,7 +601,7 @@ public class TaskManager {
         checkCommandSyntax(line);
         int n = getListedNumber();
 
-        assert (map.size()) > 0 : "map Set is empty!";  //assert statement 13
+        assert (map.size()) > 0 : "map Set is empty!";  //assert statement
 
         if (n > 0 && n <= map.size()) {
             ui.userPrompt(System.lineSeparator() + "Enter a new by: ");
@@ -601,7 +625,7 @@ public class TaskManager {
         checkCommandSyntax(line);
         int n = getListedNumber();
 
-        assert (map.size()) > 0 : "map Set is empty!";  //assert statement 14
+        assert (map.size()) > 0 : "map Set is empty!";  //assert statement
 
         if (n <= 0 || n > map.size()) {
             ui.showToUser("List number is invalid. Pl re-try!");
