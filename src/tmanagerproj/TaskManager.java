@@ -16,15 +16,14 @@ import java.util.Map;
  */
 
 public class TaskManager {
-    Storage storage;
-    TaskList tasks;
-    Ui ui;
-    boolean flag = true;
+    private Storage storage;
+    private TaskList tasks;
+    private Ui ui;
+    private boolean flag = true;
     static int taskCount;
-    static final int YEAR = 2018;
-    static String description;
-    static String arg0;
-    static Map<Integer, Integer> map = new LinkedHashMap<>();  // map submenu List numbers to tasks' index
+    private static final int YEAR = 2018;
+    private static String description;
+    private static Map<Integer, Integer> map = new LinkedHashMap<>();  // map submenu List numbers to tasks' index
 
     /**
      * TaskManager constructor to read in the database file, create a Ui, Storage & TaskList obj.
@@ -53,11 +52,11 @@ public class TaskManager {
                 tasks = storage.load(tmp);
                 storage.setWorkFile(tmp);
             } catch (TaskManagerException err) {
-                ui.printError("Problems reading the backup file path also...trying other alternatives...");
+                ui.printError("Problems reading the backup file path also...trying other alternatives..." + System.lineSeparator());
 
                 try {
-                    String newWorkFile = createFileAsPerUserInput("Enter a work file path for this session, e.g. new.txt"
-                            + " (without a drive letter) : ");
+                    ui.userPrompt("Enter a work file path for this session, e.g. new.txt (without a drive letter) : ");
+                    String newWorkFile = createFileAsPerUserInput();
                     storage.setWorkFile(newWorkFile);
                     storage.setBackupPath("bak.txt");
                     ui.showToUser("...Setting up a backup file \"bak.txt\" for this session...successful!" + System.lineSeparator());
@@ -67,8 +66,11 @@ public class TaskManager {
                     assert tasks.getSize() == 0 : "Task List not empty";  //assert statement 01
 
                 } catch (IOException e1) {
+                    ui.showToUser( "");
                     e1.printStackTrace();
-                    ui.showToUser("\033[1;95m" + "Please Contact Administrator!" + "\033[0m");
+                    ui.showToUser("");
+                    ui.showToUser( "\033[1;95m" + "Please Contact Administrator!" + "\033[0m");
+                    System.exit(-99);
                 }
             }
         }
@@ -89,25 +91,19 @@ public class TaskManager {
         ui.showToUser("\033[0m");
     }
 
-    private String createFileAsPerUserInput(String prompt) throws IOException {
-        ui.userPrompt(prompt);
+    private String createFileAsPerUserInput() throws IOException {
         String path = ui.readUserCommand();
         File file = new File(path);
-
-        assert (file.exists()) : "No file path has been entered";  // assert statement 03
-
         boolean isFileNew = file.createNewFile();
 
         if (!isFileNew) {
             ui.showToUser("File already exist!");
         }
 
-        assert (!path.isEmpty()) : "NO file path has been specified!";  // assert statement 04
-
         return path;
     }
 
-    protected void checkCommandSyntax(String line) throws TaskManagerException {
+    void checkCommandSyntax(String line) throws TaskManagerException {
         description = Parser.getTaskDesc(line);
 
         if (description.isEmpty()) {
@@ -116,7 +112,7 @@ public class TaskManager {
         }
     }
 
-    private int getListedNumber(){
+    private int getListedNumber() {
         int n = 0;
 
         try {
@@ -129,6 +125,35 @@ public class TaskManager {
         return n;
     }
 
+    private void toClose(Closeable obj) {   //for possible closure technical glitch
+
+        if (obj != null) {
+
+            try {
+                obj.close();
+
+            } catch (IOException ex) {
+                ui.printError("Possible disc error / file system full!" + ex.getMessage());
+            }
+        }
+    }
+
+    private void flushToDisk(String filePath) {
+        try {
+            storage.writeFile(tasks, filePath);    // preserve work file data format correctness & currency
+        } catch (TaskManagerException e) {
+            ui.printError(e.getMessage());
+        }
+    }
+
+    private void appendToFile() {
+        try {
+            storage.appendFile(tasks, storage.getWorkFile(), taskCount - 1);
+        } catch (TaskManagerException e) {
+            ui.printError(e.getMessage());
+        }
+    }
+
     /**
      * This method updates task done status in tasks List, freshens up the work file data format integrity and currency
      *
@@ -136,7 +161,7 @@ public class TaskManager {
      * @throws TaskManagerException on missing task number that should follow the CLI "done" command
      */
 
-    protected void updateTask(String line) throws TaskManagerException {
+    private void updateTask(String line) throws TaskManagerException {
         checkCommandSyntax(line);
         int n = getListedNumber();
         int listSize = tasks.getSize();
@@ -159,7 +184,7 @@ public class TaskManager {
         }
     }
 
-    protected void delTask(String line) throws TaskManagerException {
+    private void delTask(String line) throws TaskManagerException {
         checkCommandSyntax(line);
         int n = getListedNumber();
         int listSize = tasks.getSize();
@@ -189,7 +214,7 @@ public class TaskManager {
      * @see TaskManagerException
      */
 
-    protected void addTodo(String line) throws TaskManagerException {
+    void addTodo(String line) throws TaskManagerException {
         flag = false;
         checkCommandSyntax(line);
 
@@ -210,7 +235,7 @@ public class TaskManager {
         }
     }
 
-    protected void addDeadline(String line) throws TaskManagerException {
+    private void addDeadline(String line) throws TaskManagerException {
         flag = false;
         checkCommandSyntax(line);
 
@@ -243,16 +268,36 @@ public class TaskManager {
         }
     }
 
+    private void resetByDate(String line) throws TaskManagerException {
+        checkCommandSyntax(line);
+        int n = getListedNumber();
+
+        if (n > 0 && n <= taskCount) {
+            ui.userPrompt(System.lineSeparator() + "Enter a new by : ");
+            String newByDate = ui.readUserCommand();
+            Task getTask = tasks.getItem(n - 1);
+            Deadline setTask = (Deadline) getTask;
+            setTask.setBy(newByDate);
+            flushToDisk(storage.getWorkFile());
+        } else {
+            ui.showToUser("List number is invalid. Pl re-try!");
+        }
+    }
+
     private void run() {
         ui.printWelcome();
         boolean toExit = false;
-        String scanLine;
+        String scanLine, arg0;
 
         do {
 
             ui.userPrompt("Your task? ");
-            scanLine = ui.readUserCommand().trim();
+            scanLine = ui.readUserCommand().trim().toLowerCase();
             arg0 = Parser.getCommandWord(scanLine);
+
+            if (arg0.equals("todo") || arg0.equals("deadline") || arg0.equals("done")    // minimize possible user commands mix-up errors under various menus scenarios
+                    || arg0.equals("del") || arg0.equals("reset"))
+                arg0 = "m".concat(arg0);
 
             try {
 
@@ -263,27 +308,32 @@ public class TaskManager {
                         toExit = true;
                         break;
 
-                    case "todo":
+                    case "mtodo":
                         ui.printWelcome();
                         addTodo(scanLine);
                         ui.printTask(tasks);
                         break;
 
-                    case "deadline":
+                    case "mdeadline":
                         ui.printWelcome();
                         addDeadline(scanLine);
                         ui.printTask(tasks);
                         break;
 
-                    case "done":
+                    case "mdone":
                         ui.printWelcome();
                         updateTask(scanLine);
                         ui.printTask(tasks);
                         break;
 
-                    case "del":
+                    case "mdel":
                         ui.printWelcome();
                         delTask(scanLine);
+                        ui.printTask(tasks);
+                        break;
+
+                    case "mreset":
+                        resetByDate(scanLine);
                         ui.printTask(tasks);
                         break;
 
@@ -335,6 +385,11 @@ public class TaskManager {
                         displayCal(scanLine);
                         break;
 
+                    case "dreset":
+                        modDeadlineBy(scanLine);
+                        showDeadline(tasks);
+                        break;
+
                     case "print":
                     case "show":
                         ui.printWelcome();
@@ -363,7 +418,7 @@ public class TaskManager {
         ui.printBye();
     }
 
-    private void traceItemLoc(String line, String s) throws TaskManagerException {  // for done status updates in ArrayList
+    private void traceLocAndUpdate(String line, String s) throws TaskManagerException {  // for done status updates in ArrayList
         checkCommandSyntax(line);
         int n = getListedNumber();
 
@@ -371,11 +426,13 @@ public class TaskManager {
 
         if (n > 0 && n <= map.size()) {
             updateTask("done " + (map.get(n) + 1));
+        } else {
+            ui.showToUser("List number is invalid. Pl re-try!");
         }
         ui.showToUser(s + map.size());
     }
 
-    protected void showDoneTasks(TaskList tasks) {
+    private void showDoneTasks(TaskList tasks) {
         map.clear();
         ui.showToUser(System.lineSeparator() + "\033[1;95m" + "[SubMenu]:" + "\033[0m" + " Done Tasks");
         ui.showToUser("----------");
@@ -400,7 +457,7 @@ public class TaskManager {
 
     private static int countTab = 0;
 
-    protected void archiveDoneTasks(TaskList tasks) {
+    private void archiveDoneTasks(TaskList tasks) {
         BufferedWriter bw = null;
         FileWriter fw = null;
 
@@ -428,7 +485,7 @@ public class TaskManager {
         }
     }
 
-    protected void rmDoneTask(String line) throws TaskManagerException{
+    void rmDoneTask(String line) throws TaskManagerException {
         checkCommandSyntax(line);
         int n = getListedNumber();
 
@@ -442,7 +499,7 @@ public class TaskManager {
                 delTask("del " + (1 + map.get(n)));
                 int tab = map.size() - 1;
                 ui.showToUser("Done Tasks remaining in List: " + tab);
-                    showDoneTasks(tasks);
+                showDoneTasks(tasks);
 
             } catch (TaskManagerException e) {
                 ui.printError("Array access error");
@@ -450,7 +507,7 @@ public class TaskManager {
         }
     }
 
-    void showTodo(TaskList tasks) {
+    private void showTodo(TaskList tasks) {
         map.clear();
         ui.showToUser(System.lineSeparator() + "\033[1;95m" + "[SubMenu]:" + "\033[0m" + " Todo Tasks");
         ui.showToUser("----------");
@@ -471,7 +528,7 @@ public class TaskManager {
         }
     }
 
-    protected void rmTodo(String line) throws TaskManagerException, NumberFormatException {
+    private void rmTodo(String line) throws TaskManagerException, NumberFormatException {
         checkCommandSyntax(line);
         int n = getListedNumber();
 
@@ -493,12 +550,12 @@ public class TaskManager {
         }
     }
 
-    protected void updateTodo(String line) throws TaskManagerException {
-        traceItemLoc(line, "Todo Tasks in List: ");
+    private void updateTodo(String line) throws TaskManagerException {
+        traceLocAndUpdate(line, "Todo Tasks in List: ");
 
     }
 
-    void showDeadline(TaskList tasks) {
+    private void showDeadline(TaskList tasks) {
         map.clear();
         ui.showToUser(System.lineSeparator() + "\033[1;95m" + "[SubMenu]:" + "\033[0m" + " Deadline Tasks");
         ui.showToUser("----------");
@@ -516,11 +573,31 @@ public class TaskManager {
         }
     }
 
-    protected void updateDeadline(String line) throws TaskManagerException {
-        traceItemLoc(line, "Deadline Tasks in List: ");
+    private void modDeadlineBy(String line) throws TaskManagerException {
+        checkCommandSyntax(line);
+        int n = getListedNumber();
+
+        assert (map.size()) > 0 : "map Set is empty!";  //assert statement 13
+
+        if (n > 0 && n <= map.size()) {
+            ui.userPrompt(System.lineSeparator() + "Enter a new by: ");
+            String newByDate = ui.readUserCommand();
+            Task getTask = tasks.getItem(map.get(n));
+            Deadline setTask = (Deadline) getTask;
+            setTask.setBy(newByDate);
+            ui.showToUser("Deadline Tasks in List: " + map.size());
+            flushToDisk(storage.getWorkFile());
+
+        } else {
+            ui.showToUser("List number is invalid. Pl re-try!");
+        }
     }
 
-    protected void rmDeadline(String line) throws TaskManagerException {
+    private void updateDeadline(String line) throws TaskManagerException {
+        traceLocAndUpdate(line, "Deadline Tasks in List: ");
+    }
+
+    private void rmDeadline(String line) throws TaskManagerException {
         checkCommandSyntax(line);
         int n = getListedNumber();
 
@@ -534,40 +611,11 @@ public class TaskManager {
                 delTask("del " + (1 + map.get(n)));
                 int tab = map.size() - 1;
                 ui.showToUser("Deadline Tasks remaining in List: " + tab);
-                    showDeadline(tasks);
+                showDeadline(tasks);
 
             } catch (TaskManagerException e) {
                 ui.printError("Array access error");
             }
-        }
-    }
-
-    private void toClose(Closeable obj) {   //for possible closure technical glitch
-
-        if (obj != null) {
-
-            try {
-                obj.close();
-
-            } catch (IOException ex) {
-                ui.printError("Possible disc error / file system full!" + ex.getMessage());
-            }
-        }
-    }
-
-    private void flushToDisk(String filePath) {
-        try {
-            storage.writeFile(tasks, filePath);    // preserve work file data format correctness & currency
-        } catch (TaskManagerException e) {
-            ui.printError(e.getMessage());
-        }
-    }
-
-    private void appendToFile() {
-        try {
-            storage.appendFile(tasks, storage.getWorkFile(), taskCount - 1);
-        } catch (TaskManagerException e) {
-            ui.printError(e.getMessage());
         }
     }
 

@@ -52,8 +52,8 @@ class Ui {
         print("                                        LEGEND:");
         print("                                      ++++++++++ ");
         print("-------------------------------------------------------------------------------------");
-        print("[] add a todo Task                             : todo text...");
-        print("[] add a deadline Task                         : deadline text... /by text...");
+        print("[] add a todo Task in Main Menu                : todo text...");
+        print("[] add a deadline Task in Main Menu            : deadline text... /by text...");
         print("[] update Task Done Status in Main Menu        : done List_Number");
         print("[] update Task Done Status in Deadline SubMenu : ddone List_Number");
         print("[] update Task Done Status in Todo SubMenu)    : tdone List_Number");
@@ -70,12 +70,14 @@ class Ui {
         print("[] delete a Deadline task in Deadline SubMenu : ddel List_No.");
         print("[] delete a Done task in Done SubMenu         : fdel List_No.");
         print("-------------------------------------------------------------------------------------");
+        print("[] reset a Deadline by schedule in Main Menu        : reset List_Number");
+        print("[] reset a Deadline by schedule in Deadline SubMenu : dreset List_Number");
+        print("-------------------------------------------------------------------------------------");
         print("[] remove & archive all Done Tasks to file    : fa");
         print("-------------------------------------------------------------------------------------");
         print("\033[0m");
         print("[ NB ]: - All SubMenu commands must begin with the 1st. character of task type:");
         print("t for todo task e.g. tshow, d for deadline task e.g. ddel, f for done task e.g. fshow." + System.lineSeparator());
-
     }
 
     private void dayTimeDisplay() {
