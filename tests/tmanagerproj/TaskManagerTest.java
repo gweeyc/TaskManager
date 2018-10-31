@@ -19,15 +19,15 @@ public class TaskManagerTest {
     }
 
     @Test
-    public void rmDoneTask_numberFormatExceptionThrown_test() {
+    public void checkCommandSyntax_exceptionThrown_test() {
+
         try {
-            objTest.rmDoneTask("fdel d");
-            fail();
-        } catch (NumberFormatException e) {
-            assertEquals("x", e.getMessage());
-        }catch(TaskManagerException err){
-        assertEquals("Empty description for FDEL. Check Legend for Command Syntax.", err.getMessage());
+            objTest.checkCommandSyntax("fdel");
+        } catch (TaskManagerException e) {
+            assertEquals("Empty description for " + Parser.getCommandWord("fdel").toUpperCase() +
+                    ". Enter print to check Legend for Command Syntax", e.getMessage());
         }
+
     }
 
     @Test

@@ -1,20 +1,20 @@
-D : 1 : remind boss meeting : Sat 4pm
+D : 0 : remind boss meeting : Sat 4pm
 D : 1 : join sports club : June 6th
-T : 1 : check the next Maths exam date
+T : 0 : check the next Maths exam date
 T : 1 : read a new text reference book
 T : 1 : check Chemistry term time exam date
 D : 1 : Complete TIC2002 Project : Week 13th
 T : 1 : Test prep for Network Module Mid-term test
-T : 1 : submit a junit Test Doc
+T : 0 : submit a junit Test Doc
 D : 1 : join chess club : Dec 29th
 T : 1 : read two more English Literature books
 T : 1 : check the next Maths exam date
 T : 1 : read a new text reference book
-T : 1 : check Chemistry exam date
+T : 0 : check Chemistry exam date
 D : 1 : Check Program Test OK? : Week 13th of 2018
 D : 1 : Test run mobile app TaskManager : Dec 20th
 T : 1 : Prep for Security Module Mid-term test
-T : 1 : read a new book
+T : 0 : read a new book
 D : 1 : test new done status : now
 T : 1 : submit a new line for delete
 T : 1 : a TaskManager final test

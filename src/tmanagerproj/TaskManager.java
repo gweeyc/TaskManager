@@ -62,7 +62,6 @@ public class TaskManager {
                     storage.setBackupPath("bak.txt");
                     ui.showToUser("...Setting up a backup file \"bak.txt\" for this session...successful!" + System.lineSeparator());
                     ui.showToUser("Starting with an empty Task List created for current session only...");
-
                     tasks = new TaskList();
 
                     assert tasks.getSize() == 0 : "Task List not empty";  //assert statement 01
@@ -87,7 +86,6 @@ public class TaskManager {
         assert (n > 0 && n <= 12) : "Invalid month input";  // assert statement 02
 
         ui.calMonthDisplay(YEAR, n);
-
         ui.showToUser("\033[0m");
     }
 
@@ -105,10 +103,11 @@ public class TaskManager {
         }
 
         assert (!path.isEmpty()) : "NO file path has been specified!";  // assert statement 04
+
         return path;
     }
 
-    private void checkCommandSyntax(String line) throws TaskManagerException {
+    protected void checkCommandSyntax(String line) throws TaskManagerException {
         description = Parser.getTaskDesc(line);
 
         if (description.isEmpty()) {
@@ -117,15 +116,16 @@ public class TaskManager {
         }
     }
 
-    private int getListedNumber() {
+    private int getListedNumber(){
         int n = 0;
 
         try {
             n = Integer.parseInt(description);
 
         } catch (NumberFormatException e) {
-            ui.printError("TaskNo. Input Format Error <- " + e.getMessage());
+            ui.printError("Input Format Error -> Task No. entered is not a digit number!");
         }
+
         return n;
     }
 
@@ -138,10 +138,9 @@ public class TaskManager {
 
     protected void updateTask(String line) throws TaskManagerException {
         checkCommandSyntax(line);
-
         int n = getListedNumber();
-
         int listSize = tasks.getSize();
+
         assert (listSize > 0) : "List has no element !";     // assert  statement 05
 
         if (n > 0) {
@@ -162,10 +161,9 @@ public class TaskManager {
 
     protected void delTask(String line) throws TaskManagerException {
         checkCommandSyntax(line);
-
         int n = getListedNumber();
-
         int listSize = tasks.getSize();
+
         assert (listSize > 0) : "List has no element !";     // assert  statement 06
 
         if (n > 0 && n <= listSize) {
@@ -367,8 +365,8 @@ public class TaskManager {
 
     private void traceItemLoc(String line, String s) throws TaskManagerException {  // for done status updates in ArrayList
         checkCommandSyntax(line);
-
         int n = getListedNumber();
+
         assert (map.size()) > 0 : "map Set is empty!";  //assert statement 13
 
         if (n > 0 && n <= map.size()) {
@@ -381,6 +379,7 @@ public class TaskManager {
         map.clear();
         ui.showToUser(System.lineSeparator() + "\033[1;95m" + "[SubMenu]:" + "\033[0m" + " Done Tasks");
         ui.showToUser("----------");
+
         assert (map.isEmpty()) : "map Set has unknown elements in it!";     // assert statement 07
 
         for (int i = 0, j = 1; i < taskCount; i++) {
@@ -429,11 +428,12 @@ public class TaskManager {
         }
     }
 
-    protected void rmDoneTask(String line) throws TaskManagerException {
+    protected void rmDoneTask(String line) throws TaskManagerException{
         checkCommandSyntax(line);
-
         int n = getListedNumber();
+
         assert (map.size()) > 0 : "map Set has no element in it!";       // assert statement 08
+
         if (n <= 0 || n > map.size()) {
             ui.showToUser("List number is invalid. Pl re-try!");
         } else {
@@ -454,6 +454,7 @@ public class TaskManager {
         map.clear();
         ui.showToUser(System.lineSeparator() + "\033[1;95m" + "[SubMenu]:" + "\033[0m" + " Todo Tasks");
         ui.showToUser("----------");
+
         assert (map.isEmpty()) : "map Set has unknown elements in it!";   //assert statement 09
 
         for (int i = 0, j = 1; i < taskCount; i++) {
@@ -472,8 +473,8 @@ public class TaskManager {
 
     protected void rmTodo(String line) throws TaskManagerException, NumberFormatException {
         checkCommandSyntax(line);
-
         int n = getListedNumber();
+
         assert (map.size() > 0) : "map Set is empty!";  //assert statement 10
 
         if (n <= 0 || n > map.size()) {
@@ -501,6 +502,7 @@ public class TaskManager {
         map.clear();
         ui.showToUser(System.lineSeparator() + "\033[1;95m" + "[SubMenu]:" + "\033[0m" + " Deadline Tasks");
         ui.showToUser("----------");
+
         assert (map.isEmpty()) : "map Set has unknown elements in it!";   //assert statement 12
 
         for (int i = 0, j = 0; i < taskCount; i++) {
@@ -520,8 +522,8 @@ public class TaskManager {
 
     protected void rmDeadline(String line) throws TaskManagerException {
         checkCommandSyntax(line);
-
         int n = getListedNumber();
+
         assert (map.size()) > 0 : "map Set is empty!";  //assert statement 14
 
         if (n <= 0 || n > map.size()) {

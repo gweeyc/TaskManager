@@ -8,9 +8,9 @@ public class Deadline extends Todo {
         this.by = by;
     }
 
-    protected void setBy(String by) {
+/*   protected void setBy(String by) {
         this.by = by;
-    }
+    }  */
 
     String getBy() {
         return by;
