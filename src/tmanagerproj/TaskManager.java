@@ -223,15 +223,35 @@ public class TaskManager {
         int n = getListedNumber();
 
         if (n > 0 && n <= taskCount) {
-            ui.userPrompt(System.lineSeparator() + "Enter a new by : ");
-            String newByDate = ui.readUserCommand();
+            String newByDate = getNewByValue("Enter a new by : ");
             Task getTask = tasks.getItem(n - 1);
-            Deadline setTask = (Deadline) getTask;
-            setTask.setBy(newByDate);
-            flushToDisk(storage.getWorkFile());
+            resetByValue(newByDate, getTask);
         } else {
             ui.showToUser("List number is invalid. Pl re-try!");
         }
+    }
+
+    private void resetByValue(String newByDate, Task getTask) {
+        if(!(getTask instanceof Deadline)) {
+            ui.showToUser("\033[1;96m" + "Sorry! You selected a Task That's NOT a Deadline Task!"
+                    + "\033[0m" + System.lineSeparator());
+
+            try {
+                Thread.sleep(4000);
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            }
+
+        }else{
+                Deadline setTask = (Deadline) getTask;
+                setTask.setBy(newByDate);
+                flushToDisk(storage.getWorkFile());
+            }
+    }
+
+    private String getNewByValue(String s) {
+        ui.userPrompt(System.lineSeparator() + s);
+        return ui.readUserCommand();
     }
 
     /**
@@ -604,13 +624,13 @@ public class TaskManager {
         assert (map.size()) > 0 : "map Set is empty!";  //assert statement
 
         if (n > 0 && n <= map.size()) {
-            ui.userPrompt(System.lineSeparator() + "Enter a new by: ");
-            String newByDate = ui.readUserCommand();
+            String newByDate = getNewByValue("Enter a new by: ");
             Task getTask = tasks.getItem(map.get(n));
-            Deadline setTask = (Deadline) getTask;
-            setTask.setBy(newByDate);
+
+            assert getTask instanceof Deadline : "User selected Task is NOT a Deadline Task";   // assert statement
+
+            resetByValue(newByDate, getTask);
             ui.showToUser("Deadline Tasks in List: " + map.size());
-            flushToDisk(storage.getWorkFile());
 
         } else {
             ui.showToUser("List number is invalid. Pl re-try!");

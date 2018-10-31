@@ -12,9 +12,9 @@ T : 1 : check the next Maths exam date
 T : 1 : read a new text reference book
 T : 0 : check Chemistry exam date
 D : 1 : Check Program Test OK? : Week 13th of 2018
-D : 1 : Test run mobile app TaskManager : Dec 20th
+D : 1 : Test run mobile app TaskManager : NOV 13
 T : 1 : Prep for Security Module Mid-term test
 T : 0 : read a new book
-D : 1 : test new done status : now
+D : 1 : test new done status : Dec 20th
 T : 1 : submit a new line for delete
 T : 1 : a TaskManager final test
