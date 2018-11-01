@@ -1,6 +1,7 @@
 package tmanagerproj;
 
 import java.io.*;
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.LinkedHashMap;
 import java.util.Map;
@@ -22,15 +23,16 @@ public class TaskManager {
     private Storage storage;
     private TaskList tasks;
     private Ui ui;
-    private boolean flag = true;
-    static boolean isMainMenu;
+
+    private boolean flag = true;     // pure boolean flag use
+    static boolean isMainMenu;       // boolean track which Menu User is currently using or in
     static boolean isTodoMenu;
     static boolean isDeadlineMenu;
     static boolean isDoneMenu;
-    static int taskCount;
-    private static final int YEAR = 2018;
-    private static String description;
-    private static Map<Integer, Integer> map = new LinkedHashMap<>();  // map submenu List numbers to tasks' index
+    static int taskCount;        // Store of the current total number of Tasks in in-memory TaskList
+    private static String description;     //  Task description without the commandWord
+    private static Map<Integer, Integer> map = new LinkedHashMap<>();  // store of the map of a subMenu Listing number to the task actual index in ArrayList<Task>
+    private static final int YEAR = LocalDate.now().getYear();    // For Calender Display (current year use)
 
     /**
      * TaskManager constructor to read in the database file, create a Ui, Storage & TaskList obj.
@@ -318,14 +320,54 @@ public class TaskManager {
 
     }
 
-    private boolean compareWithMany(String first, String... rest) {
+    private boolean compareWithMany(String first, String... rest) {    // varargs used in this function
         for (String aRest : rest) {
-            if (first.equalsIgnoreCase(aRest))
+            if (first.equals(aRest))
                 return true;
         }
         return false;
     }
 
+    private boolean guard_userCliContext(String arg0) {
+
+        if (isMainMenu) {
+
+            if (compareWithMany(arg0, "tdone", "ddone", "tdel", "ddel", "fdel", "dreset")) {
+                ui.showToUser("Warning! This command is not for TaskManager Main SubMenu use.");
+                ui.showToUser("Pl re-enter: e.g. print for Commands Legend");
+                return true;
+            }
+        }
+
+        if (isTodoMenu) {
+
+            if (compareWithMany(arg0, "done", "ddone", "del", "ddel", "fdel", "reset", "dreset")) {
+                ui.showToUser("Warning! Your command is not for Todo SubMenu use.");
+                ui.showToUser("Pl re-enter: e.g. print for Commands Legend");
+                return true;
+            }
+        }
+
+        if (isDeadlineMenu) {
+
+            if (compareWithMany(arg0, "done", "tdone", "del", "tdel", "fdel", "reset")) {
+                ui.showToUser("Warning! Your command is not for Deadline SubMenu use.");
+                ui.showToUser("Pl re-enter: e.g. print for Commands Legend");
+                return true;
+            }
+        }
+
+        if (isDoneMenu) {
+
+            if (compareWithMany(arg0, "done", "ddone", "tdone", "del", "tdel", "ddel", "reset", "dreset")) {
+                ui.showToUser("Warning! Your command is not for Done SubMenu use.");
+                ui.showToUser("Pl re-enter: e.g. print for Commands Legend");
+                return true;
+            }
+        }
+
+        return false;
+    }
 
     private void run() {
         runOnceCalTime();
@@ -338,47 +380,10 @@ public class TaskManager {
             scanLine = ui.readUserCommand().trim().toLowerCase();
             arg0 = Parser.getCommandWord(scanLine);
 
-            assert arg0 != null : "No First word command: null!";
+            assert arg0 != null : "No First word command: null!";       // assert statement
 
-            if (isMainMenu) {                                                     // guard against user possible commands mix-ups throughout TaskManager app
-
-                if (compareWithMany(arg0, "tdone", "ddone", "tdel", "ddel", "fdel", "dreset")) {
-                    ui.showToUser("Warning! This command is not for TaskManager Main SubMenu use.");
-                    ui.showToUser("Pl re-enter: e.g. print for Commands Legend");
-                    continue;
-                } else {
-                }
-            }
-
-            if (isDoneMenu) {
-
-                if (compareWithMany(arg0, "done", "ddone", "tdone", "del", "tdel", "ddel", "reset", "dreset")) {
-                    ui.showToUser("Warning! Your command is not for Done SubMenu use.");
-                    ui.showToUser("Pl re-enter: e.g. print for Commands Legend");
-                    continue;
-                } else {
-                }
-            }
-
-            if (isTodoMenu) {
-
-                if (compareWithMany(arg0, "done", "ddone", "del", "ddel", "fdel", "reset", "dreset")) {
-                    ui.showToUser("Warning! Your command is not for Todo SubMenu use.");
-                    ui.showToUser("Pl re-enter: e.g. print for Commands Legend");
-                    continue;
-                } else {
-                }
-            }
-
-            if (isDeadlineMenu) {
-
-                if (compareWithMany(arg0, "done", "tdone", "del", "tdel", "fdel", "reset")) {
-                    ui.showToUser("Warning! Your command is not for Deadline SubMenu use.");
-                    ui.showToUser("Pl re-enter: e.g. print for Commands Legend");
-                    continue;
-                } else {
-                }
-            }
+            if (guard_userCliContext(arg0))
+                continue;      // guard against user possible commands mix-ups throughout TaskManager app
 
             try {
 
@@ -393,11 +398,26 @@ public class TaskManager {
                         ui.printWelcome();
                         ui.printTask(tasks);
 
-                        if (flag) {// ensure data format & integrity in file with 1st print
+                        if (flag) {        // ensure data integrity & format written to work file, with 1st print
                             flushToDisk(storage.getWorkFile());
                             flag = false;
                         }
 
+                        break;
+
+                    case "tshow":
+                        ui.printWelcome();
+                        showTodo(tasks);
+                        break;
+
+                    case "dshow":
+                        ui.printWelcome();
+                        showDeadline(tasks);
+                        break;
+
+                    case "fshow":
+                        ui.printWelcome();
+                        showDoneTasks(tasks);
                         break;
 
                     case "todo":
@@ -429,10 +449,6 @@ public class TaskManager {
                         ui.printTask(tasks);
                         break;
 
-                    case "tshow":
-                        ui.printWelcome();
-                        showTodo(tasks);
-                        break;
 
                     case "tdel":
                         ui.printWelcome();
@@ -443,11 +459,6 @@ public class TaskManager {
                         ui.printWelcome();
                         updateTodo(scanLine);
                         showTodo(tasks);
-                        break;
-
-                    case "dshow":
-                        ui.printWelcome();
-                        showDeadline(tasks);
                         break;
 
                     case "ddel":
@@ -464,11 +475,6 @@ public class TaskManager {
                     case "dreset":
                         modDeadlineBy(scanLine);
                         showDeadline(tasks);
-                        break;
-
-                    case "fshow":
-                        ui.printWelcome();
-                        showDoneTasks(tasks);
                         break;
 
                     case "fdel":
