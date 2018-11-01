@@ -389,6 +389,17 @@ public class TaskManager {
                         toExit = true;
                         break;
 
+                    case "print":
+                        ui.printWelcome();
+                        ui.printTask(tasks);
+
+                        if (flag) {// ensure data format & integrity in file with 1st print
+                            flushToDisk(storage.getWorkFile());
+                            flag = false;
+                        }
+
+                        break;
+
                     case "todo":
                         ui.printWelcome();
                         addTodo(scanLine);
@@ -450,6 +461,11 @@ public class TaskManager {
                         showDeadline(tasks);
                         break;
 
+                    case "dreset":
+                        modDeadlineBy(scanLine);
+                        showDeadline(tasks);
+                        break;
+
                     case "fshow":
                         ui.printWelcome();
                         showDoneTasks(tasks);
@@ -469,22 +485,6 @@ public class TaskManager {
                     case "cal":
                         ui.printWelcome();
                         displayCal(scanLine);
-                        break;
-
-                    case "dreset":
-                        modDeadlineBy(scanLine);
-                        showDeadline(tasks);
-                        break;
-
-                    case "print":
-                        ui.printWelcome();
-                        ui.printTask(tasks);
-
-                        if (flag) {// ensure data format & integrity in file with 1st print
-                            flushToDisk(storage.getWorkFile());
-                            flag = false;
-                        }
-
                         break;
 
                     default:
