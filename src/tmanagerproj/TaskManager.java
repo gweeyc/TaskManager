@@ -23,6 +23,10 @@ public class TaskManager {
     private TaskList tasks;
     private Ui ui;
     private boolean flag = true;
+    static boolean isMainMenu;
+    static boolean isTodoMenu;
+    static boolean isDeadlineMenu;
+    static boolean isDoneMenu;
     static int taskCount;
     private static final int YEAR = 2018;
     private static String description;
@@ -34,7 +38,7 @@ public class TaskManager {
      * @param filePath database file's path.
      * @see TaskManagerException
      */
-    protected TaskManager(String filePath) {   //constructor
+    protected TaskManager(String filePath) {          //constructor
         ui = new Ui();
         storage = new Storage(filePath);
 
@@ -232,7 +236,7 @@ public class TaskManager {
     }
 
     private void resetByValue(String newByDate, Task getTask) {
-        if(!(getTask instanceof Deadline)) {
+        if (!(getTask instanceof Deadline)) {
             ui.showToUser("\033[1;96m" + "Sorry! You selected a Task That's NOT a Deadline Task!"
                     + "\033[0m" + System.lineSeparator());
 
@@ -242,11 +246,11 @@ public class TaskManager {
                 e.printStackTrace();
             }
 
-        }else{
-                Deadline setTask = (Deadline) getTask;
-                setTask.setBy(newByDate);
-                flushToDisk(storage.getWorkFile());
-            }
+        } else {
+            Deadline setTask = (Deadline) getTask;
+            setTask.setBy(newByDate);
+            flushToDisk(storage.getWorkFile());
+        }
     }
 
     private String getNewByValue(String s) {
@@ -314,6 +318,15 @@ public class TaskManager {
 
     }
 
+    private boolean compareWithMany(String first, String... rest) {
+        for (String aRest : rest) {
+            if (first.equalsIgnoreCase(aRest))
+                return true;
+        }
+        return false;
+    }
+
+
     private void run() {
         runOnceCalTime();
         boolean toExit = false;
@@ -324,6 +337,48 @@ public class TaskManager {
             ui.userPrompt("Your task? ");
             scanLine = ui.readUserCommand().trim().toLowerCase();
             arg0 = Parser.getCommandWord(scanLine);
+
+            assert arg0 != null : "No First word command: null!";
+
+            if (isMainMenu) {                                                     // guard against user possible commands mix-ups throughout TaskManager app
+
+                if (compareWithMany(arg0, "tdone", "ddone", "tdel", "ddel", "fdel", "dreset")) {
+                    ui.showToUser("Warning! This command is not for TaskManager Main SubMenu use.");
+                    ui.showToUser("Pl re-enter: e.g. print for Commands Legend");
+                    continue;
+                } else {
+                }
+            }
+
+            if (isDoneMenu) {
+
+                if (compareWithMany(arg0, "done", "ddone", "tdone", "del", "tdel", "ddel", "reset", "dreset")) {
+                    ui.showToUser("Warning! Your command is not for Done SubMenu use.");
+                    ui.showToUser("Pl re-enter: e.g. print for Commands Legend");
+                    continue;
+                } else {
+                }
+            }
+
+            if (isTodoMenu) {
+
+                if (compareWithMany(arg0, "done", "ddone", "del", "ddel", "fdel", "reset", "dreset")) {
+                    ui.showToUser("Warning! Your command is not for Todo SubMenu use.");
+                    ui.showToUser("Pl re-enter: e.g. print for Commands Legend");
+                    continue;
+                } else {
+                }
+            }
+
+            if (isDeadlineMenu) {
+
+                if (compareWithMany(arg0, "done", "tdone", "del", "tdel", "fdel", "reset")) {
+                    ui.showToUser("Warning! Your command is not for Deadline SubMenu use.");
+                    ui.showToUser("Pl re-enter: e.g. print for Commands Legend");
+                    continue;
+                } else {
+                }
+            }
 
             try {
 
@@ -404,7 +459,7 @@ public class TaskManager {
                         rmDoneTask(scanLine);
                         break;
 
-                    case "fa":
+                    case "farchive":
                         ui.printWelcome();
                         archiveDoneTasks(tasks);
                         ui.printTask(tasks);
@@ -422,7 +477,6 @@ public class TaskManager {
                         break;
 
                     case "print":
-                    case "show":
                         ui.printWelcome();
                         ui.printTask(tasks);
 
@@ -477,6 +531,11 @@ public class TaskManager {
     }
 
     private void showDoneTasks(TaskList tasks) {
+        isMainMenu = false;
+        isTodoMenu = false;
+        isDeadlineMenu = false;
+        isDoneMenu = true;
+
         map.clear();
         ui.showToUser(System.lineSeparator() + "\033[1;95m" + "[SubMenu]:" + "\033[0m" + " Done Tasks");
         ui.showToUser("----------");
@@ -499,11 +558,10 @@ public class TaskManager {
 
     }
 
-    private static int countTab = 0;
-
     private void archiveDoneTasks(TaskList tasks) {
         BufferedWriter bw = null;
         FileWriter fw = null;
+        int countTab = 0;
 
         try {
             fw = new FileWriter(storage.getArchivePath(), true);
@@ -512,14 +570,14 @@ public class TaskManager {
             for (int i = 0; i < taskCount; i++) {
 
                 if (tasks.getItem(i).isDone) {
-                    bw.write("[" + countTab++ + "] " + tasks.getItem(i).toString() + System.lineSeparator());
+                    bw.write("[" + ++countTab + "] " + tasks.getItem(i).toString() + System.lineSeparator());
                     tasks.removeItem(i + 1);
                     i--;
                     taskCount--;
                 }
             }
 
-            ui.showToUser("Archived all completed Tasks successfully!" + System.lineSeparator());
+            ui.showToUser("All completed Tasks archived successfully!" + System.lineSeparator());
         } catch (IOException e) {
             ui.printError("File IO error! Please Contact Admin!");
         } finally {
@@ -552,6 +610,11 @@ public class TaskManager {
     }
 
     private void showTodo(TaskList tasks) {
+        isMainMenu = false;
+        isTodoMenu = true;
+        isDeadlineMenu = false;
+        isDoneMenu = false;
+
         map.clear();
         ui.showToUser(System.lineSeparator() + "\033[1;95m" + "[SubMenu]:" + "\033[0m" + " Todo Tasks");
         ui.showToUser("----------");
@@ -600,6 +663,11 @@ public class TaskManager {
     }
 
     private void showDeadline(TaskList tasks) {
+        isMainMenu = false;
+        isTodoMenu = false;
+        isDeadlineMenu = true;
+        isDoneMenu = false;
+
         map.clear();
         ui.showToUser(System.lineSeparator() + "\033[1;95m" + "[SubMenu]:" + "\033[0m" + " Deadline Tasks");
         ui.showToUser("----------");

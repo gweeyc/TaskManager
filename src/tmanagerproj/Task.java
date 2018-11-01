@@ -6,7 +6,7 @@ public class Task {
 
     Task(String s) {
         description = s;
-    }
+    }   //constructor
 
     void setDone(boolean b) {
         isDone = b;

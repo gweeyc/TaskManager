@@ -1,7 +1,6 @@
 package tmanagerproj;
 
 import static tmanagerproj.TaskManager.taskCount;
-
 import java.io.BufferedReader;
 import java.io.FileReader;
 import java.io.FileWriter;
@@ -13,7 +12,7 @@ class Storage {
     private String backupPath;
     private String archivePath;
 
-    Storage(String file) {  //constructor
+    Storage(String file) {             //constructor
         workFilePath = file;
         backupPath = "data_backup/tasks_bk.txt";
         archivePath = "data_backup/archived.txt";

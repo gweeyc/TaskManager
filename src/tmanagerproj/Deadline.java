@@ -3,7 +3,7 @@ package tmanagerproj;
 public class Deadline extends Todo {
     private String by;
 
-    Deadline(String s, String by) {
+    Deadline(String s, String by) {   //constructor
         super(s);
         this.by = by;
     }

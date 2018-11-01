@@ -8,7 +8,7 @@ class TaskList {
 
     TaskList() {
         array = new ArrayList<>();
-    }   // constructor
+    }    // constructor
 
     List<Task> toArray() {
         return array;

@@ -4,7 +4,7 @@ public class Todo extends Task {
 
     Todo(String s) {
         super(s);
-    }
+    }   // constructor
 
     @Override
     public String toString() {

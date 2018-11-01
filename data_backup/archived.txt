@@ -1,14 +1,18 @@
-[0] description: test 1
+
+[1] description: submit another junit Test Doc
     is done? Yes
-[1] description: test 2
+[2] description: join sports club
     is done? Yes
-[0] description: test 2
+    do by: June 6th
+[3] description: read 2 more Maths books
     is done? Yes
-[1] description: test 3
+[4] description: check the next Maths exam date
     is done? Yes
-[2] description: test 1
+[5] description: read a new reference Computer textbook
     is done? Yes
-    do by: now
-[3] description: test 2
+[6] description: Test prep for Network Module Mid-term test
     is done? Yes
-    do by: tomorow
+[7] description: check Chemistry exam results next week
+    is done? Yes
+[8] description: Prep for Security Module Mid-term test
+    is done? Yes

@@ -1,7 +1,7 @@
 package tmanagerproj;
 
-import static tmanagerproj.TaskManager.taskCount;
 import static java.lang.System.out;
+import static tmanagerproj.TaskManager.*;
 
 import java.time.LocalDate;
 import java.time.Month;
@@ -50,7 +50,7 @@ class Ui {
         print("[] update Task Done Status in Todo SubMenu)    : tdone List_Number");
         print("[] exit or quit                                : exit, or just press Enter Key");
         print("-------------------------------------------------------------------------------------");
-        print("[] display the whole Tasks List               : print or show");
+        print("[] display the whole Tasks List               : print");
         print("[] display Todo Tasks SubMenu                 : tshow");
         print("[] display Deadline Tasks SubMenu             : dshow");
         print("[] display Done Tasks SubMenu                 : fshow");
@@ -64,7 +64,7 @@ class Ui {
         print("[] reset a Deadline by schedule in Main Menu        : reset List_Number");
         print("[] reset a Deadline by schedule in Deadline SubMenu : dreset List_Number");
         print("-------------------------------------------------------------------------------------");
-        print("[] remove & archive all Done Tasks to file    : fa");
+        print("[] remove & archive all Done Tasks to file    : farchive");
         print("-------------------------------------------------------------------------------------");
         print("\033[0m");
         print("[ NB ]: - All SubMenu commands must begin with the 1st. character of task type:");
@@ -222,6 +222,11 @@ class Ui {
     }
 
     void printTask(TaskList tasks) {
+        isMainMenu = true;
+        isTodoMenu = false;
+        isDeadlineMenu = false;
+        isDoneMenu = false;
+
         showToUser("Tasks:");
 
         for (int i = 0; i < taskCount; i++) {
