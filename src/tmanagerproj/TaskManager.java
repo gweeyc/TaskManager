@@ -185,6 +185,9 @@ public class TaskManager {
         }
 
         if (!flag) {
+
+            assert description != null : "No Task description string set!";   // assert statement
+
             tasks.addTask(Parser.createTodo(description));
             ui.showToUser("Tasks in the list: " + ++taskCount);
             appendToFile();
@@ -210,6 +213,9 @@ public class TaskManager {
             }
 
             if (!flag) {
+
+                assert part[0] != null : "No Task description string set!";   // assert statement
+                assert part[1] != null : "No Task description string set!";   // assert statement
 
                 try {
                     tasks.addTask(Parser.createDeadline(part[0], part[1]));
@@ -383,8 +389,7 @@ public class TaskManager {
             assert arg0 != null : "No First word command: null!";       // assert statement
 
             if (guard_userCliContext(arg0))
-                continue;      // guard against user possible commands mix-ups throughout TaskManager app
-
+                continue;      // guard against user possible Menu & SubMenu commands mix-ups
             try {
 
                 switch (arg0) {

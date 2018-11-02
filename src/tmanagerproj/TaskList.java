@@ -4,11 +4,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 class TaskList {
-    private List<Task> array;
-
-    TaskList() {
-        array = new ArrayList<>();
-    }    // constructor
+    private List<Task> array = new ArrayList<>();
 
     List<Task> toArray() {
         return array;

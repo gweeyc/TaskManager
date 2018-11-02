@@ -12,7 +12,7 @@ class Storage {
     private String backupPath;
     private String archivePath;
 
-    Storage(String file) {             //constructor
+    Storage(String file) {                 //constructor
         workFilePath = file;
         backupPath = "data_backup/tasks_bk.txt";
         archivePath = "data_backup/archived.txt";
@@ -39,7 +39,7 @@ class Storage {
     }
 
 
-    TaskList load(String file) throws TaskManagerException {      //load from work file
+    TaskList load(String file) throws TaskManagerException {      //load from work file to in-memory TaskList
         TaskList tasks = new TaskList();
         String line;
 
@@ -73,27 +73,29 @@ class Storage {
             text[i] = text[i].trim();
         }
 
-        if (text[0].equals("T")) {
-            Task t = Parser.createTodo(text[2]);
+        switch (text[0]) {
+            case "T":
+                Task t = Parser.createTodo(text[2]);
 
-            if (text[1].equals(("1"))) {
-                t.setDone(true);
-            }
+                if (text[1].equals(("1"))) {
+                    t.setDone(true);
+                }
 
-            return t;
+                return t;
 
-        } else if (text[0].equals("D")) {
-            Task d = Parser.createDeadline(text[2], text[3]);
+            case "D":
+                Task d = Parser.createDeadline(text[2], text[3]);
 
-            if (text[1].equals(("1"))) {
-                d.setDone(true);
-            }
+                if (text[1].equals(("1"))) {
+                    d.setDone(true);
+                }
 
-            return d;
+                return d;
 
-        } else {
-            taskCount--;  // to compensate for getTaskFromFile taskCount++
-            return null;
+            default:
+                taskCount--;  // to compensate for getTaskFromFile taskCount++
+
+                return null;
         }
     }
 

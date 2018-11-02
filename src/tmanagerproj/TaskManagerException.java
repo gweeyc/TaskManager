@@ -1,7 +1,7 @@
 package tmanagerproj;
 
 class TaskManagerException extends Exception {
-    TaskManagerException(String message) {            //constructor
+    TaskManagerException(String message) {
         super(message);
-    }
+    } //constructor
 }
