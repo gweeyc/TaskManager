@@ -67,10 +67,15 @@ public class TaskManager {
                     ui.userPrompt("Enter a work file path for this session, e.g. new.txt (without a drive letter) : ");
                     String newWorkFile = createFileAsPerUserInput();
                     storage.setWorkFile(newWorkFile);
-                    storage.setBackupPath("bak.txt");
-                    ui.showToUser("...Setting up a backup file \"bak.txt\" for this session...successful!" + System.lineSeparator());
-                    ui.showToUser("Starting with an empty Task List created for current session only...");
+                    ui.showToUser("...Setting up a work file path " + newWorkFile + " for this session...successful!" + System.lineSeparator());
+
+                    ui.userPrompt("Enter a backup file path for this session, e.g. new.txt (without a drive letter) : ");
+                    String backupFile = createFileAsPerUserInput();
+                    storage.setBackupPath(backupFile);
+                    ui.showToUser("...Setting up a backup file " + backupFile + " for this session...successful!" + System.lineSeparator());
+
                     tasks = new TaskList();
+                    ui.showToUser("Starting with an empty Task List created for current session only...");
 
                     assert tasks.getSize() == 0 : "Task List not empty";  //assert statement
 
