@@ -64,12 +64,12 @@ public class TaskManager {
                 ui.printError("Problems reading the backup file path also...trying other alternatives..." + System.lineSeparator());
 
                 try {
-                    ui.userPrompt("Enter a work file path for this session, e.g. new.txt (without a drive letter) : ");
+                    ui.userPrompt("Enter the session's work file path, e.g. E:/temp/new.txt (or a relative path if applicable): ");
                     String newWorkFile = createFileAsPerUserInput();
                     storage.setWorkFile(newWorkFile);
                     ui.showToUser("...Setting up a work file path " + newWorkFile + " for this session...successful!" + System.lineSeparator());
 
-                    ui.userPrompt("Enter a backup file path for this session, e.g. new.txt (without a drive letter) : ");
+                    ui.userPrompt("Enter the session's backup file path, e.g. C:/temp/new.txt (or a relative path if applicable): ");
                     String backupFile = createFileAsPerUserInput();
                     storage.setBackupPath(backupFile);
                     ui.showToUser("...Setting up a backup file " + backupFile + " for this session...successful!" + System.lineSeparator());
