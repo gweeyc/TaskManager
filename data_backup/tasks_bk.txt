@@ -13,14 +13,14 @@ D : 0 : submit Database Project : Nov 25th
 T : 0 : submit a junit Test Doc
 D : 0 : remind Fred next meeting : Mon 3.30pm
 D : 0 : join chess club : Dec 29th
-T : 0 : read two more English Literature books
+T : 1 : read two more English Literature books
 T : 0 : check the next Maths exam date
 T : 0 : read a new text reference book
 D : 0 : Check Program Test OK? : Week 13th of 2018
 D : 0 : Test run mobile app TaskManager : Dec 20th
 T : 0 : submit a report
 D : 0 : remind boss next General Meeting : Mon 4pm & Sat 1pm
-D : 1 : join sports club : June 6th
+D : 0 : join sports club : June 6th
 T : 1 : read a book
 T : 1 : check the next Maths exam date
 T : 1 : read a new text reference book

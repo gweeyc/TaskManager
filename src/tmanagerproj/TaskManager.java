@@ -9,10 +9,16 @@ import java.util.Map;
 import static java.lang.System.out;
 
 /**
- * Will first initialize by creating a new ArrayList in memory, then loads a work file "/data/data.txt", containing a List
- * of previously saved tasks, into it. It does validate user CLI command inputs to add todo and deadline tasks into the records;
- * it also does task done status updates, deletion and edit & paginated display of the current tasks List; options also
- * exist that allow for specific task type to list only via the console CLI command mode.
+ * <h1>TaskManager App</h1>Will first initialize by creating a new ArrayList in memory, then loads into it a full list
+ * of previously saved tasks, extracted from a default work file "/data/data.txt". It parses and validates user inputs
+ * to add todo and deadline tasks into the record, update done status of tasks, delete tasks or reset deadline schedules,
+ * remove and archive done tasks to file.
+ * <p>
+ * In addition, commands options exist that can display a tasks list under a Main Menu, Todo subMenu or Deadline subMenu
+ * , accompanied by a suite of commands that will support continuing use under that view - for the user convenience.
+ * <p>
+ * There will be real-time verification and validation carried out at runtime, to ensure error-free and non-corruption
+ * compliance throughout.
  *
  * @author Gwee Yeu Chai
  * @version 5.9
@@ -29,9 +35,9 @@ public class TaskManager {
     static boolean isTodoMenu;
     static boolean isDeadlineMenu;
     static boolean isDoneMenu;
-    static int taskCount;        // Store of the current total number of Tasks in in-memory TaskList
+    static int taskCount;            // Store of the current total number of Tasks in in-memory TaskList
     private static String description;     //  Task description without the commandWord
-    private static Map<Integer, Integer> map = new LinkedHashMap<>();  // store of the map of a subMenu Listing number to the task actual index in ArrayList<Task>
+    private static Map<Integer, Integer> map = new LinkedHashMap<>(); // Map subMenu List No. to task index in ArrayList
     private static final int YEAR = LocalDate.now().getYear();    // For Calender Display (current year use)
 
     /**
@@ -53,27 +59,30 @@ public class TaskManager {
 
             try {
                 ui.showToUser("\033[1;92m" + "..Loading from a backup copy.." + "\033[0m");
-                ui.showToUser("\033[1;96m" + "Default backup path will be set to \"data_backup/tasks_bk.txt\" if available....."
-                        + "\033[0m" + System.lineSeparator());
-                ui.showToUser("\033[1;92m" + "Kindly Contact Administrator to re-instate work file path access after program exit."
-                        + "\033[0m" + System.lineSeparator());
+                ui.showToUser("\033[1;96m" + "Default backup path will be set to \"data_backup/tasks_bk.txt\""
+                        + " if available....." + "\033[0m" + System.lineSeparator());
+                ui.showToUser("\033[1;92m" + "Kindly Contact Administrator to re-instate work file path access"
+                        + " after program exit." + "\033[0m" + System.lineSeparator());
                 String tmp = storage.getBackupPath();
                 tasks = storage.load(tmp);
                 storage.setWorkFile(tmp);
             } catch (TaskManagerException err) {
-                ui.printError("Problems reading the backup file path also...trying other alternatives..." + System.lineSeparator());
+                ui.printError("Problems reading the backup file path also...trying other alternatives..."
+                        + System.lineSeparator());
 
                 try {
-                    ui.userPrompt("Enter the session's work file path, e.g. E:/temp/new.txt (or a relative path if applicable): ");
+                    ui.userPrompt("Enter the session's work file path, e.g. E:/temp/new.txt"
+                            + " (or a relative path if applicable): ");
                     String newWorkFile = createFileAsPerUserInput();
                     storage.setWorkFile(newWorkFile);
-                    ui.showToUser("...Setting up a work file path " + newWorkFile + " for this session...successful!" + System.lineSeparator());
-
-                    ui.userPrompt("Enter the session's backup file path, e.g. C:/temp/new.txt (or a relative path if applicable): ");
+                    ui.showToUser("...Setting up a work file " + newWorkFile + " for this session...successful!"
+                            + System.lineSeparator());
+                    ui.userPrompt("Enter the session's backup file path, e.g. C:/temp/new.txt"
+                            + " (or a relative path if applicable): ");
                     String backupFile = createFileAsPerUserInput();
                     storage.setBackupPath(backupFile);
-                    ui.showToUser("...Setting up a backup file " + backupFile + " for this session...successful!" + System.lineSeparator());
-
+                    ui.showToUser("...Setting up a backup file " + backupFile + " for this session...successful!"
+                            + System.lineSeparator());
                     tasks = new TaskList();
                     ui.showToUser("Starting with an empty Task List created for current session only...");
 
@@ -86,6 +95,7 @@ public class TaskManager {
                     ui.showToUser("\033[1;95m" + "Please Contact Administrator!" + "\033[0m");
                     System.exit(-99);
                 }
+
             }
         }
     }
@@ -105,7 +115,7 @@ public class TaskManager {
         ui.showToUser("\033[0m");
     }
 
-    private String createFileAsPerUserInput() throws IOException {
+    private String createFileAsPerUserInput() throws IOException {   // work & backup file creation (emergency session)
         String path = ui.readUserCommand();
         File file = new File(path);
         boolean isFileNew = file.createNewFile();
@@ -192,8 +202,8 @@ public class TaskManager {
         if (!flag) {
 
             assert description != null : "No Task description string set!";   // assert statement
-
-            tasks.addTask(Parser.createTodo(description));
+            Task todo = Parser.createTodo(description);
+            tasks.addTask(todo);
             ui.showToUser("Tasks in the list: " + ++taskCount);
             appendToFile();
         }
@@ -204,14 +214,16 @@ public class TaskManager {
         checkCommandSyntax(line);
 
         if (!description.contains("/by")) {
-            ui.printError("CLI Syntax Error! Deadline input must use a \" /by \" as a delimiter between two text strings! Pl re-enter!");
+            ui.printError("CLI Syntax Error! Deadline input must use a \" /by \" as a delimiter"
+                    + " between two text strings! Pl re-enter!");
         } else {
 
             String[] part = description.split(" /by ");
 
             for (Task t : tasks.toArray()) {   //exclude duplicates
 
-                if (t instanceof Deadline && t.getDesc().equalsIgnoreCase(part[0]) && ((Deadline) t).getBy().equalsIgnoreCase(part[1])) {
+                if (t instanceof Deadline && t.getDesc().equalsIgnoreCase(part[0])
+                        && ((Deadline) t).getBy().equalsIgnoreCase(part[1])) {
                     flag = true;
                     ui.printError("Task: \"todo " + description + "\"  already found in Register. Pl re-try!");
                 }
@@ -223,7 +235,8 @@ public class TaskManager {
                 assert part[1] != null : "No Task description string set!";   // assert statement
 
                 try {
-                    tasks.addTask(Parser.createDeadline(part[0], part[1]));
+                    Task deadline = Parser.createDeadline(part[0], part[1]);
+                    tasks.addTask(deadline);
 
                 } catch (ArrayIndexOutOfBoundsException e) {
                     ui.printError("Errors in input encountered (Exact Format: deadline task_text /by ...other details)");
@@ -233,42 +246,6 @@ public class TaskManager {
                 appendToFile();
             }
         }
-    }
-
-    private void resetByDate(String line) throws TaskManagerException {
-        checkCommandSyntax(line);
-        int n = getListedNumber();
-
-        if (n > 0 && n <= taskCount) {
-            String newByDate = getNewByValue("Enter a new by : ");
-            Task getTask = tasks.getItem(n - 1);
-            resetByValue(newByDate, getTask);
-        } else {
-            ui.showToUser("List number is invalid. Pl re-try!");
-        }
-    }
-
-    private void resetByValue(String newByDate, Task getTask) {
-        if (!(getTask instanceof Deadline)) {
-            ui.showToUser("\033[1;96m" + "Sorry! You selected a Task That's NOT a Deadline Task!"
-                    + "\033[0m" + System.lineSeparator());
-
-            try {
-                Thread.sleep(4000);
-            } catch (InterruptedException e) {
-                e.printStackTrace();
-            }
-
-        } else {
-            Deadline setTask = (Deadline) getTask;
-            setTask.setBy(newByDate);
-            flushToDisk(storage.getWorkFile());
-        }
-    }
-
-    private String getNewByValue(String s) {
-        ui.userPrompt(System.lineSeparator() + s);
-        return ui.readUserCommand();
     }
 
     /**
@@ -293,11 +270,13 @@ public class TaskManager {
 
                 flushToDisk(storage.getWorkFile());  // update the work file
             } else {
-                ui.printError("Error: TaskNo. greater than the total number in records of \"" + listSize + "\". Pl try again!" + System.lineSeparator());
+                ui.printError("Error: TaskNo. greater than the total number in records of \"" + listSize
+                        + "\". Pl try again!" + System.lineSeparator());
             }
 
         } else {
-            ui.printError("Error: TaskNo. value cannot be negative or 0 or a non-digit. Pl try again!" + System.lineSeparator());
+            ui.printError("Error: TaskNo. value cannot be negative or 0 or a non-digit. Pl try again!"
+                    + System.lineSeparator());
         }
     }
 
@@ -314,7 +293,8 @@ public class TaskManager {
             taskCount--;
             ui.showToUser(System.lineSeparator() + "\033[1;93m" + "Message:- " + "\033[0m"
                     + "\033[1;95m" + ":)" + "\033[0m" + "\033[1;31m" + " --> " + "\033[0m"
-                    + "Task " + "\033[1;96m" + holder + "\033[0m" + " has been successfully removed! " + "\033[1;31m" + " --> "
+                    + "Task " + "\033[1;96m" + holder + "\033[0m" + " has been successfully removed! "
+                    + "\033[1;31m" + " --> "
                     + "\033[0m" + "\033[1;95m" + ";)" + "\033[0m");
 
             try {
@@ -324,14 +304,32 @@ public class TaskManager {
             }
 
             ui.showToUser(System.lineSeparator() + "Tasks in the list: " + taskCount);
-            flushToDisk(storage.getWorkFile());   // update the work file
+            flushToDisk(storage.getWorkFile());             // update the work file
         } else {
             ui.printError("TaskNo. value must be between 1 and " + listSize + " (= total no. of records). Pl retry!!");
         }
 
     }
 
-    private boolean compareWithMany(String first, String... rest) {    // varargs used in this function
+    private void resetMainMenuBy(String line) throws TaskManagerException {
+        checkCommandSyntax(line);
+        int n = getListedNumber();
+
+        if (n > 0 && n <= taskCount) {
+            String newByDate = getNewByValue("Enter a new by : ");
+            Task getTask = tasks.getItem(n - 1);
+            resetSubMenuBy(newByDate, getTask);
+        } else {
+            ui.showToUser("List number is invalid. Pl re-try!");
+        }
+    }
+
+    private String getNewByValue(String s) {     // helper function to obtain a new By value to reset in a Deadline Task
+        ui.userPrompt(System.lineSeparator() + s);
+        return ui.readUserCommand();
+    }
+
+    private boolean compareWithMany(String first, String... rest) {     // varargs used in this function
         for (String aRest : rest) {
             if (first.equals(aRest))
                 return true;
@@ -339,7 +337,7 @@ public class TaskManager {
         return false;
     }
 
-    private boolean guard_userCliContext(String arg0) {
+    private boolean check_userCliContext(String arg0) {
 
         if (isMainMenu) {
 
@@ -393,7 +391,7 @@ public class TaskManager {
 
             assert arg0 != null : "No First word command: null!";       // assert statement
 
-            if (guard_userCliContext(arg0))
+            if (check_userCliContext(arg0))
                 continue;      // guard against user possible Menu & SubMenu commands mix-ups
             try {
 
@@ -455,7 +453,7 @@ public class TaskManager {
                         break;
 
                     case "reset":
-                        resetByDate(scanLine);
+                        resetMainMenuBy(scanLine);
                         ui.printTask(tasks);
                         break;
 
@@ -505,7 +503,8 @@ public class TaskManager {
 
                     default:
                         ui.printError("Unknown command! please try again");
-                        ui.printError("CLI Command to use (all lowercase only): Enter print or show to see Commands Syntax Legend.");
+                        ui.printError("CLI Command to use (all lowercase only): Enter print or"
+                                + " show to see Commands Syntax Legend.");
                 }
 
             } catch (TaskManagerException e) {
@@ -523,6 +522,7 @@ public class TaskManager {
         LocalDateTime now = LocalDateTime.now();
         int year = now.getYear();
         int month = now.getMonthValue();
+
         ui.printWelcome();
         out.print("\033[0;93m");
         ui.calMonthDisplay(year, month);
@@ -532,7 +532,8 @@ public class TaskManager {
         out.print("\033[0m");
     }
 
-    private void traceLocAndUpdate(String line, String s) throws TaskManagerException {  // for done status updates in ArrayList
+
+    private void updateEntree(String line, String s) throws TaskManagerException {  // update done status in ArrayList
         checkCommandSyntax(line);
         int n = getListedNumber();
 
@@ -674,7 +675,7 @@ public class TaskManager {
     }
 
     private void updateTodo(String line) throws TaskManagerException {
-        traceLocAndUpdate(line, "Todo Tasks in List: ");
+        updateEntree(line, "Todo Tasks in List: ");
 
     }
 
@@ -701,28 +702,8 @@ public class TaskManager {
         }
     }
 
-    private void modDeadlineBy(String line) throws TaskManagerException {
-        checkCommandSyntax(line);
-        int n = getListedNumber();
-
-        assert (map.size()) > 0 : "map Set is empty!";  //assert statement
-
-        if (n > 0 && n <= map.size()) {
-            String newByDate = getNewByValue("Enter a new by: ");
-            Task getTask = tasks.getItem(map.get(n));
-
-            assert getTask instanceof Deadline : "User selected Task is NOT a Deadline Task";   // assert statement
-
-            resetByValue(newByDate, getTask);
-            ui.showToUser("Deadline Tasks in List: " + map.size());
-
-        } else {
-            ui.showToUser("List number is invalid. Pl re-try!");
-        }
-    }
-
     private void updateDeadline(String line) throws TaskManagerException {
-        traceLocAndUpdate(line, "Deadline Tasks in List: ");
+        updateEntree(line, "Deadline Tasks in List: ");
     }
 
     private void rmDeadline(String line) throws TaskManagerException {
@@ -744,6 +725,44 @@ public class TaskManager {
             } catch (TaskManagerException e) {
                 ui.printError("Array access error");
             }
+        }
+    }
+
+    private void resetSubMenuBy(String newByDate, Task getTask) {   // helper function for resetting Deadline by value
+        if (!(getTask instanceof Deadline)) {
+            ui.showToUser("\033[1;96m" + "Sorry! You selected a Task That's NOT a Deadline Task!"
+                    + "\033[0m" + System.lineSeparator());
+
+            try {
+                Thread.sleep(4000);
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            }
+
+        } else {
+            Deadline setTask = (Deadline) getTask;
+            setTask.setBy(newByDate);
+            flushToDisk(storage.getWorkFile());
+        }
+    }
+
+    private void modDeadlineBy(String line) throws TaskManagerException {
+        checkCommandSyntax(line);
+        int n = getListedNumber();
+
+        assert (map.size()) > 0 : "map Set is empty!";  //assert statement
+
+        if (n > 0 && n <= map.size()) {
+            String newByDate = getNewByValue("Enter a new by: ");
+            Task getTask = tasks.getItem(map.get(n));
+
+            assert getTask instanceof Deadline : "User selected Task is NOT a Deadline Task";   // assert statement
+
+            resetSubMenuBy(newByDate, getTask);
+            ui.showToUser("Deadline Tasks in List: " + map.size());
+
+        } else {
+            ui.showToUser("List number is invalid. Pl re-try!");
         }
     }
 
