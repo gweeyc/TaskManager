@@ -1,5 +1,8 @@
 package tmanagerproj;
 
+import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
+
 import static tmanagerproj.TaskManager.taskCount;
 import java.io.BufferedReader;
 import java.io.FileReader;
@@ -66,7 +69,8 @@ class Storage {
         return tasks;
     }
 
-    private Task createTask(String str) {
+    @Nullable
+    private Task createTask(@NotNull String str) {
         String[] text = str.split(":");
 
         for (int i = 0; i < text.length; i++) {

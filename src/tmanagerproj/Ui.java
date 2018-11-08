@@ -51,6 +51,7 @@ class Ui {
         print("[] exit or quit                                : exit, or just press Enter Key");
         print("-------------------------------------------------------------------------------------");
         print("[] display the whole Tasks List               : print");
+        print("[] paginate display mode of Tasks List        : page");
         print("[] display Todo Tasks SubMenu                 : tshow");
         print("[] display Deadline Tasks SubMenu             : dshow");
         print("[] display Done Tasks SubMenu                 : fshow");
@@ -219,20 +220,6 @@ class Ui {
 
     void printError(String err) {
         showToUser("\u001B[31m" + err + "\u001B[0m");
-    }
-
-    void printTask(TaskList tasks) {
-        isMainMenu = true;
-        isTodoMenu = false;
-        isDeadlineMenu = false;
-        isDoneMenu = false;
-
-        showToUser("Tasks:");
-
-        for (int i = 0; i < taskCount; i++) {
-            showToUser("[" + (i + 1) + "] " + tasks.getItem(i));
-        }
-
     }
 
     void printShutDown() {

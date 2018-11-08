@@ -3,8 +3,7 @@ package tmanagerproj;
 import java.io.*;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
-import java.util.LinkedHashMap;
-import java.util.Map;
+import java.util.*;
 
 import static java.lang.System.out;
 
@@ -31,13 +30,15 @@ public class TaskManager {
     private Ui ui;
 
     private boolean flag = true;     // pure boolean flag use
-    static boolean isMainMenu;       // boolean track which Menu User is currently using or in
-    static boolean isTodoMenu;
-    static boolean isDeadlineMenu;
-    static boolean isDoneMenu;
+    private static boolean isMainMenu;       // boolean track which Menu User is currently using or in
+    private static boolean isTodoMenu;
+    private static boolean isDeadlineMenu;
+    private static boolean isDoneMenu;
     static int taskCount;            // Store of the current total number of Tasks in in-memory TaskList
     private static String description;     //  Task description without the commandWord
     private static Map<Integer, Integer> map = new LinkedHashMap<>(); // Map subMenu List No. to task index in ArrayList
+    private List<String> pageDisplay = new ArrayList<>();     // For Pagination Listing in-memory storage
+    private static final int PAGESIZE = 10;
     private static final int YEAR = LocalDate.now().getYear();    // For Calender Display (current year use)
 
     /**
@@ -113,6 +114,89 @@ public class TaskManager {
 
         ui.calMonthDisplay(YEAR, n);
         ui.showToUser("\033[0m");
+    }
+
+    private void printTask(TaskList tasks) {
+        isMainMenu = true;
+        isTodoMenu = false;
+        isDeadlineMenu = false;
+        isDoneMenu = false;
+
+
+        ui.showToUser("Tasks:");
+
+        for (int i = 0; i < taskCount; i++) {
+            ui.showToUser("[" + (i + 1) + "] " + tasks.getItem(i));
+        }
+
+    }
+
+    private List<String> setPage(List<String> sourceList, int pageNo, int pageSize) {     // set Max Page lines to display for each screen
+
+        if (pageSize <= 0 || pageNo <= 0) {
+            throw new IllegalArgumentException("invalid page size entered: " + pageSize);
+        }
+
+        int fromIndex = (pageNo - 1) * pageSize;
+
+        if (sourceList == null || sourceList.size() < fromIndex) {
+            return Collections.emptyList();
+        }
+
+        // toIndex exclusive
+        return sourceList.subList(fromIndex, Math.min(fromIndex + pageSize, sourceList.size()));
+    }
+
+    private void displayPagination() {     // Next-page-display Pagination method for a text Console
+        int n = 1;
+        List<String> temp;
+        String cmd;
+        pageDisplay.clear();
+
+        for (int i = 0; i < taskCount; i++) {
+            pageDisplay.add("[" + (i + 1) + "] " + tasks.getItem(i));
+        }
+
+        temp = setPage(pageDisplay, n, PAGESIZE);
+
+        for (String s : temp) {
+            ui.showToUser(s);
+        }
+
+        ui.showToUser("");
+
+        ui.userPrompt("Press Enter for Edit Mode. Enter N or n for next page: ");
+        cmd = ui.readUserCommand();
+
+        while (!temp.isEmpty()) {
+
+            if (cmd.equalsIgnoreCase("page")) {
+                displayPagination();
+                break;
+            }
+
+            if (!cmd.equalsIgnoreCase("N")) {
+                ui.showToUser(System.lineSeparator() + "==== [Exiting Pagination Mode] ====" + System.lineSeparator());
+                break;
+            }
+
+            ui.showToUser("");
+            temp = setPage(pageDisplay, ++n, PAGESIZE);
+
+            if (temp.isEmpty()) {
+                ui.showToUser("==== *** End of Tasks List Reached! *** ====" + System.lineSeparator());
+                break;
+            }
+
+            for (String s : temp) {
+                ui.showToUser(s);
+            }
+
+            ui.showToUser("");
+
+            ui.userPrompt("Press Enter key for Edit Mode or N for next page display: ");
+            cmd = ui.readUserCommand();
+        }
     }
 
     private String createFileAsPerUserInput() throws IOException {   // work & backup file creation (emergency session)
@@ -350,7 +434,7 @@ public class TaskManager {
 
         if (isTodoMenu) {
 
-            if (compareWithMany(arg0, "done", "ddone", "del", "ddel", "fdel", "reset", "dreset")) {
+            if (compareWithMany(arg0, "page", "done", "ddone", "del", "ddel", "fdel", "reset", "dreset")) {
                 ui.showToUser("Warning! Your command is not for Todo SubMenu use.");
                 ui.showToUser("Pl re-enter: e.g. print for Commands Legend");
                 return true;
@@ -359,7 +443,7 @@ public class TaskManager {
 
         if (isDeadlineMenu) {
 
-            if (compareWithMany(arg0, "done", "tdone", "del", "tdel", "fdel", "reset")) {
+            if (compareWithMany(arg0, "page", "done", "tdone", "del", "tdel", "fdel", "reset")) {
                 ui.showToUser("Warning! Your command is not for Deadline SubMenu use.");
                 ui.showToUser("Pl re-enter: e.g. print for Commands Legend");
                 return true;
@@ -368,7 +452,7 @@ public class TaskManager {
 
         if (isDoneMenu) {
 
-            if (compareWithMany(arg0, "done", "ddone", "tdone", "del", "tdel", "ddel", "reset", "dreset")) {
+            if (compareWithMany(arg0, "page", "done", "ddone", "tdone", "del", "tdel", "ddel", "reset", "dreset")) {
                 ui.showToUser("Warning! Your command is not for Done SubMenu use.");
                 ui.showToUser("Pl re-enter: e.g. print for Commands Legend");
                 return true;
@@ -402,9 +486,13 @@ public class TaskManager {
                         toExit = true;
                         break;
 
+                    case "page":
+                        displayPagination();
+                        break;
+
                     case "print":
                         ui.printWelcome();
-                        ui.printTask(tasks);
+                        printTask(tasks);
 
                         if (flag) {        // ensure data integrity & format written to work file, with 1st print
                             flushToDisk(storage.getWorkFile());
@@ -431,32 +519,31 @@ public class TaskManager {
                     case "todo":
                         ui.printWelcome();
                         addTodo(scanLine);
-                        ui.printTask(tasks);
+                        printTask(tasks);
                         break;
 
                     case "deadline":
                         ui.printWelcome();
                         addDeadline(scanLine);
-                        ui.printTask(tasks);
+                        printTask(tasks);
                         break;
 
                     case "done":
                         ui.printWelcome();
                         updateTask(scanLine);
-                        ui.printTask(tasks);
+                        printTask(tasks);
                         break;
 
                     case "del":
                         ui.printWelcome();
                         delTask(scanLine);
-                        ui.printTask(tasks);
+                        printTask(tasks);
                         break;
 
                     case "reset":
                         resetMainMenuBy(scanLine);
-                        ui.printTask(tasks);
+                        printTask(tasks);
                         break;
-
 
                     case "tdel":
                         ui.printWelcome();
@@ -492,7 +579,7 @@ public class TaskManager {
                     case "farchive":
                         ui.printWelcome();
                         archiveDoneTasks(tasks);
-                        ui.printTask(tasks);
+                        printTask(tasks);
                         flushToDisk(storage.getWorkFile());
                         break;
 
