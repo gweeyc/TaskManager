@@ -9,21 +9,23 @@ class Parser {
         }
     }
 
+    // get the first word of User command line input
     static String getCommandWord(String fullCommand) {
         l.setLength(0);
         String firstWord = null;
         String strTrim = fullCommand.trim();
-        l.insert(0,strTrim );
+        l.insert(0, strTrim);
         strBuilderTrim();
 
         if (l.indexOf(" ") > 0) {
             firstWord = l.substring(0, l.indexOf(" "));
-            return firstWord;  // get the first word
+            return firstWord;
         } else {
             return strTrim;    // allow for single command print, exit, etc
         }
     }
 
+    // The task description minus the first CLI command word
     static String getTaskDesc(String str) {
         l.setLength(0);
         l.insert(0, str);

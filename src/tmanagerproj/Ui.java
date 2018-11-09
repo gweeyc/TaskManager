@@ -1,7 +1,6 @@
 package tmanagerproj;
 
 import static java.lang.System.out;
-import static tmanagerproj.TaskManager.*;
 
 import java.time.LocalDate;
 import java.time.Month;
@@ -32,7 +31,8 @@ class Ui {
 
         print("");
         print("\033[1;96m" + "               ||       *++++++++++++++++++++++++++++++++++++*       ||" + "\033[0m");
-        print("                  " + "\033[1;91m" + "||--- " + "\033[0m" + "\033[0;105m" + "\033[1;97m" + "|  Welcome to TaskManager Main Menu! |" + "\033[0m" + "\033[1;91m" + " ---||" + "\033[0m");
+        print("                  " + "\033[1;91m" + "||--- " + "\033[0m" + "\033[0;105m" + "\033[1;97m"
+                + "|  Welcome to TaskManager Main Menu! |" + "\033[0m" + "\033[1;91m" + " ---||" + "\033[0m");
         print("\033[1;96m" + "               ||       ++++++++++++++++++++++++++++++++++++++       ||" + "\033[0m");
         print("");
         out.print("\033[1;31m");
@@ -69,9 +69,8 @@ class Ui {
         print("-------------------------------------------------------------------------------------");
         print("\033[0m");
         print("[ NB ]: - All SubMenu commands must begin with the 1st. character of task type:");
-        print("t for todo task e.g. tshow, d for deadline task e.g. ddel, f for done task e.g. fshow." + System.lineSeparator());
-
-
+        print("t for todo task e.g. tshow, d for deadline task e.g. ddel, f for done task e.g. fshow."
+                + System.lineSeparator());
     }
 
     void dayTimeDisplay() {
@@ -102,7 +101,7 @@ class Ui {
         print("");
     }
 
-    private void printMonth(int year, int month) {
+    private void printMonth(int year, int month) {    // helper function to calMonthDisplay method
         //Print the headings of the calendar
         printMonthTitle(year, month);
 
@@ -110,7 +109,7 @@ class Ui {
         printMonthBody(year, month);
     }
 
-    private void printMonthTitle(int year, int month) {
+    private void printMonthTitle(int year, int month) {    // creates the "top cover" of month calender look
 
         print("         " + getMonthName(month) + " " + year);
         print("=============================");
@@ -194,7 +193,8 @@ class Ui {
         return (totalNumberOfDays + startDay1900) % 7;
     }
 
-    private int getTotalNumberOfDays(int year, int month) {   //total number of days between 1,1,1900 to current year, month
+    //Computes the total number of days between 1,1,1900 to current year, month
+    private int getTotalNumberOfDays(int year, int month) {
         LocalDate ref = LocalDate.of(1900, Month.JANUARY, 1);  //no time zone in SG
         LocalDate now = ref.withYear(year).withMonth(month);
         return (int) ChronoUnit.DAYS.between(ref, now);

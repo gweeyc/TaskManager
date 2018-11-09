@@ -23,7 +23,8 @@ public class Deadline extends Todo {
 
     @Override
     public String toFileString() {
-        return super.toFileString().replaceFirst("T", "D") + " : " + by;
+        return super.toFileString().replaceFirst("T", "D")
+                + " : " + by;
     }
 }
 

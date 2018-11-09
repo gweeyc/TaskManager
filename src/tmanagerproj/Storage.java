@@ -4,6 +4,7 @@ import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import static tmanagerproj.TaskManager.taskCount;
+
 import java.io.BufferedReader;
 import java.io.FileReader;
 import java.io.FileWriter;
@@ -41,8 +42,8 @@ class Storage {
         workFilePath = filePath;
     }
 
-
-    TaskList load(String file) throws TaskManagerException {      //load from work file to in-memory TaskList
+    //load entire previously saved tasks List from the default work file to the TaskList object
+    TaskList load(String file) throws TaskManagerException {
         TaskList tasks = new TaskList();
         String line;
 

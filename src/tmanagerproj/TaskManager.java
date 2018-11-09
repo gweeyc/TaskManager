@@ -8,16 +8,19 @@ import java.util.*;
 import static java.lang.System.out;
 
 /**
- * <h1>TaskManager App</h1>Will first initialize by creating a new ArrayList in memory, then loads into it a full list
- * of previously saved tasks, extracted from a default work file "/data/data.txt". It parses and validates user inputs
- * to add todo and deadline tasks into the record, update done status of tasks, delete tasks or reset deadline schedules,
- * remove and archive done tasks to file.
+ * <h1>TaskManager</h1> is a command line program used to quickly create a personal todo or deadline task list. It will
+ * first initialize by loading a full list of previously saved tasks, taken from a default work file "/data/data.txt",
+ * into an in-memory Tasks ArrayList. <p>
+ * It parses, validates user inputs to store new tasks into the ArrayList, updates the done status of tasks, delete
+ * tasks, does resets of deadlines, done tasks removal and archiving to file, a mode to do 10-lines pagination of the
+ * entire Tasks list is also available.
  * <p>
- * In addition, commands options exist that can display a tasks list under a Main Menu, Todo subMenu or Deadline subMenu
- * , accompanied by a suite of commands that will support continuing use under that view - for the user convenience.
+ * In addition, commands options exist that can display a Tasks list under a Main Menu, Todo subMenu or Deadline subMenu
+ * , with a suite of specifically crafted commands that will continue proper command usage under that particular view
+ * only - for the user convenience.
  * <p>
- * There will be real-time verification and validation carried out at runtime, to ensure error-free and non-corruption
- * compliance throughout.
+ * Real-time verification and validation will also be executed at runtime to ensure error-free and non-corruption
+ * compliance throughout program use is upheld.
  *
  * @author Gwee Yeu Chai
  * @version 5.9
@@ -30,7 +33,7 @@ public class TaskManager {
     private Ui ui;
 
     private boolean flag = true;     // pure boolean flag use
-    private static boolean isMainMenu;       // boolean track which Menu User is currently using or in
+    private static boolean isMainMenu;       // boolean to track which Menu User is currently using or in
     private static boolean isTodoMenu;
     private static boolean isDeadlineMenu;
     private static boolean isDoneMenu;
@@ -42,12 +45,15 @@ public class TaskManager {
     private static final int YEAR = LocalDate.now().getYear();    // For Calender Display (current year use)
 
     /**
-     * TaskManager constructor to read in the database file, create a Ui, Storage & TaskList obj.
+     * TaskManager constructor to read in the default database text work file, create an Ui Object <em>ui</em> ,
+     * a Storage Object <em>storage</em> & a TaskList Object <em>tasks</em>.
+     * If file read is unsuccessful, programmed emergency measures will activate next, and a live user session can still
+     * go online for the User to work from, starting out with a provided empty Task List instead.
      *
      * @param filePath database file's path.
      * @see TaskManagerException
      */
-    protected TaskManager(String filePath) {          //constructor
+    protected TaskManager(String filePath) {          // overload constructor
         ui = new Ui();
         storage = new Storage(filePath);
 
@@ -116,6 +122,11 @@ public class TaskManager {
         ui.showToUser("\033[0m");
     }
 
+    /**
+     * TaskManager Main Menu Tasks Listing.
+     *
+     * @param tasks the TaskList object in memory.
+     */
     private void printTask(TaskList tasks) {
         isMainMenu = true;
         isTodoMenu = false;
@@ -131,7 +142,8 @@ public class TaskManager {
 
     }
 
-    private List<String> setPage(List<String> sourceList, int pageNo, int pageSize) {     // set Max Page lines to display for each screen
+    // set maximum Page lines for each screen to display
+    private List<String> getPageLines(List<String> sourceList, int pageNo, int pageSize) {
 
         if (pageSize <= 0 || pageNo <= 0) {
             throw new IllegalArgumentException("invalid page size entered: " + pageSize);
@@ -147,11 +159,12 @@ public class TaskManager {
         return sourceList.subList(fromIndex, Math.min(fromIndex + pageSize, sourceList.size()));
     }
 
-    private void displayPagination() {     // Next-page-display Pagination method for a text Console
+    // Next-page-display Pagination method for a text Console
+    private void displayPagination() {
         int n = 1;
         List<String> temp;
         String cmd = "";
-        pageDisplay.clear();
+        pageDisplay.clear();    // temp storage of pagination display items
 
         for (int i = 0; i < taskCount; i++) {
             pageDisplay.add("[" + (i + 1) + "] " + tasks.getItem(i));
@@ -160,8 +173,7 @@ public class TaskManager {
         assert !pageDisplay.isEmpty() : "There is no page to Display";   // assert statement
 
         do {
-
-            temp = setPage(pageDisplay, n, PAGESIZE);
+            temp = getPageLines(pageDisplay, n, PAGESIZE);
             ui.showToUser("");
 
             if (temp.isEmpty()) {
@@ -174,7 +186,8 @@ public class TaskManager {
                 }
             }
 
-            ui.userPrompt(System.lineSeparator() + "\033[1;32m" + "Press ENTER for EDIT MODE. Enter N or n for NEXT PAGE: " + "\033[0m");
+            ui.userPrompt(System.lineSeparator() + "\033[1;32m"
+                    + "Press ENTER for EDIT MODE. Enter N or n for NEXT PAGE: " + "\033[0m");
             cmd = ui.readUserCommand();
 
             if (cmd.equalsIgnoreCase("page"))
@@ -183,18 +196,19 @@ public class TaskManager {
             if (cmd.equalsIgnoreCase("N")) {
                 n++;
             } else {
-                ui.showToUser(System.lineSeparator() + "-- * Invalid Command entered! Pl retry again! * --" + System.lineSeparator());
-                ui.showToUser( "==== [Exiting Pagination Mode] ====" + System.lineSeparator());
+                ui.showToUser("--- Invalid Command entered! Pl retry again! ---"
+                        + System.lineSeparator());
+                ui.showToUser("==== [Exiting Pagination Mode] ====" + System.lineSeparator());
                 break;
             }
-
         } while (!temp.isEmpty());
 
         if (cmd.equalsIgnoreCase("page"))
             displayPagination();
     }
 
-    private String createFileAsPerUserInput() throws IOException {   // work & backup file creation (emergency session)
+    // work & backup files creation (emergency session)
+    private String createFileAsPerUserInput() throws IOException {
         String path = ui.readUserCommand();
         File file = new File(path);
         boolean isFileNew = file.createNewFile();
@@ -228,7 +242,7 @@ public class TaskManager {
         return n;
     }
 
-    private void toClose(Closeable obj) {   //for possible closure technical glitch
+    private void toClose(Closeable obj) {     //for possible closure technical glitch or error
 
         if (obj != null) {
 
@@ -241,9 +255,10 @@ public class TaskManager {
         }
     }
 
+    // to preserve work file data format correctness & currency
     private void flushToDisk(String filePath) {
         try {
-            storage.writeFile(tasks, filePath);    // preserve work file data format correctness & currency
+            storage.writeFile(tasks, filePath);
         } catch (TaskManagerException e) {
             ui.printError(e.getMessage());
         }
@@ -258,9 +273,10 @@ public class TaskManager {
     }
 
     /**
-     * This method checks for empty task description, ignores duplicates, inserts a new Todo Task into the tasks List
+     * This method checks for void task description, ignores duplicates, inserts a new Todo Task into tasks List.
      *
-     * @param line pass in the scanned text string from user input
+     * @param line pass in the scanned text string from user input.
+     * @throws TaskManagerException on missing Todo task text description.
      * @see TaskManagerException
      */
 
@@ -281,6 +297,7 @@ public class TaskManager {
         if (!flag) {
 
             assert description != null : "No Task description string set!";   // assert statement
+
             Task todo = Parser.createTodo(description);
             tasks.addTask(todo);
             ui.showToUser("Tasks in the list: " + ++taskCount);
@@ -288,6 +305,13 @@ public class TaskManager {
         }
     }
 
+    /**
+     * This method checks for void task description, ignores duplicates, inserts a new Deadline Task into tasks List.
+     *
+     * @param line pass in the scanned text string from user input.
+     * @throws TaskManagerException on missing Deadline task text description.
+     * @see TaskManagerException
+     */
     private void addDeadline(String line) throws TaskManagerException {
         flag = false;
         checkCommandSyntax(line);
@@ -299,7 +323,7 @@ public class TaskManager {
 
             String[] part = description.split(" /by ");
 
-            for (Task t : tasks.toArray()) {   //exclude duplicates
+            for (Task t : tasks.toArray()) {                                  //exclude duplicates
 
                 if (t instanceof Deadline && t.getDesc().equalsIgnoreCase(part[0])
                         && ((Deadline) t).getBy().equalsIgnoreCase(part[1])) {
@@ -318,7 +342,7 @@ public class TaskManager {
                     tasks.addTask(deadline);
 
                 } catch (ArrayIndexOutOfBoundsException e) {
-                    ui.printError("Errors in input encountered (Exact Format: deadline task_text /by ...other details)");
+                    ui.printError("Input Errors encountered! (Exact Format: deadline task_text /by ...other details)");
                 }
 
                 ui.showToUser("Tasks in the list: " + ++taskCount);
@@ -328,10 +352,11 @@ public class TaskManager {
     }
 
     /**
-     * This method updates task done status in tasks List, freshens up the work file data format integrity and currency
+     * This optimized method updates the task done status in tasks List, freshens up the database work file data format:
+     * ensures format integrity and data currency at the same time.
      *
-     * @param line takes in the scanned text string from user input
-     * @throws TaskManagerException on missing task number that should follow the CLI "done" command
+     * @param line takes in the scanned text string from user input.
+     * @throws TaskManagerException on missing task number that should follow the CLI "done" command.
      */
 
     private void updateTask(String line) throws TaskManagerException {
@@ -347,7 +372,7 @@ public class TaskManager {
                 tasks.getItem(n - 1).setDone(true);
                 ui.showToUser("Tasks in the list: " + taskCount);
 
-                flushToDisk(storage.getWorkFile());  // update the work file
+                flushToDisk(storage.getWorkFile());         // update the work file
             } else {
                 ui.printError("Error: TaskNo. greater than the total number in records of \"" + listSize
                         + "\". Pl try again!" + System.lineSeparator());
@@ -359,6 +384,12 @@ public class TaskManager {
         }
     }
 
+    /**
+     * delTask deletes a task entree from a Main Menu-only Listing.
+     *
+     * @param line takes in the scanned text string from user input.
+     * @see TaskManagerException
+     */
     private void delTask(String line) throws TaskManagerException {
         checkCommandSyntax(line);
         int n = getListedNumber();
@@ -390,6 +421,12 @@ public class TaskManager {
 
     }
 
+    /**
+     * This method resets a Deadline by value under Main Menu.
+     *
+     * @param line takes in the scanned text string from user input.
+     * @see TaskManagerException
+     */
     private void resetMainMenuBy(String line) throws TaskManagerException {
         checkCommandSyntax(line);
         int n = getListedNumber();
@@ -403,12 +440,43 @@ public class TaskManager {
         }
     }
 
-    private String getNewByValue(String s) {     // helper function to obtain a new By value to reset in a Deadline Task
+    /**
+     * Helper method to prompt for User input of a new By value to reset in the selected Deadline Task.
+     *
+     * @param s The prompt for a new Deadline by value.
+     * @return The User input string containing the new Deadline by value to set.
+     */
+    private String getNewByValue(String s) {
         ui.userPrompt(System.lineSeparator() + s);
         return ui.readUserCommand();
     }
 
-    private boolean compareWithMany(String first, String... rest) {     // varargs used in this function
+    /**
+     * Helper method for resetting Deadline by value used in Main Menu and Deadline SubMenu.
+     *
+     * @param newByDate String stores the User new deadline schedule entry.
+     * @param getTask   A Task object whose by value is to reset.
+     */
+
+    private void resetSubMenuBy(String newByDate, Task getTask) {   // helper function for resetting Deadline by value
+        if (!(getTask instanceof Deadline)) {
+            ui.showToUser("\033[1;96m" + "Sorry! You selected a Task That's NOT a Deadline Task!"
+                    + "\033[0m" + System.lineSeparator());
+
+            try {
+                Thread.sleep(4000);
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            }
+
+        } else {
+            Deadline setTask = (Deadline) getTask;
+            setTask.setBy(newByDate);
+            flushToDisk(storage.getWorkFile());
+        }
+    }
+
+    private boolean compareWithMany(String first, String... rest) {     // varargs used in this helper function
         for (String aRest : rest) {
             if (first.equals(aRest))
                 return true;
@@ -416,6 +484,12 @@ public class TaskManager {
         return false;
     }
 
+    /**
+     * This method guards against CLI commands mix-up under different menus views.
+     *
+     * @param arg0 first command word of user input.
+     * @return boolean value to filter off the wrong commands and pass the right ones only.
+     */
     private boolean check_userCliContext(String arg0) {
 
         if (isMainMenu) {
@@ -471,6 +545,11 @@ public class TaskManager {
         out.print("\033[0m");
     }
 
+    /**
+     * This method starts the main TaskManager Program with a Welcome Screen with the Commands Legend Menu, activates
+     * the right operations as per the valid commands parsed and passed. Upon exit, a Bye screen will be displayed.
+     * The entire Tasks List is flushed to disk and secured on a default backup file. All used resources are closed.
+     */
     private void run() {
         runOnceCalTime();
         boolean toExit = false;
@@ -614,6 +693,14 @@ public class TaskManager {
         ui.printBye();
     }
 
+    /**
+     * This is a helper method to allow update to the task Done status of a task when under a Todo SubMenu or Deadline.
+     * SubMenu View.
+     *
+     * @param line Stores the User input of CLI command and the task number.
+     * @param s    contains the total number of Todo or Deadline or Done tasks in tasks List.
+     * @see TaskManagerException
+     */
     private void updateEntree(String line, String s) throws TaskManagerException {  // update done status in ArrayList
         checkCommandSyntax(line);
         int n = getListedNumber();
@@ -628,6 +715,11 @@ public class TaskManager {
         ui.showToUser(s + map.size());
     }
 
+    /**
+     * This method displays all the numbered Done tasks under a Done SubMenu View.
+     *
+     * @param tasks in-memory tasks List object.
+     */
     private void showDoneTasks(TaskList tasks) {
         isMainMenu = false;
         isTodoMenu = false;
@@ -656,6 +748,12 @@ public class TaskManager {
 
     }
 
+    /**
+     * This method is a housekeeping function that archives and removes all Done Tasks from the tasks List and writes
+     * to disk to the default backup file set by Admin.
+     *
+     * @param tasks the in-memory tasks List object.
+     */
     private void archiveDoneTasks(TaskList tasks) {
         BufferedWriter bw = null;
         FileWriter fw = null;
@@ -685,6 +783,12 @@ public class TaskManager {
         }
     }
 
+    /**
+     * This method deletes a Done Task from the database when under a Done Task SubMenu.
+     *
+     * @param line contains the User input of CLI command and the task number.
+     * @see TaskManagerException
+     */
     void rmDoneTask(String line) throws TaskManagerException {
         checkCommandSyntax(line);
         int n = getListedNumber();
@@ -707,6 +811,11 @@ public class TaskManager {
         }
     }
 
+    /**
+     * This method displays a tasks List under a Todo SubMenu View.
+     *
+     * @param tasks the in-memory Tasks List object.
+     */
     private void showTodo(TaskList tasks) {
         isMainMenu = false;
         isTodoMenu = true;
@@ -733,6 +842,13 @@ public class TaskManager {
         }
     }
 
+    /**
+     * This method deletes a Todo Task from the database under a Todo SubMenu.
+     *
+     * @param line Stores the User input of CLI command and the number of the task.
+     * @throws TaskManagerException  on missing Todo task description.
+     * @throws NumberFormatException on User text input instead of a task number.
+     */
     private void rmTodo(String line) throws TaskManagerException, NumberFormatException {
         checkCommandSyntax(line);
         int n = getListedNumber();
@@ -755,11 +871,22 @@ public class TaskManager {
         }
     }
 
+    /**
+     * This method updates the task Done status of a Todo Task under a Todo SubMenu.
+     *
+     * @param line stores the User input of CLI command and the task number.
+     * @see TaskManagerException
+     */
     private void updateTodo(String line) throws TaskManagerException {
         updateEntree(line, "Todo Tasks in List: ");
 
     }
 
+    /**
+     * This method displays the Deadline SubMenu View listing.
+     *
+     * @param tasks the in-memory Tasks List.
+     */
     private void showDeadline(TaskList tasks) {
         isMainMenu = false;
         isTodoMenu = false;
@@ -783,6 +910,12 @@ public class TaskManager {
         }
     }
 
+    /**
+     * This method updates the task Done status of a Deadline Task under a Deadline SubMenu.
+     *
+     * @param line stores the User input of CLI command and the task number.
+     * @see TaskManagerException
+     */
     private void updateDeadline(String line) throws TaskManagerException {
         updateEntree(line, "Deadline Tasks in List: ");
     }
@@ -809,24 +942,12 @@ public class TaskManager {
         }
     }
 
-    private void resetSubMenuBy(String newByDate, Task getTask) {   // helper function for resetting Deadline by value
-        if (!(getTask instanceof Deadline)) {
-            ui.showToUser("\033[1;96m" + "Sorry! You selected a Task That's NOT a Deadline Task!"
-                    + "\033[0m" + System.lineSeparator());
-
-            try {
-                Thread.sleep(4000);
-            } catch (InterruptedException e) {
-                e.printStackTrace();
-            }
-
-        } else {
-            Deadline setTask = (Deadline) getTask;
-            setTask.setBy(newByDate);
-            flushToDisk(storage.getWorkFile());
-        }
-    }
-
+    /**
+     * This method changes a Deadline Task "by" value under a Deadline SubMenu View.
+     *
+     * @param line Stores the User input of CLI command and the task number.
+     * @see TaskManagerException
+     */
     private void modDeadlineBy(String line) throws TaskManagerException {
         checkCommandSyntax(line);
         int n = getListedNumber();
@@ -847,6 +968,11 @@ public class TaskManager {
         }
     }
 
+    /**
+     * The main function of TaskManager Class file.
+     *
+     * @param args Command line arguments for the main method.
+     */
     public static void main(String[] args) {
         new TaskManager("data/tasks.txt").run();
 
