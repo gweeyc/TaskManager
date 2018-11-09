@@ -38,7 +38,7 @@ public class TaskManager {
     private static String description;     //  Task description without the commandWord
     private static Map<Integer, Integer> map = new LinkedHashMap<>(); // Map subMenu List No. to task index in ArrayList
     private List<String> pageDisplay = new ArrayList<>();     // For Pagination Listing in-memory storage
-    private static final int PAGESIZE = 5;
+    private static final int PAGESIZE = 10;
     private static final int YEAR = LocalDate.now().getYear();    // For Calender Display (current year use)
 
     /**
@@ -183,7 +183,8 @@ public class TaskManager {
             if (cmd.equalsIgnoreCase("N")) {
                 n++;
             } else {
-                ui.showToUser(System.lineSeparator() + "==== [Exiting Pagination Mode] ====" + System.lineSeparator());
+                ui.showToUser(System.lineSeparator() + "-- * Invalid Command entered! Pl retry again! * --" + System.lineSeparator());
+                ui.showToUser( "==== [Exiting Pagination Mode] ====" + System.lineSeparator());
                 break;
             }
 
