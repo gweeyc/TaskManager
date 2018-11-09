@@ -20,7 +20,7 @@ import static java.lang.System.out;
  * only - for the user convenience.
  * <p>
  * Real-time verification and validation will also be executed at runtime to ensure error-free and non-corruption
- * compliance throughout program use is upheld.
+ * compliance throughout program use is observed.
  *
  * @author Gwee Yeu Chai
  * @version 5.9
@@ -45,8 +45,8 @@ public class TaskManager {
     private static final int YEAR = LocalDate.now().getYear();    // For Calender Display (current year use)
 
     /**
-     * TaskManager constructor to read in the default database text work file, create an Ui Object <em>ui</em> ,
-     * a Storage Object <em>storage</em> & a TaskList Object <em>tasks</em>.
+     * The TaskManager constructor reads in the default database text file, create an Ui Object <em>ui</em> ,
+     * a Storage Object <em>storage</em> and a TaskList Object <em>tasks</em>.
      * If file read is unsuccessful, programmed emergency measures will activate next, and a live user session can still
      * go online for the User to work from, starting out with a provided empty Task List instead.
      *
@@ -385,9 +385,10 @@ public class TaskManager {
     }
 
     /**
-     * delTask deletes a task entree from a Main Menu-only Listing.
+     * delTask deletes a task entree from a Main Menu Listing.
      *
      * @param line takes in the scanned text string from user input.
+     * @throws TaskManagerException on missing task description (after the command's first word)
      * @see TaskManagerException
      */
     private void delTask(String line) throws TaskManagerException {
@@ -425,6 +426,7 @@ public class TaskManager {
      * This method resets a Deadline by value under Main Menu.
      *
      * @param line takes in the scanned text string from user input.
+     * @throws TaskManagerException on missing task description (after the command's first word)
      * @see TaskManagerException
      */
     private void resetMainMenuBy(String line) throws TaskManagerException {
@@ -699,7 +701,7 @@ public class TaskManager {
      *
      * @param line Stores the User input of CLI command and the task number.
      * @param s    contains the total number of Todo or Deadline or Done tasks in tasks List.
-     * @see TaskManagerException
+     * @throws TaskManagerException on missing task description (after the command's first word)
      */
     private void updateEntree(String line, String s) throws TaskManagerException {  // update done status in ArrayList
         checkCommandSyntax(line);
@@ -787,7 +789,7 @@ public class TaskManager {
      * This method deletes a Done Task from the database when under a Done Task SubMenu.
      *
      * @param line contains the User input of CLI command and the task number.
-     * @see TaskManagerException
+     * @throws TaskManagerException on missing task description (after the command's first word)
      */
     void rmDoneTask(String line) throws TaskManagerException {
         checkCommandSyntax(line);
@@ -875,7 +877,7 @@ public class TaskManager {
      * This method updates the task Done status of a Todo Task under a Todo SubMenu.
      *
      * @param line stores the User input of CLI command and the task number.
-     * @see TaskManagerException
+     * @throws TaskManagerException on missing task description (after the command's first word)
      */
     private void updateTodo(String line) throws TaskManagerException {
         updateEntree(line, "Todo Tasks in List: ");
@@ -914,7 +916,7 @@ public class TaskManager {
      * This method updates the task Done status of a Deadline Task under a Deadline SubMenu.
      *
      * @param line stores the User input of CLI command and the task number.
-     * @see TaskManagerException
+     * @throws TaskManagerException on missing task description (after the command's first word)
      */
     private void updateDeadline(String line) throws TaskManagerException {
         updateEntree(line, "Deadline Tasks in List: ");
@@ -946,7 +948,7 @@ public class TaskManager {
      * This method changes a Deadline Task "by" value under a Deadline SubMenu View.
      *
      * @param line Stores the User input of CLI command and the task number.
-     * @see TaskManagerException
+     * @throws TaskManagerException on missing task description (after the command's first word)
      */
     private void modDeadlineBy(String line) throws TaskManagerException {
         checkCommandSyntax(line);
