@@ -38,7 +38,7 @@ public class TaskManager {
     private static String description;     //  Task description without the commandWord
     private static Map<Integer, Integer> map = new LinkedHashMap<>(); // Map subMenu List No. to task index in ArrayList
     private List<String> pageDisplay = new ArrayList<>();     // For Pagination Listing in-memory storage
-    private static final int PAGESIZE = 10;
+    private static final int PAGESIZE = 5;
     private static final int YEAR = LocalDate.now().getYear();    // For Calender Display (current year use)
 
     /**
@@ -150,53 +150,47 @@ public class TaskManager {
     private void displayPagination() {     // Next-page-display Pagination method for a text Console
         int n = 1;
         List<String> temp;
-        String cmd;
+        String cmd = "";
         pageDisplay.clear();
 
         for (int i = 0; i < taskCount; i++) {
             pageDisplay.add("[" + (i + 1) + "] " + tasks.getItem(i));
         }
 
-        temp = setPage(pageDisplay, n, PAGESIZE);
+        assert !pageDisplay.isEmpty() : "There is no page to Display";   // assert statement
 
-        for (String s : temp) {
-            ui.showToUser(s);
-        }
+        do {
 
-        ui.showToUser("");
-
-        ui.userPrompt("Press Enter for Edit Mode. Enter N or n for next page: ");
-        cmd = ui.readUserCommand();
-
-        while (!temp.isEmpty()) {
-
-            if (cmd.equalsIgnoreCase("page")) {
-                displayPagination();
-                break;
-            }
-
-            if (!cmd.equalsIgnoreCase("N")) {
-                ui.showToUser(System.lineSeparator() + "==== [Exiting Pagination Mode] ====" + System.lineSeparator());
-                break;
-            }
-
+            temp = setPage(pageDisplay, n, PAGESIZE);
             ui.showToUser("");
-            temp = setPage(pageDisplay, ++n, PAGESIZE);
 
             if (temp.isEmpty()) {
                 ui.showToUser("==== *** End of Tasks List Reached! *** ====" + System.lineSeparator());
                 break;
+            } else {
+
+                for (String s : temp) {
+                    ui.showToUser(s);
+                }
             }
 
-            for (String s : temp) {
-                ui.showToUser(s);
-            }
-
-            ui.showToUser("");
-
-            ui.userPrompt("Press Enter key for Edit Mode or N for next page display: ");
+            ui.userPrompt(System.lineSeparator() + "\033[1;32m" + "Press ENTER for EDIT MODE. Enter N or n for NEXT PAGE: " + "\033[0m");
             cmd = ui.readUserCommand();
-        }
+
+            if (cmd.equalsIgnoreCase("page"))
+                break;
+
+            if (cmd.equalsIgnoreCase("N")) {
+                n++;
+            } else {
+                ui.showToUser(System.lineSeparator() + "==== [Exiting Pagination Mode] ====" + System.lineSeparator());
+                break;
+            }
+
+        } while (!temp.isEmpty());
+
+        if (cmd.equalsIgnoreCase("page"))
+            displayPagination();
     }
 
     private String createFileAsPerUserInput() throws IOException {   // work & backup file creation (emergency session)
@@ -462,6 +456,20 @@ public class TaskManager {
         return false;
     }
 
+    private void runOnceCalTime() {
+        LocalDateTime now = LocalDateTime.now();
+        int year = now.getYear();
+        int month = now.getMonthValue();
+
+        ui.printWelcome();
+        out.print("\033[0;93m");
+        ui.calMonthDisplay(year, month);
+        out.print("\033[0m");
+        out.print("\033[1;96m");
+        ui.dayTimeDisplay();
+        out.print("\033[0m");
+    }
+
     private void run() {
         runOnceCalTime();
         boolean toExit = false;
@@ -604,21 +612,6 @@ public class TaskManager {
         flushToDisk(storage.getBackupPath());
         ui.printBye();
     }
-
-    private void runOnceCalTime() {
-        LocalDateTime now = LocalDateTime.now();
-        int year = now.getYear();
-        int month = now.getMonthValue();
-
-        ui.printWelcome();
-        out.print("\033[0;93m");
-        ui.calMonthDisplay(year, month);
-        out.print("\033[0m");
-        out.print("\033[1;96m");
-        ui.dayTimeDisplay();
-        out.print("\033[0m");
-    }
-
 
     private void updateEntree(String line, String s) throws TaskManagerException {  // update done status in ArrayList
         checkCommandSyntax(line);

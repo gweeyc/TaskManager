@@ -1,4 +1,4 @@
-D : 0 : remind boss next meeting : this Fri 4pm
+D : 1 : remind boss next meeting : this Fri 4pm
 T : 0 : check the Discrete Maths exam date
 T : 0 : check TIC2002 exam date
 T : 0 : read another book this weekend
