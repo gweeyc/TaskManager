@@ -52,10 +52,11 @@ class Ui {
         print("-------------------------------------------------------------------------------------");
         print("[] display the whole Tasks List               : print");
         print("[] paginate display mode of Tasks List        : page");
+        print("[] display CLI Commands Legend Menu           : legend");
         print("[] display Todo Tasks SubMenu                 : tshow");
         print("[] display Deadline Tasks SubMenu             : dshow");
         print("[] display Done Tasks SubMenu                 : fshow");
-        print("[] display a Specific Month's Calendar        : cal Digit_No. (1 - 12 for Jan - Dec)");
+        print("[] display a Specific Month's Calendar        : cal Digit_No. (1 - 12 : Jan - Dec)");
         print("-------------------------------------------------------------------------------------");
         print("[] delete any task in TaskManager Main Menu   : del List_No.");
         print("[] delete a Todo task in Todo SubMenu         : tdel List_No.");

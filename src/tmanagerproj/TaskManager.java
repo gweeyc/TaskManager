@@ -505,39 +505,42 @@ public class TaskManager {
      */
     private boolean check_userCliContext(String arg0) {
 
-        if (isMainMenu) {
+        if(!arg0.equals("print") && !arg0.equals("page")) {   // optimize arg0 compare efficiency
 
-            if (compareWithMany(arg0, "tdone", "ddone", "tdel", "ddel", "fdel", "dreset")) {
-                ui.showToUser("Warning! This command is not for TaskManager Main SubMenu use.");
-                ui.showToUser("Pl re-enter: e.g. print for Commands Legend");
-                return true;
+            if (isMainMenu) {
+
+                if (compareWithMany(arg0, "tdone", "ddone", "tdel", "ddel", "fdel", "dreset")) {
+                    ui.showToUser("Warning! This command is not for TaskManager Main SubMenu use.");
+                    ui.showToUser("Pl re-enter: e.g. print for Commands Legend");
+                    return true;
+                }
             }
-        }
 
-        if (isTodoMenu) {
+            if (isTodoMenu) {
 
-            if (compareWithMany(arg0, "page", "done", "ddone", "del", "ddel", "fdel", "reset", "dreset")) {
-                ui.showToUser("Warning! Your command is not for Todo SubMenu use.");
-                ui.showToUser("Pl re-enter: e.g. print for Commands Legend");
-                return true;
+                if (compareWithMany(arg0, "done", "ddone", "del", "ddel", "fdel", "reset", "dreset")) {
+                    ui.showToUser("Warning! Your command is not for Todo SubMenu use.");
+                    ui.showToUser("Pl re-enter: e.g. print for Commands Legend");
+                    return true;
+                }
             }
-        }
 
-        if (isDeadlineMenu) {
+            if (isDeadlineMenu) {
 
-            if (compareWithMany(arg0, "page", "done", "tdone", "del", "tdel", "fdel", "reset")) {
-                ui.showToUser("Warning! Your command is not for Deadline SubMenu use.");
-                ui.showToUser("Pl re-enter: e.g. print for Commands Legend");
-                return true;
+                if (compareWithMany(arg0, "done", "tdone", "del", "tdel", "fdel", "reset")) {
+                    ui.showToUser("Warning! Your command is not for Deadline SubMenu use.");
+                    ui.showToUser("Pl re-enter: e.g. print for Commands Legend");
+                    return true;
+                }
             }
-        }
 
-        if (isDoneMenu) {
+            if (isDoneMenu) {
 
-            if (compareWithMany(arg0, "page", "done", "ddone", "tdone", "del", "tdel", "ddel", "reset", "dreset")) {
-                ui.showToUser("Warning! Your command is not for Done SubMenu use.");
-                ui.showToUser("Pl re-enter: e.g. print for Commands Legend");
-                return true;
+                if (compareWithMany(arg0, "done", "ddone", "tdone", "del", "tdel", "ddel", "reset", "dreset")) {
+                    ui.showToUser("Warning! Your command is not for Done SubMenu use.");
+                    ui.showToUser("Pl re-enter: e.g. print for Commands Legend");
+                    return true;
+                }
             }
         }
 
@@ -600,6 +603,10 @@ public class TaskManager {
                             flag = false;
                         }
 
+                        break;
+
+                    case "legend":
+                        ui.printWelcome();
                         break;
 
                     case "tshow":
