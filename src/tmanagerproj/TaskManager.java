@@ -9,18 +9,20 @@ import static java.lang.System.out;
 
 /**
  * <h1>TaskManager</h1> is a command line program used to quickly create a personal todo or deadline task list. It will
- * first initialize by loading a full list of previously saved tasks, taken from a default work file "/data/data.txt",
- * into an in-memory Tasks ArrayList. <p>
- * It parses, validates user inputs to store new tasks into the ArrayList, updates the done status of tasks, delete
- * tasks, does resets of deadlines, done tasks removal and archiving to file, a mode to do 10-lines pagination of the
+ * first initialize by loading a full list of previously saved tasks, read in from a default work file "/data/data.txt",
+ * into an in-memory Tasks ArrayList newly created for the user when the program starts, and will continue to accept new
+ * user inputs from then on.
+ * <p>
+ * It parses and validates user inputs to store new tasks into the ArrayList, updates the done status of tasks, delete
+ * tasks, does resets of deadlines, removal and archiving of Done tasks to file; a mode to do 10-lines pagination of the
  * entire Tasks list is also available.
  * <p>
- * In addition, commands options exist that can display a Tasks list under a Main Menu, Todo subMenu or Deadline subMenu
- * , with a suite of specifically crafted commands that will continue proper command usage under that particular view
- * only - for the user convenience.
+ * In addition, commands options exist that can display a Tasks list under a Main Menu, Todo subMenu, Deadline subMenu
+ * or Done task subMenu, with a suite of specifically crafted commands that will continue proper command usage under
+ * that particular view only - for the user convenience.
  * <p>
  * Real-time verification and validation will also be executed at runtime to ensure error-free and non-corruption
- * compliance throughout program use is observed.
+ * compliance is observed throughout program use .
  *
  * @author Gwee Yeu Chai
  * @version 5.9
@@ -143,20 +145,20 @@ public class TaskManager {
     }
 
     // set maximum Page lines for each screen to display
-    private List<String> getPageLines(List<String> sourceList, int pageNo, int pageSize) {
+    private List<String> getPageLines(List<String> source, int pageNo, int pageLines) {
 
-        if (pageSize <= 0 || pageNo <= 0) {
-            throw new IllegalArgumentException("invalid page size entered: " + pageSize);
+        if (pageLines <= 0 || pageNo <= 0) {
+            throw new IllegalArgumentException("invalid page size specified: " + pageLines);
         }
 
-        int fromIndex = (pageNo - 1) * pageSize;
+        int startIndex = (pageNo - 1) * pageLines;
 
-        if (sourceList == null || sourceList.size() < fromIndex) {
+        if (source == null || source.size() < startIndex) {
             return Collections.emptyList();
         }
 
         // toIndex exclusive
-        return sourceList.subList(fromIndex, Math.min(fromIndex + pageSize, sourceList.size()));
+        return source.subList(startIndex, Math.min(startIndex + pageLines, source.size()));
     }
 
     // Next-page-display Pagination method for a text Console
@@ -164,7 +166,7 @@ public class TaskManager {
         int n = 1;
         List<String> temp;
         String cmd = "";
-        pageDisplay.clear();    // temp storage of pagination display items
+        pageDisplay.clear();    // temp storage for pagination display of items
 
         for (int i = 0; i < taskCount; i++) {
             pageDisplay.add("[" + (i + 1) + "] " + tasks.getItem(i));
