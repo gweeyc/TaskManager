@@ -8,24 +8,35 @@ import java.util.*;
 import static java.lang.System.out;
 
 /**
- * <h1>TaskManager</h1> is a command line program used to quickly create a personal todo or deadline task list. It will
- * first initialize by loading a full list of previously saved tasks, read in from a default work file "/data/data.txt",
- * into an in-memory Tasks ArrayList newly created for the user when the program starts, and will continue to accept new
- * user inputs from then on.
+ * <h1>TaskManager</h1>&emsp;&emsp;&emsp;&emsp;Is a command line program used to quickly create a personal todo or
+ * deadline task list. It will first initialize by loading a full list of previously saved tasks, read in from a default
+ * work file "/data/data.txt", into an in-memory Tasks ArrayList newly created for the user when the program starts, and
+ * will continue to accept new user inputs from then on.
  * <p>
- * It parses and validates user inputs to store new tasks into the ArrayList, updates the done status of tasks, delete
- * tasks, does resets of deadlines, removal and archiving of Done tasks to file; a mode to do 10-lines pagination of the
- * entire Tasks list is also available.
+ * &emsp;&emsp;&emsp;&emsp;It parses and validates user inputs to store new tasks into the ArrayList, updates the done
+ * status of tasks, delete tasks, does resets of deadlines, removal and archiving of Done tasks to file; a mode to do
+ * 10-lines pagination of the entire Tasks list is also available.
+ * </p>
  * <p>
- * In addition, commands options exist that can display a Tasks list under a Main Menu, Todo subMenu, Deadline subMenu
- * or Done task subMenu, with a suite of specifically crafted commands that will continue proper command usage under
- * that particular view only - for the user convenience.
+ * &emsp;&emsp;&emsp;&emsp;In addition, commands options exist that can display a Tasks list under a Main Menu, Todo
+ * subMenu, Deadline subMenu or Done task subMenu, with an accompanying suite of specifically crafted commands that will
+ * ensure continued proper command syntax and contextual usage under each specific view - for the user convenience; also
+ * to eliminate all possible errors caused by user command(s) mix-up.
+ * </P>
  * <p>
- * Real-time verification and validation will also be executed at runtime to ensure error-free and non-corruption
- * compliance is observed throughout program use .
+ * &emsp;&emsp;&emsp;&emsp;Real-time verification and validation will also be executed at runtime to ensure error-free
+ * and non-corruption compliance is observed throughout program use.
+ * </P>
+ * <p>&emsp;&emsp;&emsp;&emsp;Emergencies situations have also been taken care of in the form of the immediate user
+ * prompts given the user once the original default ones are no longer available for some technical reasons: to get user
+ * inputs for the work file and backup file paths to set up for that exceptional session only. It is expected user will
+ * be able to arrange everything correctly so that all the files will be created successfully. After the emergency
+ * session has ended, measures should be taken to restore the application proper, or the Administrator should be
+ * contacted to restore the TaskManager program to its original state as soon as possible.
+ * </p>
  *
  * @author Gwee Yeu Chai
- * @version 5.9
+ * @version Level 12
  * @since 2018-08-28
  */
 
@@ -505,7 +516,7 @@ public class TaskManager {
      */
     private boolean check_userCliContext(String arg0) {
 
-        if(!arg0.equals("print") && !arg0.equals("page")) {   // optimize arg0 compare efficiency
+        if (!arg0.equals("print") && !arg0.equals("page")) {   // optimize arg0 compare efficiency
 
             if (isMainMenu) {
 
