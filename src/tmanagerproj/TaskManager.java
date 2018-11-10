@@ -86,12 +86,21 @@ public class TaskManager {
                     storage.setWorkFile(newWorkFile);
                     ui.showToUser("...Setting up a work file " + newWorkFile + " for this session...successful!"
                             + System.lineSeparator());
+
                     ui.userPrompt("Enter the session's backup file path, e.g. C:/temp/new.txt"
                             + " (or a relative path if applicable): ");
                     String backupFile = createFileAsPerUserInput();
                     storage.setBackupPath(backupFile);
                     ui.showToUser("...Setting up a backup file " + backupFile + " for this session...successful!"
                             + System.lineSeparator());
+
+                    ui.userPrompt("Enter the session's archived file path for Done tasks, e.g. E:/temp/archived.txt"
+                            + " (or a relative path if applicable): ");
+                    String archivedFile = createFileAsPerUserInput();
+                    storage.setWorkFile(archivedFile);
+                    ui.showToUser("...Setting up an archived file for Done tasks " + archivedFile + " for this session...successful!"
+                            + System.lineSeparator());
+
                     tasks = new TaskList();
                     ui.showToUser("Starting with an empty Task List created for current session only...");
 
