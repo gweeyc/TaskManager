@@ -516,7 +516,7 @@ public class TaskManager {
      */
     private boolean check_userCliContext(String arg0) {
 
-        if (!arg0.equals("print") && !arg0.equals("page")) {   // optimize arg0 compare efficiency
+        if (!arg0.equals("print") && !arg0.equals("page") && !arg0.equals("farchive")) {   // optimize arg0 compare efficiency
 
             if (isMainMenu) {
 
@@ -781,7 +781,7 @@ public class TaskManager {
 
     /**
      * This method is a housekeeping function that archives and removes all Done Tasks from the tasks List and writes
-     * to disk to the default backup file set by Admin.
+     * to disk: to the default backup file set by Admin.
      *
      * @param tasks the in-memory tasks List object.
      */

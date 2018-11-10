@@ -1,4 +1,4 @@
-D : 1 : remind boss next meeting : this Fri 4pm
+D : 1 : remind boss next meeting : this Sat 4pm
 T : 0 : check the Discrete Maths exam date
 T : 0 : check TIC2002 exam date
 T : 0 : read another book this weekend
@@ -20,7 +20,7 @@ D : 0 : Check Program Test OK? : Week 13th of 2018
 D : 0 : Test run mobile app TaskManager : Dec 20th
 T : 0 : submit a report
 D : 0 : remind boss next General Meeting : Mon 4pm & Sat 1pm
-D : 0 : join sports club : June 6th
+D : 0 : join sports club : 
 T : 1 : read a book
 T : 1 : check the next Maths exam date
 T : 1 : read a new text reference book
