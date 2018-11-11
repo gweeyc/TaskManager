@@ -10,23 +10,23 @@ import static java.lang.System.out;
 /**
  * <h1>TaskManager</h1>&emsp;&emsp;&emsp;&emsp;Is a command line program used to quickly create a personal todo or
  * deadline task list. It will first initialize by loading a full list of previously saved tasks, read in from a default
- * work file "/data/data.txt", into an in-memory Tasks ArrayList newly created for the user when the program starts, and
- * will continue to accept new user inputs from then on. It parses and validates user inputs to store new tasks into the
- * ArrayList, updates the done status of tasks, delete tasks, does resets of deadlines, removal and archiving of Done
- * tasks to file; a mode to do 10-lines pagination of the entire Tasks list is also available.
+ * work file "/data/data.txt", into an in-memory Tasks ArrayList, newly created for the user when the program starts,
+ * and will continue to accept new user inputs from then on. It parses and validates user inputs to store new tasks into
+ * the ArrayList, updates the done status of tasks, delete tasks, resets deadlines, archives and removes all Done tasks
+ * to file. A mode to do 10-lines pagination of the entire Tasks list is also available.
  *
- * <p>&emsp;&emsp;&emsp;&emsp;In addition, commands options exist that can display a Tasks list under a Main Menu, Todo
- * subMenu, Deadline subMenu or Done task subMenu, with an accompanying suite of specifically crafted commands that will
- * ensure continued proper command syntax and contextual usage under each specific view - for the user convenience; also
- * all possible errors caused by user command(s) mix-up will be blocked. Real-time verification and validation will be
- * carried out at runtime, to ensure error-free and non-corruption compliance throughout program use.
+ * <p>&emsp;&emsp;&emsp;&emsp;In addition, commands options exist that can show a Tasks list under the Main Menu, the
+ * Todo subMenu, the Deadline subMenu or the Done task subMenu, with an accompanying suite of specifically crafted
+ * commands that ensure the continued proper command syntax and contextual usage, under each specific view - for the
+ * user convenience; all possible errors caused by user command(s) mix-up will be nullified. Real-time verification and
+ * validation is carried out at runtime to ensure error-free and non-corruption compliance throughout program use.
  *
  * <p>&emsp;&emsp;&emsp;&emsp;Emergencies situations have also been taken care of in the form of immediate user prompts
  * given the user - once the original default ones are no longer available for some technical reasons: to get the user
  * inputs for both work file and backup file paths for that exceptional session set up only. It is expected user will
  * arrange for everything correctly so that all the files will be created successfully. After the emergency session has
- * ended, measures should be taken to restore the application proper, or the Administrator should be contacted to restore
- * the TaskManager program to its original state as soon as possible, before the program's next run.
+ * ended, measures should be taken to restore the application proper, or the Administrator should be contacted to
+ * restore the TaskManager program to its pristine state before the program's next run.
  *
  *
  * @author Gwee Yeu Chai
@@ -40,14 +40,14 @@ public class TaskManager {
     private Ui ui;
 
     private boolean flag = true;     // pure boolean flag use
-    private static boolean isMainMenu;       // boolean to track which Menu User is currently using or in
-    private static boolean isTodoMenu;
-    private static boolean isDeadlineMenu;
-    private static boolean isDoneMenu;
+    private boolean isMainMenu;       // boolean to track which Menu User is currently using or in
+    private boolean isTodoMenu;
+    private boolean isDeadlineMenu;
+    private boolean isDoneMenu;
     static int taskCount;            // Store of the current total number of Tasks in in-memory TaskList
     private static String description;     //  Task description without the commandWord
     private static Map<Integer, Integer> map = new LinkedHashMap<>(); // Map subMenu List No. to task index in ArrayList
-    private List<String> pageDisplay = new ArrayList<>();     // For Pagination Listing in-memory storage
+    private List<String> pageDisplay = new ArrayList<>();     // For Pagination Listing storage in memory
     private static final int PAGESIZE = 10;
     private static final int YEAR = LocalDate.now().getYear();    // For Calender Display (current year use)
 
@@ -238,7 +238,7 @@ public class TaskManager {
 
         if (description.isEmpty()) {
             throw new TaskManagerException("Empty description for " + Parser.getCommandWord(line).toUpperCase() +
-                    ". Enter print to check Legend for Command Syntax");
+                    ". Please see Legend for the right Command Syntax");
         }
     }
 
@@ -592,8 +592,10 @@ public class TaskManager {
             assert arg0 != null : "No First word command: null!";       // assert statement
 
             // guard against user possible Menu & SubMenu commands mix-ups
-            if (check_userCliContext(arg0))
+            if (check_userCliContext(arg0)) {
                 continue;
+            }
+
             try {
 
                 switch (arg0) {
@@ -805,7 +807,7 @@ public class TaskManager {
 
             ui.showToUser("All completed Tasks archived successfully!" + System.lineSeparator());
         } catch (IOException e) {
-            ui.printError("File IO error! Please Contact Admin!");
+            ui.printError("File I.O. error! Please Contact Admin!");
         } finally {
 
             toClose(bw);
