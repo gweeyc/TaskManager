@@ -11,29 +11,23 @@ import static java.lang.System.out;
  * <h1>TaskManager</h1>&emsp;&emsp;&emsp;&emsp;Is a command line program used to quickly create a personal todo or
  * deadline task list. It will first initialize by loading a full list of previously saved tasks, read in from a default
  * work file "/data/data.txt", into an in-memory Tasks ArrayList newly created for the user when the program starts, and
- * will continue to accept new user inputs from then on.
- * <p>
- * &emsp;&emsp;&emsp;&emsp;It parses and validates user inputs to store new tasks into the ArrayList, updates the done
- * status of tasks, delete tasks, does resets of deadlines, removal and archiving of Done tasks to file; a mode to do
- * 10-lines pagination of the entire Tasks list is also available.
- * </p>
- * <p>
- * &emsp;&emsp;&emsp;&emsp;In addition, commands options exist that can display a Tasks list under a Main Menu, Todo
+ * will continue to accept new user inputs from then on. It parses and validates user inputs to store new tasks into the
+ * ArrayList, updates the done status of tasks, delete tasks, does resets of deadlines, removal and archiving of Done
+ * tasks to file; a mode to do 10-lines pagination of the entire Tasks list is also available.
+ *
+ * <p>&emsp;&emsp;&emsp;&emsp;In addition, commands options exist that can display a Tasks list under a Main Menu, Todo
  * subMenu, Deadline subMenu or Done task subMenu, with an accompanying suite of specifically crafted commands that will
  * ensure continued proper command syntax and contextual usage under each specific view - for the user convenience; also
- * to eliminate all possible errors caused by user command(s) mix-up.
- * </P>
- * <p>
- * &emsp;&emsp;&emsp;&emsp;Real-time verification and validation will also be executed at runtime to ensure error-free
- * and non-corruption compliance is observed throughout program use.
- * </P>
- * <p>&emsp;&emsp;&emsp;&emsp;Emergencies situations have also been taken care of in the form of the immediate user
- * prompts given the user once the original default ones are no longer available for some technical reasons: to get user
- * inputs for the work file and backup file paths to set up for that exceptional session only. It is expected user will
- * be able to arrange everything correctly so that all the files will be created successfully. After the emergency
- * session has ended, measures should be taken to restore the application proper, or the Administrator should be
- * contacted to restore the TaskManager program to its original state as soon as possible.
- * </p>
+ * all possible errors caused by user command(s) mix-up will be blocked. Real-time verification and validation will be
+ * carried out at runtime, to ensure error-free and non-corruption compliance throughout program use.
+ *
+ * <p>&emsp;&emsp;&emsp;&emsp;Emergencies situations have also been taken care of in the form of immediate user prompts
+ * given the user - once the original default ones are no longer available for some technical reasons: to get the user
+ * inputs for both work file and backup file paths for that exceptional session set up only. It is expected user will
+ * arrange for everything correctly so that all the files will be created successfully. After the emergency session has
+ * ended, measures should be taken to restore the application proper, or the Administrator should be contacted to restore
+ * the TaskManager program to its original state as soon as possible, before the program's next run.
+ *
  *
  * @author Gwee Yeu Chai
  * @version Level 12
@@ -121,7 +115,7 @@ public class TaskManager {
                     ui.showToUser("");
                     e1.printStackTrace();
                     ui.showToUser("");
-                    ui.showToUser("\033[1;95m" + "Please Contact Administrator!" + "\033[0m");
+                    ui.showToUser("\033[1;95m" + "Please Contact your Administrator!" + "\033[0m");
                     System.exit(-99);
                 }
 
@@ -150,10 +144,7 @@ public class TaskManager {
      * @param tasks the TaskList object in memory.
      */
     private void printTask(TaskList tasks) {
-        isMainMenu = true;
-        isTodoMenu = false;
-        isDeadlineMenu = false;
-        isDoneMenu = false;
+        menuType(true, false, false, false);
 
 
         ui.showToUser("Tasks:");
@@ -218,9 +209,9 @@ public class TaskManager {
             if (cmd.equalsIgnoreCase("N")) {
                 n++;
             } else {
-                ui.showToUser("--- Invalid Command entered! Pl retry again! ---"
+                ui.showToUser(System.lineSeparator() + "* - Invalid Command entered! Pl retry again! - *"
                         + System.lineSeparator());
-                ui.showToUser("==== [Exiting Pagination Mode] ====" + System.lineSeparator());
+                ui.showToUser("===== [Exiting Pagination Mode] =====" + System.lineSeparator());
                 break;
             }
         } while (!temp.isEmpty());
@@ -509,62 +500,56 @@ public class TaskManager {
     }
 
     /**
-     * This method guards against CLI commands mix-up under different menus views.
+     * This method guards against CLI commands mix-up under the different menus views.
      *
      * @param arg0 first command word of user input.
      * @return boolean value to filter off the wrong commands and pass the right ones only.
      */
-    private boolean check_userCliContext(String arg0) {
+    private boolean check_userCliContext(String arg0) {   // optimize compareWithMany method efficiency
 
-        if (!arg0.equals("print") && !arg0.equals("page") && !arg0.equals("farchive")) {   // optimize arg0 compare efficiency
+        if (isTodoMenu) {
 
-            if (isMainMenu) {
-
-                if (compareWithMany(arg0, "tdone", "ddone", "tdel", "ddel", "fdel", "dreset")) {
-                    ui.showToUser("Warning! This command is not for TaskManager Main SubMenu use.");
-                    ui.showToUser("Pl re-enter: e.g. print for Commands Legend");
-                    return true;
-                }
+            if (compareWithMany(arg0, "done", "ddone", "del", "ddel", "fdel", "reset", "dreset")) {
+                ui.showToUser("Warning! Your command is not for Todo SubMenu use.");
+                ui.showToUser("Pl re-enter: e.g. legend for Commands Legend");
+                return true;
             }
+        } else if (isMainMenu) {
 
-            if (isTodoMenu) {
-
-                if (compareWithMany(arg0, "done", "ddone", "del", "ddel", "fdel", "reset", "dreset")) {
-                    ui.showToUser("Warning! Your command is not for Todo SubMenu use.");
-                    ui.showToUser("Pl re-enter: e.g. print for Commands Legend");
-                    return true;
-                }
+            if (compareWithMany(arg0, "tdone", "ddone", "tdel", "ddel", "fdel", "dreset")) {
+                ui.showToUser("Warning! This command is not for TaskManager Main SubMenu use.");
+                ui.showToUser("Pl re-enter: e.g. legend for Commands Legend");
+                return true;
             }
+        } else if (isDeadlineMenu) {
 
-            if (isDeadlineMenu) {
-
-                if (compareWithMany(arg0, "done", "tdone", "del", "tdel", "fdel", "reset")) {
-                    ui.showToUser("Warning! Your command is not for Deadline SubMenu use.");
-                    ui.showToUser("Pl re-enter: e.g. print for Commands Legend");
-                    return true;
-                }
+            if (compareWithMany(arg0, "done", "tdone", "del", "tdel", "fdel", "reset")) {
+                ui.showToUser("Warning! Your command is not for Deadline SubMenu use.");
+                ui.showToUser("Pl re-enter: e.g. legend for Commands Legend");
+                return true;
             }
+        } else if (isDoneMenu) {
 
-            if (isDoneMenu) {
-
-                if (compareWithMany(arg0, "done", "ddone", "tdone", "del", "tdel", "ddel", "reset", "dreset")) {
-                    ui.showToUser("Warning! Your command is not for Done SubMenu use.");
-                    ui.showToUser("Pl re-enter: e.g. print for Commands Legend");
-                    return true;
-                }
+            if (compareWithMany(arg0, "done", "ddone", "tdone", "del", "tdel", "ddel", "reset", "dreset")) {
+                ui.showToUser("Warning! Your command is not for Done SubMenu use.");
+                ui.showToUser("Pl re-enter: e.g. legend for Commands Legend");
+                return true;
             }
         }
 
         return false;
     }
 
+    /**
+     * This method is the Welcome Screen when program starts
+     */
     private void runOnceCalTime() {
         LocalDateTime now = LocalDateTime.now();
         int year = now.getYear();
         int month = now.getMonthValue();
 
         ui.printWelcome();
-        out.print("\033[0;93m");
+        out.print("\033[1;93m");
         ui.calMonthDisplay(year, month);
         out.print("\033[0m");
         out.print("\033[1;96m");
@@ -573,11 +558,27 @@ public class TaskManager {
     }
 
     /**
+     * This method will track which Menu View the user is currently using or under
+     *
+     * @param main     the boolean value for the Main menu view
+     * @param todo     the boolean value for the Todo menu view
+     * @param deadline the boolean value for the Deadline menu view
+     * @param done     the boolean value for the Done menu view
+     */
+    private void menuType(boolean main, boolean todo, boolean deadline, boolean done) {
+        isMainMenu = main;
+        isTodoMenu = todo;
+        isDeadlineMenu = deadline;
+        isDoneMenu = done;
+    }
+
+    /**
      * This method starts the main TaskManager Program with a Welcome Screen with the Commands Legend Menu, activates
      * the right operations as per the valid commands parsed and passed. Upon exit, a Bye screen will be displayed.
      * The entire Tasks List is flushed to disk and secured on a default backup file. All used resources are closed.
      */
     private void run() {
+        menuType(true, false, false, false);
         runOnceCalTime();
         boolean toExit = false;
         String scanLine, arg0;
@@ -590,8 +591,9 @@ public class TaskManager {
 
             assert arg0 != null : "No First word command: null!";       // assert statement
 
+            // guard against user possible Menu & SubMenu commands mix-ups
             if (check_userCliContext(arg0))
-                continue;      // guard against user possible Menu & SubMenu commands mix-ups
+                continue;
             try {
 
                 switch (arg0) {
@@ -709,8 +711,8 @@ public class TaskManager {
 
                     default:
                         ui.printError("Unknown command! please try again");
-                        ui.printError("CLI Command to use (all lowercase only): Enter print or"
-                                + " show to see Commands Syntax Legend.");
+                        ui.printError("CLI Command to use (all lowercase only): Enter legend"
+                                + " to check the Commands Syntax Legend, or print to list the Task records.");
                 }
 
             } catch (TaskManagerException e) {
@@ -752,10 +754,7 @@ public class TaskManager {
      * @param tasks in-memory tasks List object.
      */
     private void showDoneTasks(TaskList tasks) {
-        isMainMenu = false;
-        isTodoMenu = false;
-        isDeadlineMenu = false;
-        isDoneMenu = true;
+        menuType(false, false, false, true);
 
         map.clear();
         ui.showToUser(System.lineSeparator() + "\033[1;95m" + "[SubMenu]:" + "\033[0m" + " Done Tasks");
@@ -848,10 +847,7 @@ public class TaskManager {
      * @param tasks the in-memory Tasks List object.
      */
     private void showTodo(TaskList tasks) {
-        isMainMenu = false;
-        isTodoMenu = true;
-        isDeadlineMenu = false;
-        isDoneMenu = false;
+        menuType(false, true, false, false);
 
         map.clear();
         ui.showToUser(System.lineSeparator() + "\033[1;95m" + "[SubMenu]:" + "\033[0m" + " Todo Tasks");
@@ -919,10 +915,7 @@ public class TaskManager {
      * @param tasks the in-memory Tasks List.
      */
     private void showDeadline(TaskList tasks) {
-        isMainMenu = false;
-        isTodoMenu = false;
-        isDeadlineMenu = true;
-        isDoneMenu = false;
+        menuType(false, false, true, false);
 
         map.clear();
         ui.showToUser(System.lineSeparator() + "\033[1;95m" + "[SubMenu]:" + "\033[0m" + " Deadline Tasks");

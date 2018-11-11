@@ -69,9 +69,11 @@ class Ui {
         print("[] remove & archive all Done Tasks to file    : farchive");
         print("-------------------------------------------------------------------------------------");
         print("\033[0m");
-        print("[ NB ]: - All SubMenu commands must begin with the 1st. character of task type:");
-        print("t for todo task e.g. tshow, d for deadline task e.g. ddel, f for done task e.g. fshow."
+        out.print("\033[1;95m");
+        print("[N.B.] - All SubMenu commands are prefixed with the first letter of the task type:");
+        print("t: for todo task, d: for deadline task, f: for done task  - e.g. tshow | ddel | fshow"
                 + System.lineSeparator());
+        out.print("\033[0m");
     }
 
     void dayTimeDisplay() {
