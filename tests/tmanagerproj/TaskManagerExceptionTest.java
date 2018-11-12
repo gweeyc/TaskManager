@@ -14,7 +14,7 @@ public class TaskManagerExceptionTest {
             testObj.addTodo("todo");
 
         }catch (Exception e) {
-            assertEquals("Empty description for TODO. Check Legend for Command Syntax.", e.getMessage());
+            assertEquals("Empty description for TODO. Please see Legend for the right Command Syntax", e.getMessage());
         }
     }
 }

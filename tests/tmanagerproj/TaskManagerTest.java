@@ -13,7 +13,7 @@ public class TaskManagerTest {
             objTest.displayCal("cal ");
             fail();
         }catch(TaskManagerException e){
-            assertEquals("Empty description for CAL. Check Legend for Command Syntax.", e.getMessage());
+            assertEquals("Empty description for CAL. Please see Legend for the right Command Syntax", e.getMessage());
 
         }
     }
@@ -25,7 +25,7 @@ public class TaskManagerTest {
             objTest.checkCommandSyntax("fdel");
         } catch (TaskManagerException e) {
             assertEquals("Empty description for " + Parser.getCommandWord("fdel").toUpperCase() +
-                    ". Enter print to check Legend for Command Syntax", e.getMessage());
+                    ". Please see Legend for the right Command Syntax", e.getMessage());
         }
 
     }
@@ -36,7 +36,7 @@ public class TaskManagerTest {
             objTest.rmDoneTask("fdel");
             fail();
         }catch(TaskManagerException err){
-            assertEquals("Empty description for FDEL. Check Legend for Command Syntax.", err.getMessage());
+            assertEquals("Empty description for FDEL. Please see Legend for the right Command Syntax", err.getMessage());
         }
     }
 }

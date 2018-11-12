@@ -117,7 +117,6 @@ public class TaskManager {
                     ui.showToUser("\033[1;95m" + "Please Contact your Administrator!" + "\033[0m");
                     System.exit(-99);
                 }
-
             }
         }
     }
