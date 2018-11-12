@@ -26,3 +26,4 @@ T : 1 : check the next Maths exam date
 T : 1 : read a new text reference book
 T : 1 : check Chemistry term time exam date
 T : 0 : submit a new pagination test
+T : 1 : submit more cases to test for pagination mode

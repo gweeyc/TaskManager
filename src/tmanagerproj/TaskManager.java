@@ -28,7 +28,6 @@ import static java.lang.System.out;
  * ended, measures should be taken to restore the application proper, or the Administrator should be contacted to
  * restore the TaskManager program to its pristine state before the program's next run.
  *
- *
  * @author Gwee Yeu Chai
  * @version Level 12
  * @since 2018-08-28
@@ -157,12 +156,13 @@ public class TaskManager {
 
     // set maximum Page lines for each screen to display
     private List<String> getPageLines(List<String> source, int pageNo, int pageLines) {
+        int tranche = pageNo - 1;    // to get the from index starting from 0
 
         if (pageLines <= 0 || pageNo <= 0) {
             throw new IllegalArgumentException("invalid page size specified: " + pageLines);
         }
 
-        int startIndex = (pageNo - 1) * pageLines;
+        int startIndex = tranche * pageLines;
 
         if (source == null || source.size() < startIndex) {
             return Collections.emptyList();
@@ -175,9 +175,9 @@ public class TaskManager {
     // Next-page-display Pagination method for a text Console
     private void displayPagination() {
         int n = 1;
-        List<String> temp;
+        List<String> pages;
         String cmd = "";
-        pageDisplay.clear();    // temp storage for pagination display of items
+        pageDisplay.clear();      // temp storage for pagination display form of the entire tasks List
 
         for (int i = 0; i < taskCount; i++) {
             pageDisplay.add("[" + (i + 1) + "] " + tasks.getItem(i));
@@ -185,17 +185,26 @@ public class TaskManager {
 
         assert !pageDisplay.isEmpty() : "There is no page to Display";   // assert statement
 
+        int numPages = (int) Math.ceil((double) pageDisplay.size() / (double) PAGESIZE);  // total number of pages
+
         do {
-            temp = getPageLines(pageDisplay, n, PAGESIZE);
+            pages = getPageLines(pageDisplay, n, PAGESIZE);
             ui.showToUser("");
 
-            if (temp.isEmpty()) {
-                ui.showToUser("==== *** End of Tasks List Reached! *** ====" + System.lineSeparator());
+            if (pages.isEmpty()) {
+                ui.showToUser("==== *** End reached: No items to display! *** ====" + System.lineSeparator());
                 break;
             } else {
 
-                for (String s : temp) {
+                for (String s : pages) {
                     ui.showToUser(s);
+                }
+
+                if (numPages == n) {
+                    ui.showToUser(System.lineSeparator() + "Total Tasks in Registry: " + taskCount);
+                    ui.showToUser(System.lineSeparator() + "==== *** End of the Tasks List Reached! *** ===="
+                            + System.lineSeparator());
+                    break;
                 }
             }
 
@@ -203,18 +212,21 @@ public class TaskManager {
                     + "Press ENTER for EDIT MODE. Enter N or n for NEXT PAGE: " + "\033[0m");
             cmd = ui.readUserCommand();
 
-            if (cmd.equalsIgnoreCase("page"))
+            if (cmd.equalsIgnoreCase("page")) {
                 break;
-
-            if (cmd.equalsIgnoreCase("N")) {
+            } else if (cmd.equalsIgnoreCase("N")) {
                 n++;
             } else {
-                ui.showToUser(System.lineSeparator() + "* - Invalid Command entered! Pl retry again! - *"
-                        + System.lineSeparator());
+
+                if (!cmd.equalsIgnoreCase("")) {
+                    ui.showToUser("* - Invalid CLI command entered! Pl check Commands Legend and retry again! - *"
+                            + System.lineSeparator());
+                }
+
                 ui.showToUser("===== [Exiting Pagination Mode] =====" + System.lineSeparator());
                 break;
             }
-        } while (!temp.isEmpty());
+        } while (!pages.isEmpty());
 
         if (cmd.equalsIgnoreCase("page"))
             displayPagination();
