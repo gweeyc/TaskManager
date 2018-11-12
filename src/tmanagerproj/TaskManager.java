@@ -47,7 +47,7 @@ public class TaskManager {
     private static String description;     //  Task description without the commandWord
     private static Map<Integer, Integer> map = new LinkedHashMap<>(); // Map subMenu List No. to task index in ArrayList
     private List<String> pageDisplay = new ArrayList<>();     // For Pagination Listing storage in memory
-    private static final int PAGESIZE = 10;
+    private static final int PAGE_SIZE = 10;
     private static final int YEAR = LocalDate.now().getYear();    // For Calender Display (current year use)
 
     /**
@@ -174,7 +174,7 @@ public class TaskManager {
     // Next-page-display Pagination method for a text Console
     private void displayPagination() {
         int n = 1;
-        List<String> pages;
+        List<String> page;
         String cmd = "";
         pageDisplay.clear();      // temp storage for pagination display form of the entire tasks List
 
@@ -184,18 +184,18 @@ public class TaskManager {
 
         assert !pageDisplay.isEmpty() : "There is no page to Display";   // assert statement
 
-        int numPages = (int) Math.ceil((double) pageDisplay.size() / (double) PAGESIZE);  // total number of pages
+        int numPages = (int) Math.ceil((double) pageDisplay.size() / (double) PAGE_SIZE);  // total number of pages
 
         do {
-            pages = getPageLines(pageDisplay, n, PAGESIZE);
+            page = getPageLines(pageDisplay, n, PAGE_SIZE);
             ui.showToUser("");
 
-            if (pages.isEmpty()) {
+            if (page.isEmpty()) {
                 ui.showToUser("==== *** End reached: No items to display! *** ====" + System.lineSeparator());
                 break;
             } else {
 
-                for (String s : pages) {
+                for (String s : page) {
                     ui.showToUser(s);
                 }
 
@@ -225,7 +225,7 @@ public class TaskManager {
                 ui.showToUser("===== [Exiting Pagination Mode] =====" + System.lineSeparator());
                 break;
             }
-        } while (!pages.isEmpty());
+        } while (!page.isEmpty());
 
         if (cmd.equalsIgnoreCase("page"))
             displayPagination();
