@@ -102,8 +102,8 @@ public class TaskManager {
                             + " (or a relative path if applicable): ");
                     String archivedFile = createFileAsPerUserInput();
                     storage.setWorkFile(archivedFile);
-                    ui.showToUser("...Setting up an archived file for Done tasks " + archivedFile + " for this session...successful!"
-                            + System.lineSeparator());
+                    ui.showToUser("...Setting up an archived file for Done tasks " + archivedFile
+                            + " for this session...successful!" + System.lineSeparator());
 
                     tasks = new TaskList();
                     ui.showToUser("Starting with an empty Task List created for current session only...");
@@ -503,10 +503,14 @@ public class TaskManager {
     }
 
     private boolean compareWithMany(String first, String... rest) {     // varargs used in this helper function
+
         for (String aRest : rest) {
-            if (first.equals(aRest))
+
+            if (first.equals(aRest)) {
                 return true;
+            }
         }
+
         return false;
     }
 
@@ -597,8 +601,8 @@ public class TaskManager {
         do {
 
             ui.userPrompt("Your task? ");
-            scanLine = ui.readUserCommand().trim().toLowerCase();
-            arg0 = Parser.getCommandWord(scanLine);
+            scanLine = ui.readUserCommand().trim();
+            arg0 = Parser.getCommandWord(scanLine).toLowerCase();
 
             assert arg0 != null : "No First word command: null!";       // assert statement
 
