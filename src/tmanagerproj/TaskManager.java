@@ -261,6 +261,7 @@ public class TaskManager {
 
         } catch (NumberFormatException e) {
             ui.printError("Input Format Error -> Task No. entered is not a digit number!");
+            pauseInterval(4000);
         }
 
         return n;
@@ -314,7 +315,6 @@ public class TaskManager {
                 if (t instanceof Todo && t.getDesc().equalsIgnoreCase(description)) {
                     flag = true;
                     ui.printError("Task: \"todo " + description + "\" already found in Register. Pl re-try!");
-
                     pauseInterval(4000);
                 }
             });
@@ -353,20 +353,18 @@ public class TaskManager {
         if (!description.contains("/by")) {
             ui.printError("CLI Syntax Error! Deadline input must use a \" /by \" as a delimiter"
                     + " between two text strings! Pl re-enter!");
-
             pauseInterval(4000);
 
         } else {
 
-            String[] part = description.split(" /by ");
+            String[] part = description.split("/by", -1);  // for case of empty strings return after /by
 
             for (Task t : tasks.toArray()) {                                  //exclude duplicates
 
-                if (t instanceof Deadline && t.getDesc().equalsIgnoreCase(part[0])
-                        && ((Deadline) t).getBy().equalsIgnoreCase(part[1])) {
+                if (t instanceof Deadline && t.getDesc().equalsIgnoreCase(part[0].trim())
+                        && ((Deadline) t).getBy().equalsIgnoreCase(part[1].trim())) {
                     flag = true;
                     ui.printError("Task: \"todo " + description + "\"  already found in Register. Pl re-try!");
-
                     pauseInterval(4000);
                 }
             }
@@ -377,7 +375,7 @@ public class TaskManager {
                 assert part[1] != null : "No Task description string set!";   // assert statement
 
                 try {
-                    Task deadline = Parser.createDeadline(part[0], part[1]);
+                    Task deadline = Parser.createDeadline(part[0].trim(), part[1].trim());
                     tasks.addTask(deadline);
 
                 } catch (ArrayIndexOutOfBoundsException e) {
@@ -415,11 +413,13 @@ public class TaskManager {
             } else {
                 ui.printError("Error: TaskNo. greater than the total number in records of \"" + listSize
                         + "\". Pl try again!" + System.lineSeparator());
+                pauseInterval(4000);
             }
 
         } else {
             ui.printError("Error: TaskNo. value cannot be negative or 0 or a non-digit. Pl try again!"
                     + System.lineSeparator());
+            pauseInterval(4000);
         }
     }
 
@@ -453,6 +453,7 @@ public class TaskManager {
             flushToDisk(storage.getWorkFile());             // update the work file
         } else {
             ui.printError("TaskNo. value must be between 1 and " + listSize + " (= total no. of records). Pl retry!!");
+            pauseInterval(4000);
         }
 
     }
@@ -474,6 +475,7 @@ public class TaskManager {
             resetSubMenuBy(newByDate, getTask);
         } else {
             ui.showToUser("List number is invalid. Pl re-try!");
+            pauseInterval(4000);
         }
     }
 
@@ -499,7 +501,6 @@ public class TaskManager {
         if (!(getTask instanceof Deadline)) {
             ui.showToUser("\033[1;96m" + "Sorry! You selected a Task That's NOT a Deadline Task!"
                     + "\033[0m" + System.lineSeparator());
-
             pauseInterval(4000);
 
         } else {

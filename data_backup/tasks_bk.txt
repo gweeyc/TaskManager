@@ -18,7 +18,6 @@ T : 0 : check the next Maths exam date
 T : 0 : read a new text reference book
 D : 0 : Check Program Test OK? : Week 13th of 2018
 D : 0 : Test run mobile app TaskManager : Dec 20th
-T : 0 : submit a report
 D : 0 : remind boss next General Meeting : Mon 4pm & Sat 1pm
 D : 0 : join sports club : June 4th
 T : 1 : read a book
