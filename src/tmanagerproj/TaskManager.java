@@ -351,7 +351,7 @@ public class TaskManager {
         checkCommandSyntax(line);
 
         if (!description.contains("/by")) {
-            ui.printError("CLI Syntax Error! Deadline input must use a \" /by \" as a delimiter"
+            ui.printError("CLI Syntax Error! Deadline input must use a \"/by\" as a delimiter"
                     + " between two text strings! Pl re-enter!");
             pauseInterval(4000);
 
