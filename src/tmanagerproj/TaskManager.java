@@ -15,9 +15,9 @@ import static java.lang.System.out;
  * the ArrayList, updates the done status of tasks, delete tasks, resets deadlines, archives and removes all Done tasks
  * to file. A mode to do 10-lines pagination of the entire Tasks list is also available.
  *
- * <p>&emsp;&emsp;&emsp;&emsp;In addition, commands options exist that can show a Tasks list under the Main Menu, the
- * Todo subMenu, the Deadline subMenu or the Done task subMenu, with an accompanying suite of specifically crafted
- * commands that ensure the continued proper command syntax and contextual usage, under each specific view - for the
+ * <p>&emsp;&emsp;&emsp;&emsp;In addition, commands options exist that can show a Tasks list under a Main Menu, a
+ * Todo subMenu, a Deadline subMenu or a Done task subMenu, with an accompanying suite of specifically crafted
+ * commands that ensure the continued proper command syntax and contextual use, under each specific view - for the
  * user convenience; all possible errors caused by user command(s) mix-up will be nullified. Real-time verification and
  * validation is carried out at runtime to ensure error-free and non-corruption compliance throughout program use.
  *
@@ -301,7 +301,7 @@ public class TaskManager {
      * This method checks for void task description, ignores duplicates, inserts a new Todo Task into tasks List.
      *
      * @param line pass in the scanned text string from user input.
-     * @throws TaskManagerException on missing Todo task text description.
+     * @throws TaskManagerException on missing Todo Task text description.
      * @see TaskManagerException
      */
 
@@ -447,7 +447,7 @@ public class TaskManager {
                     + "\033[1;31m" + " --> "
                     + "\033[0m" + "\033[1;95m" + ";)" + "\033[0m");
 
-            pauseInterval(5000);
+            pauseInterval(4000);
 
             ui.showToUser(System.lineSeparator() + "Tasks in the list: " + taskCount);
             flushToDisk(storage.getWorkFile());             // update the work file
@@ -499,7 +499,7 @@ public class TaskManager {
 
     private void resetSubMenuBy(String newByDate, Task getTask) {   // helper function for resetting Deadline by value
         if (!(getTask instanceof Deadline)) {
-            ui.showToUser("\033[1;96m" + "Sorry! You selected a Task That's NOT a Deadline Task!"
+            ui.showToUser("\033[1;96m" + "Sorry! You've selected a Task That's NOT a Deadline Task!"
                     + "\033[0m" + System.lineSeparator());
             pauseInterval(4000);
 
@@ -756,7 +756,7 @@ public class TaskManager {
      * SubMenu View.
      *
      * @param line Stores the User input of CLI command and the task number.
-     * @param s    contains the total number of Todo or Deadline or Done tasks in tasks List.
+     * @param s    contains the total number of Todo, Deadline or Done tasks in tasks List.
      * @throws TaskManagerException on missing task description (after the command's first word)
      */
     private void updateEntree(String line, String s) throws TaskManagerException {  // update done status in ArrayList
@@ -901,7 +901,7 @@ public class TaskManager {
      * This method deletes a Todo Task from the database under a Todo SubMenu.
      *
      * @param line Stores the User input of CLI command and the number of the task.
-     * @throws TaskManagerException  on missing Todo task description.
+     * @throws TaskManagerException  on missing Todo Task description.
      * @throws NumberFormatException on User text input instead of a task number.
      */
     private void rmTodo(String line) throws TaskManagerException, NumberFormatException {
