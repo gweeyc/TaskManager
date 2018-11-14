@@ -314,6 +314,8 @@ public class TaskManager {
                 if (t instanceof Todo && t.getDesc().equalsIgnoreCase(description)) {
                     flag = true;
                     ui.printError("Task: \"todo " + description + "\" already found in Register. Pl re-try!");
+
+                    pauseInterval(4000);
                 }
             });
         }
@@ -326,6 +328,14 @@ public class TaskManager {
             tasks.addTask(todo);
             ui.showToUser("Tasks in the list: " + ++taskCount);
             appendToFile();
+        }
+    }
+
+    private void pauseInterval(int i) {   // to help user see the latest status messages
+        try {
+            Thread.sleep(i);
+        } catch (InterruptedException e) {
+            e.printStackTrace();
         }
     }
 
@@ -343,6 +353,9 @@ public class TaskManager {
         if (!description.contains("/by")) {
             ui.printError("CLI Syntax Error! Deadline input must use a \" /by \" as a delimiter"
                     + " between two text strings! Pl re-enter!");
+
+            pauseInterval(4000);
+
         } else {
 
             String[] part = description.split(" /by ");
@@ -353,6 +366,8 @@ public class TaskManager {
                         && ((Deadline) t).getBy().equalsIgnoreCase(part[1])) {
                     flag = true;
                     ui.printError("Task: \"todo " + description + "\"  already found in Register. Pl re-try!");
+
+                    pauseInterval(4000);
                 }
             }
 
@@ -432,11 +447,7 @@ public class TaskManager {
                     + "\033[1;31m" + " --> "
                     + "\033[0m" + "\033[1;95m" + ";)" + "\033[0m");
 
-            try {
-                Thread.sleep(5000);
-            } catch (InterruptedException e) {
-                e.printStackTrace();
-            }
+            pauseInterval(5000);
 
             ui.showToUser(System.lineSeparator() + "Tasks in the list: " + taskCount);
             flushToDisk(storage.getWorkFile());             // update the work file
@@ -489,11 +500,7 @@ public class TaskManager {
             ui.showToUser("\033[1;96m" + "Sorry! You selected a Task That's NOT a Deadline Task!"
                     + "\033[0m" + System.lineSeparator());
 
-            try {
-                Thread.sleep(4000);
-            } catch (InterruptedException e) {
-                e.printStackTrace();
-            }
+            pauseInterval(4000);
 
         } else {
             Deadline setTask = (Deadline) getTask;
@@ -821,6 +828,9 @@ public class TaskManager {
             }
 
             ui.showToUser("All completed Tasks archived successfully!" + System.lineSeparator());
+
+            pauseInterval(4000);
+
         } catch (IOException e) {
             ui.printError("File I.O. error! Please Contact Admin!");
         } finally {
