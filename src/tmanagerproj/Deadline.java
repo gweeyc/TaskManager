@@ -1,6 +1,6 @@
 package tmanagerproj;
 
-public class Deadline extends Todo {
+class Deadline extends Todo {
     private String by;
 
     Deadline(String s, String by) {   //constructor

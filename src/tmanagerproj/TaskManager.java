@@ -15,15 +15,15 @@ import static java.lang.System.out;
  * the ArrayList, updates the done status of tasks, delete tasks, resets deadlines, archives and removes all Done tasks
  * to file. A mode to do 10-lines pagination of the entire Tasks list is also available.
  *
- * <p>&emsp;&emsp;&emsp;&emsp;In addition, commands options exist that can show a Tasks list under a Main Menu, a
- * Todo subMenu, a Deadline subMenu or a Done task subMenu, with an accompanying suite of specifically crafted
- * commands that ensure the continued proper command syntax and contextual use, under each specific view - for the
- * user convenience; all possible errors caused by user command(s) mix-up will be nullified. Real-time verification and
- * validation is carried out at runtime to ensure error-free and non-corruption compliance throughout program use.
+ * <p>&emsp;&emsp;&emsp;&emsp;In addition, commands options exist that can show a Tasks list under a Main Menu, a Todo
+ * subMenu, a Deadline subMenu or a Done task subMenu, with an accompanying suite of specifically crafted commands that
+ * ensure the continued proper command syntax and contextual use, under each specific view - for the convenience of
+ * users; all possible errors caused by user command mix-ups will be detected and nullified via real-time verification
+ * and validation at runtime, to ensure error-free and non-corruption compliance throughout program use at all times.
  *
- * <p>&emsp;&emsp;&emsp;&emsp;Emergencies situations have also been taken care of in the form of immediate user prompts
+ * <p>&emsp;&emsp;&emsp;&emsp;Emergencies situations have also been catered for - in the form of immediate user prompts
  * given the user - once the original default ones are no longer available for some technical reasons: to get the user
- * inputs for both work file and backup file paths for that exceptional session set up only. It is expected user will
+ * to specify both the work file and backup file paths for that emergency session setup only. It is expected user will
  * arrange for everything correctly so that all the files will be created successfully. After the emergency session has
  * ended, measures should be taken to restore the application proper, or the Administrator should be contacted to
  * restore the TaskManager program to its pristine state before the program's next run.
@@ -88,11 +88,11 @@ public class TaskManager {
                             + " (or a relative path if applicable): ");
                     String newWorkFile = createFileAsPerUserInput();
                     storage.setWorkFile(newWorkFile);
-                    ui.showToUser("...Setting up a work file " + newWorkFile + " for this session...successful!"
-                            + System.lineSeparator());
+                    String updateMsg = String.join(" ","...Setting up a work file", newWorkFile, "for this session...successful!");
+                    ui.showToUser(updateMsg);
+                    ui.showToUser("");
 
-                    ui.userPrompt("Enter the session's backup file path, e.g. C:/temp/new.txt"
-                            + " (or a relative path if applicable): ");
+                    ui.userPrompt("Enter the session's backup file path, e.g. C:/temp/new.txt".concat(" (or a relative path if applicable): "));
                     String backupFile = createFileAsPerUserInput();
                     storage.setBackupPath(backupFile);
                     ui.showToUser("...Setting up a backup file " + backupFile + " for this session...successful!"
@@ -144,13 +144,11 @@ public class TaskManager {
     private void printTask(TaskList tasks) {
         menuType(true, false, false, false);
 
-
         ui.showToUser("Tasks:");
 
         for (int i = 0; i < taskCount; i++) {
             ui.showToUser("[" + (i + 1) + "] " + tasks.getItem(i));
         }
-
     }
 
     // set maximum Page lines for each screen to display
@@ -191,7 +189,7 @@ public class TaskManager {
             ui.showToUser("");
 
             if (page.isEmpty()) {
-                ui.showToUser("==== *** End reached: No items to display! *** ====" + System.lineSeparator());
+                ui.showToUser("*** End reached: No items to display! ***" + System.lineSeparator());
                 break;
             } else {
 
@@ -201,7 +199,7 @@ public class TaskManager {
 
                 if (numPages == n) {
                     ui.showToUser(System.lineSeparator() + "Total Tasks in Registry: " + taskCount);
-                    ui.showToUser(System.lineSeparator() + "==== *** End of the Tasks List Reached! *** ===="
+                    ui.showToUser(System.lineSeparator() + "*** End of the Tasks List Reached! ***"
                             + System.lineSeparator());
                     break;
                 }
@@ -401,15 +399,14 @@ public class TaskManager {
         int n = getListedNumber();
         int listSize = tasks.getSize();
 
-        assert (listSize > 0) : "List has no element !";     // assert  statement
+        assert (listSize > 0) : "List has no element !";       // assert  statement
 
         if (n > 0) {
 
-            if (n <= listSize) {
+            if (n <= listSize) {                              // update the work file saved on disk
                 tasks.getItem(n - 1).setDone(true);
                 ui.showToUser("Tasks in the list: " + taskCount);
-
-                flushToDisk(storage.getWorkFile());         // update the work file
+                flushToDisk(storage.getWorkFile());          // efficiently preserve format and data integrity
             } else {
                 ui.printError("Error: TaskNo. greater than the total number in records of \"" + listSize
                         + "\". Pl try again!" + System.lineSeparator());
@@ -612,134 +609,112 @@ public class TaskManager {
             scanLine = ui.readUserCommand().trim();
             arg0 = Parser.getCommandWord(scanLine).toLowerCase();
 
-            assert arg0 != null : "No First word command: null!";       // assert statement
-
             // guard against user possible Menu & SubMenu commands mix-ups
             if (check_userCliContext(arg0)) {
                 continue;
             }
 
             try {
-
                 switch (arg0) {
+                case "":
+                // Fallthrough
+                case "exit":
+                    toExit = true;
+                    break;
+                case "page":
+                    displayPagination();
+                    break;
+                case "print":
+                    ui.printWelcome();
+                    printTask(tasks);
 
-                    case "":
-                    case "exit":
-                        toExit = true;
-                        break;
-
-                    case "page":
-                        displayPagination();
-                        break;
-
-                    case "print":
-                        ui.printWelcome();
-                        printTask(tasks);
-
-                        if (flag) {        // ensure data integrity & format written to work file, with 1st print
-                            flushToDisk(storage.getWorkFile());
-                            flag = false;
-                        }
-
-                        break;
-
-                    case "legend":
-                        ui.printWelcome();
-                        break;
-
-                    case "tshow":
-                        ui.printWelcome();
-                        showTodo(tasks);
-                        break;
-
-                    case "dshow":
-                        ui.printWelcome();
-                        showDeadline(tasks);
-                        break;
-
-                    case "fshow":
-                        ui.printWelcome();
-                        showDoneTasks(tasks);
-                        break;
-
-                    case "todo":
-                        ui.printWelcome();
-                        addTodo(scanLine);
-                        printTask(tasks);
-                        break;
-
-                    case "deadline":
-                        ui.printWelcome();
-                        addDeadline(scanLine);
-                        printTask(tasks);
-                        break;
-
-                    case "done":
-                        ui.printWelcome();
-                        updateTask(scanLine);
-                        printTask(tasks);
-                        break;
-
-                    case "del":
-                        ui.printWelcome();
-                        delTask(scanLine);
-                        printTask(tasks);
-                        break;
-
-                    case "reset":
-                        resetMainMenuBy(scanLine);
-                        printTask(tasks);
-                        break;
-
-                    case "tdel":
-                        ui.printWelcome();
-                        rmTodo(scanLine);
-                        break;
-
-                    case "tdone":
-                        ui.printWelcome();
-                        updateTodo(scanLine);
-                        showTodo(tasks);
-                        break;
-
-                    case "ddel":
-                        ui.printWelcome();
-                        rmDeadline(scanLine);
-                        break;
-
-                    case "ddone":
-                        ui.printWelcome();
-                        updateDeadline(scanLine);
-                        showDeadline(tasks);
-                        break;
-
-                    case "dreset":
-                        modDeadlineBy(scanLine);
-                        showDeadline(tasks);
-                        break;
-
-                    case "fdel":
-                        rmDoneTask(scanLine);
-                        break;
-
-                    case "farchive":
-                        ui.printWelcome();
-                        archiveDoneTasks(tasks);
-                        printTask(tasks);
+                    if (flag) {        // ensure data integrity & format written to work file, with 1st print
                         flushToDisk(storage.getWorkFile());
-                        break;
+                        flag = false;
+                    }
 
-                    case "cal":
-                        ui.printWelcome();
-                        displayCal(scanLine);
-                        break;
+                    break;
+                case "legend":
+                    ui.printWelcome();
+                    break;
+                case "tshow":
+                    ui.printWelcome();
+                    showTodo(tasks);
+                    break;
+                case "dshow":
+                    ui.printWelcome();
+                    showDeadline(tasks);
+                    break;
+                case "fshow":
+                    ui.printWelcome();
+                    showDoneTasks(tasks);
+                    break;
+                case "todo":
+                    ui.printWelcome();
+                    addTodo(scanLine);
+                    printTask(tasks);
+                    break;
+                case "deadline":
+                    ui.printWelcome();
+                    addDeadline(scanLine);
+                    printTask(tasks);
+                    break;
+                case "done":
+                    ui.printWelcome();
+                    updateTask(scanLine);
+                    printTask(tasks);
+                    break;
+                case "del":
+                    ui.printWelcome();
+                    delTask(scanLine);
+                    printTask(tasks);
+                    break;
+                case "reset":
+                    resetMainMenuBy(scanLine);
+                    printTask(tasks);
+                    break;
+                case "tdel":
+                    ui.printWelcome();
+                    rmTodo(scanLine);
+                    break;
+                case "tdone":
+                    ui.printWelcome();
+                    updateTodo(scanLine);
+                    showTodo(tasks);
+                    break;
+                case "ddel":
+                    ui.printWelcome();
+                    rmDeadline(scanLine);
+                    break;
+                case "ddone":
+                    ui.printWelcome();
+                    updateDeadline(scanLine);
+                    showDeadline(tasks);
+                    break;
+                case "dreset":
+                    modDeadlineBy(scanLine);
+                    showDeadline(tasks);
+                    break;
+                case "fdel":
+                    rmDoneTask(scanLine);
+                    break;
+                case "farchive":
+                    ui.printWelcome();
+                    archiveDoneTasks(tasks);
+                    printTask(tasks);
+                    flushToDisk(storage.getWorkFile());
+                    break;
+                case "cal":
+                    ui.printWelcome();
+                    displayCal(scanLine);
+                    break;
+                default:
+                    ui.printError("Unknown command! please try again");
+                    ui.printError("CLI Command to use (all lowercase only): Enter legend" +
+                            " to check the Commands Syntax Legend, or print to list the Task records.");
+                    break;
 
-                    default:
-                        ui.printError("Unknown command! please try again");
-                        ui.printError("CLI Command to use (all lowercase only): Enter legend"
-                                + " to check the Commands Syntax Legend, or print to list the Task records.");
                 }
-
             } catch (TaskManagerException e) {
                 ui.printError("Error: " + e.getMessage());
             }

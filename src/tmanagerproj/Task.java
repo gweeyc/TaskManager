@@ -1,6 +1,6 @@
 package tmanagerproj;
 
-public class Task {
+class Task {
     private String description;
     boolean isDone;
 

@@ -122,6 +122,7 @@ class Ui {
 
     private String getMonthName(int month) {
         String monthName = null;
+
         switch (month) {
             case 1:
                 monthName = "January";
